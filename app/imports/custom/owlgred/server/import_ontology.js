@@ -580,25 +580,26 @@ Meteor.methods({
 		elemStyle = elemType["styles"][0];
         line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
 
-		for (const key of Object.keys(ontology.complementOf)) {
-		  const item = ontology.complementOf[key];
+		if(ontology.complementOf){
+			for (const key of Object.keys(ontology.complementOf)) {
+			  const item = ontology.complementOf[key];
 
-		  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.subject], element_map[item.object], line_layoutSettings);
+			  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.subject], element_map[item.object], line_layoutSettings);
 
-		  let new_line_id = await Elements.insertAsync(object);
-		  element_map[new_line_id] = new_line_id;
+			  let new_line_id = await Elements.insertAsync(object);
+			  element_map[new_line_id] = new_line_id;
 
-		  let listForCompartment = {
-					diagram_id: new_diagram_id,
-					diagram_type_id: diagram_type._id,
-					projectId: list.projectId,
-					versionId: list.versionId,
-					element_id: new_line_id,
-					element_type_id: elemType._id
-		  }
-		  await add_one_compartment(listForCompartment, "Label", "<<complementOf>>", "<<complementOf>>");
+			  let listForCompartment = {
+						diagram_id: new_diagram_id,
+						diagram_type_id: diagram_type._id,
+						projectId: list.projectId,
+						versionId: list.versionId,
+						element_id: new_line_id,
+						element_type_id: elemType._id
+			  }
+			  await add_one_compartment(listForCompartment, "Label", "<<complementOf>>", "<<complementOf>>");
+			}
 		}
-
 		//Individuals
 		elemType = await ElementTypes.findOneAsync({name: "Object", diagramTypeId: diagram_type._id});
 		if (!elemType) {
@@ -854,7 +855,9 @@ Meteor.methods({
 			}
 			// Range
 			if(item.range.length === 1){
-				if(typeof ontology.classes[item.range[0]] !== "undefined") annotProp.setCompartmentValue("Range", ontology.classes[item.range[0]].prefixed, "Range: " + ontology.classes[item.range[0]].prefixed)
+				if(typeof ontology.classes[item.range[0]] !== "undefined") {
+					await add_one_compartment(listForCompartment, "Range", ontology.classes[item.range[0]].prefixed, "Range: " + ontology.classes[item.range[0]].prefixed);
+				}
 				else {
 					let rangeType = getDatatypeLocalName(item.range[0]) || iriToPrefixed(item.range[0], ontologyPrefixes) ;
 					await add_one_compartment(listForCompartment, "Range", rangeType, "Range: " + rangeType);
@@ -874,7 +877,7 @@ Meteor.methods({
 
 			// Annotations
 			if(item.label){
-				await annotProp.addCompartmentSubCompartments2(listForCompartment, "Annotation",[
+				await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
 						  {name:"AnnotationType",value:"Label"},
 						  {name:"Value",value:item.label},
 						  {name:"Language",value:""},

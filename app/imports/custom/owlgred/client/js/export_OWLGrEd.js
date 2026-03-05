@@ -1958,7 +1958,7 @@ async function createFunctionAxiom(value, ontologyObject, elemOWLGrEd, compartme
             count++;
         }
     }
-    return ontologyObject;
+    return ontologyObject; 
 }
 
 async function getNameAndNamespace(nameNamespaceTable, elemOWLGrEd, compartment, currentComp) {
@@ -1978,7 +1978,7 @@ async function getNameAndNamespace(nameNamespaceTable, elemOWLGrEd, compartment,
         }
     }
 
-    if(name !== null && name.indexOf(":") !== -1){
+    if(typeof name !== "undefined" && name !== null && name.indexOf(":") !== -1){
       [namespace, name] = name.split(":");
     }
 
