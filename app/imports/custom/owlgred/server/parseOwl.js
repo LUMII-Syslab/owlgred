@@ -697,71 +697,127 @@ Meteor.methods({
 			store.add(axiom, OWL('members'), listNode);
 
 		  } else if(ax.type === "DataPropertyAssertion"){
-			  let objectLiteral;
-			  if (ax.axiom[3] && ax.axiom[3].type) {
-				  // typed literal
-				  objectLiteral = $rdf.literal(
-					ax.axiom[2].value,
-					$rdf.sym(ax.axiom[3].type)  // must be a NamedNode, not string
-					);
+			  const p = $rdf.sym(ax.axiom[0].IRI);
+			  const s = $rdf.sym(ax.axiom[1].IRI);
+			  const o = makeLiteral_RDFlib($rdf, ax);
 
-				} else {
-				  // plain literal
-				  objectLiteral = $rdf.literal(ax.axiom[2].value);
+			  // Base assertion triple
+			  store.add(s, p, o);
+
+			  // Optional axiom annotations: in your example it's ax.axiom[4].axiom
+			  const ann = ax.axiom[4] && ax.axiom[4].axiom;
+			  if (Array.isArray(ann) && ann.length) {
+				const axiomBNode = $rdf.blankNode();
+
+				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
+				store.add(axiomBNode, ns.owl("annotatedSource"), s);
+				store.add(axiomBNode, ns.owl("annotatedProperty"), p);
+				store.add(axiomBNode, ns.owl("annotatedTarget"), o);
+
+				for (const a of ann) {
+				  const pred = $rdf.sym(a.axiomSymbol);
+				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type)); // typed literal as in your data
+				  store.add(axiomBNode, pred, obj);
 				}
-
-				// Add triple: :subject :property "value"^^type
-				store.add(
-				  $rdf.sym(ax.axiom[1].IRI),
-				  $rdf.sym(ax.axiom[0].IRI),
-				  objectLiteral
-				);
+			  }
 		  } else if(ax.type === "NegativeDataPropertyAssertion"){
+			  const p = $rdf.sym(ax.axiom[0].IRI);
+			  const s = $rdf.sym(ax.axiom[1].IRI);
+			  const o = makeLiteral_RDFlib($rdf, ax);
+
 			  // Blank node for the negative assertion
-			const neg = $rdf.blankNode();
+			  const neg = $rdf.blankNode();
 
-			// a owl:NegativePropertyAssertion
-			store.add(neg, ns.rdf("type"), ns.owl("NegativePropertyAssertion"));
+			  // a owl:NegativePropertyAssertion
+			  store.add(neg, ns.rdf("type"), ns.owl("NegativePropertyAssertion"));
+			  store.add(neg, ns.owl("sourceIndividual"), s);
+			  store.add(neg, ns.owl("assertionProperty"), p);
+			  store.add(neg, ns.owl("targetValue"), o);
 
-			// owl:sourceIndividual :subject
-			store.add(neg, ns.owl("sourceIndividual"), $rdf.sym(ax.axiom[1].IRI));
+			  // Optional annotations: for NegativeDataPropertyAssertion, assume same position ax.axiom[4].axiom
+			  const ann = ax.axiom[4] && ax.axiom[4].axiom;
+			  if (Array.isArray(ann) && ann.length) {
+				const axiomBNode = $rdf.blankNode();
 
-			// owl:assertionProperty :property
-			store.add(neg, ns.owl("assertionProperty"), $rdf.sym(ax.axiom[0].IRI));
+				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
 
-			// owl:targetValue "value" [^^datatype] — datatype optional
-			let objectLiteral;
-			if (ax.axiom[3] && ax.axiom[3].type) {
-			  // modern shortcut: literal(value, NamedNode(datatypeIRI))
-			  objectLiteral = $rdf.literal(
-				ax.axiom[2].value,
-				$rdf.sym(ax.axiom[3].type)
-			  );
-			} else {
-			  objectLiteral = $rdf.literal(ax.axiom[2].value);
-			}
+				// Annotate the negative assertion resource
+				store.add(axiomBNode, ns.owl("annotatedSource"), neg);
+				store.add(axiomBNode, ns.owl("annotatedProperty"), ns.rdf("type"));
+				store.add(axiomBNode, ns.owl("annotatedTarget"), ns.owl("NegativePropertyAssertion"));
 
-			store.add(neg, ns.owl("targetValue"), objectLiteral);
+				// Also include the negative assertion content (helps consumers)
+				store.add(axiomBNode, ns.owl("sourceIndividual"), s);
+				store.add(axiomBNode, ns.owl("assertionProperty"), p);
+				store.add(axiomBNode, ns.owl("targetValue"), o);
+
+				for (const a of ann) {
+				  const pred = $rdf.sym(a.axiomSymbol);
+				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type));
+				  store.add(axiomBNode, pred, obj);
+				}
+			  }
 		  }else if(ax.type === "ObjectPropertyAssertion"){
-			store.add(
-				$rdf.sym(ax.axiom[1].IRI),
-				$rdf.sym(ax.axiom[0].IRI),
-				$rdf.sym(ax.axiom[2].IRI)
-			);
+			  const p = $rdf.sym(ax.axiom[0].IRI);
+			  const s = $rdf.sym(ax.axiom[1].IRI);
+			  const o = $rdf.sym(ax.axiom[2].IRI);
+
+			  // Base assertion
+			  store.add(s, p, o);
+
+			  // Optional axiom annotations
+			  const ann = ax.axiom[3] && ax.axiom[3].axiom;
+			  if (Array.isArray(ann) && ann.length) {
+				const axiomBNode = $rdf.blankNode();
+
+				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
+				store.add(axiomBNode, ns.owl("annotatedSource"), s);
+				store.add(axiomBNode, ns.owl("annotatedProperty"), p);
+				store.add(axiomBNode, ns.owl("annotatedTarget"), o);
+
+				for (const a of ann) {
+				  const pred = $rdf.sym(a.axiomSymbol);
+				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type)); // typed literal
+				  store.add(axiomBNode, pred, obj);
+				}
+			  }
 		  }else if(ax.type === "NegativeObjectPropertyAssertion"){
-			  // Blank node for the negative assertion
-			const neg = $rdf.blankNode();
+			  const p = $rdf.sym(ax.axiom[0].IRI);
+			  const s = $rdf.sym(ax.axiom[1].IRI);
+			  const o = $rdf.sym(ax.axiom[2].IRI);
 
-			// a owl:NegativePropertyAssertion
-			store.add(neg, ns.rdf("type"), ns.owl("NegativePropertyAssertion"));
+			  // Blank node for the negative assertion (OWL mapping)
+			  const neg = $rdf.blankNode();
 
-			// owl:sourceIndividual :subject
-			store.add(neg, ns.owl("sourceIndividual"), $rdf.sym(ax.axiom[1].IRI));
+			  store.add(neg, ns.rdf("type"), ns.owl("NegativePropertyAssertion"));
+			  store.add(neg, ns.owl("sourceIndividual"), s);
+			  store.add(neg, ns.owl("assertionProperty"), p);
+			  store.add(neg, ns.owl("targetIndividual"), o);
 
-			// owl:assertionProperty :property
-			store.add(neg, ns.owl("assertionProperty"), $rdf.sym(ax.axiom[0].IRI));
+			  // Optional axiom annotations
+			  const ann = ax.axiom[3] && ax.axiom[3].axiom;
+			  if (Array.isArray(ann) && ann.length) {
+				// Reify/annotate the negative assertion node
+				const axiomBNode = $rdf.blankNode();
 
-			store.add(neg, ns.owl("targetIndividual"), $rdf.sym(ax.axiom[2].IRI));
+				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
+
+				// Annotate *this negative assertion resource*
+				store.add(axiomBNode, ns.owl("annotatedSource"), neg);
+				store.add(axiomBNode, ns.owl("annotatedProperty"), ns.rdf("type"));
+				store.add(axiomBNode, ns.owl("annotatedTarget"), ns.owl("NegativePropertyAssertion"));
+
+				// Also include the content of the negative assertion (helps consumers)
+				store.add(axiomBNode, ns.owl("sourceIndividual"), s);
+				store.add(axiomBNode, ns.owl("assertionProperty"), p);
+				store.add(axiomBNode, ns.owl("targetIndividual"), o);
+
+				for (const a of ann) {
+				  const pred = $rdf.sym(a.axiomSymbol);
+				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type));
+				  store.add(axiomBNode, pred, obj);
+				}
+			  }
 		  }
 		}
 	  }
@@ -1886,4 +1942,15 @@ function addAnnotationAssertionWithAxiomAnnotations(store, ax) {
       }
     }
   }
+}
+
+function makeLiteral_RDFlib($rdf, ax) {
+  // Your encoding: value is in ax.axiom[2].value
+  // Datatype (optional) is in ax.axiom[3].type
+  const val = ax.axiom[2]?.value ?? "";
+
+  if (ax.axiom[3] && ax.axiom[3].type) {
+    return $rdf.literal(val, $rdf.sym(ax.axiom[3].type)); // typed literal
+  }
+  return $rdf.literal(val); // plain literal
 }

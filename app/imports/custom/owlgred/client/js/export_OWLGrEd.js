@@ -672,31 +672,30 @@ async function saveOntologyInFormatOwlgred(){
 							annotationObject.axiom.push({IRI: await getFullName(Property)})
 							annotationObject.axiom.push({IRI: domain})
 							annotationObject.axiom.push({IRI: range})
-							ontologyObject.push(annotationObject);
-						
-						
+							ontologyObject.push(annotationObject);		
+							
+							let qualifierProperties = [];
+							annotationObject.axiom.push({axiom: qualifierProperties})
 							//Qualifiers
-							// let qualifiers = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Qualifiers");
-							// for(let axiom = 0; axiom < qualifiers.length; axiom++){
+							let qualifiers = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Qualifiers");
+							for(let axiom = 0; axiom < qualifiers.length; axiom++){
+								let property = qualifiers[axiom]["Property"];
+								let value = qualifiers[axiom]["Value"];
+								let type = qualifiers[axiom]["Type"];
 								
-								// let property = qualifiers[axiom]["Property"];
-								// let value = qualifiers[axiom]["Value"];
-								// let type = qualifiers[axiom]["Type"];
+								if(property && value){
+									qualifierProperties.push(
+									  {
+										"type": "Annotation",
+										"axiomSymbol": await getFullName(property),
+										"value": value, 
+										"type": await getTypeExpression(type, ontology)
+									  }	
+									)
 
-								// let qualifierProperties = [];
-								// annotationObject.axiom.push({axiom: qualifierProperties})
-								// if(type){
-									// qualifierProperties.push(
-									  // {
-										// "type": "Annotation",
-										// "axiomSymbol": await getFullName(property),
-										// "axiom": {value: value}
-									  // }	
-									// )
-
-								// }
-								// ontologyObject.push(annotationObject);			
-							// }
+								}
+								
+							}
 						}
 						
 					}
@@ -721,7 +720,31 @@ async function saveOntologyInFormatOwlgred(){
 							annotationObject.axiom.push({IRI: domain})
 							annotationObject.axiom.push({value: Value})
 							annotationObject.axiom.push({type: await getTypeExpression(Type, ontology)})
-							ontologyObject.push(annotationObject);
+							ontologyObject.push(annotationObject); 
+							
+							
+							let qualifierProperties = [];
+							annotationObject.axiom.push({axiom: qualifierProperties})
+							//Qualifiers
+							let qualifiers = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Qualifiers");
+							for(let axiom = 0; axiom < qualifiers.length; axiom++){
+								let property = qualifiers[axiom]["Property"];
+								let value = qualifiers[axiom]["Value"];
+								let type = qualifiers[axiom]["Type"];
+								
+								if(property && value){
+									qualifierProperties.push(
+									  {
+										"type": "Annotation",
+										"axiomSymbol": await getFullName(property),
+										"value": value, 
+										"type": await getTypeExpression(type, ontology)
+									  }	
+									)
+
+								}
+								
+							}
 						}
 					}
 				} else if(elem_type[elemType]["name"] === "LinkObject"){
