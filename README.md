@@ -4,7 +4,7 @@ This tool is based upon the `ajoo` platorm which is hosted (together with the `V
 
 # OWLGrEd
 
-OWLGrEd (http://owlgred.lumii.lv/) provides a graphical notation for OWL 2, based on UML class diagrams. OWL classes are typically visualized as UML classes, data properties as class attributes, object properties as association roles, individuals as objects, cardinality restrictions on association domain class as UML cardinalities, etc.
+OWLGrEd provides a graphical notation for OWL 2, based on UML class diagrams. OWL classes are typically visualized as UML classes, data properties as class attributes, object properties as association roles, individuals as objects, cardinality restrictions on association domain class as UML cardinalities, etc.
 The UML class diagrams are enriched with new extension notations, e.g.:
 - fields in classes for equivalent class, superclass and disjoint class expressions written in Manchester OWL syntax;
 - fields in association roles and attributes for equivalent, disjoint and super properties and fields for property characteristics, e.g., functional, transitive, etc.;
@@ -13,6 +13,9 @@ The UML class diagrams are enriched with new extension notations, e.g.:
 - boxes with connectors for n-ary disjoint, equivalent, etc. axioms;
 - connectors (lines) for visualizing object property restrictions some, only, exactly, as well as cardinality restrictions.
 
+See the [OWLGrEd wiki](https://github.com/LUMII-Syslab/owlgred/wiki) for more documentation.
+
+Try visual ontology editing in the [OWLGrEd Playground](LINK).
 
 ## Acknowledgements
 
