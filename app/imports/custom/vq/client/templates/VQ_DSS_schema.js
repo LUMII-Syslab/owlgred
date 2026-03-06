@@ -195,7 +195,7 @@ Template.VQ_DSS_schema.helpers({
 	restProperties: function() {
 		return Template.VQ_DSS_schema.RestProperties.get();
 	},
-  propertiesF: function() {
+	propertiesF: function() {
     //console.log('Helperis', Template.VQ_DSS_schema.propertiesF.get())
 		return Template.VQ_DSS_schema.PropertiesF.get();
 	},
@@ -205,12 +205,12 @@ Template.VQ_DSS_schema.helpers({
 	has_cpc: function () {
 		return Template.VQ_DSS_schema.HasCPC.get();
 	},
-  showFragmentBlock: function() {
-    return Template.VQ_DSS_schema.ShowFragmentBlock.get();
-  },
-  fragmentForm: function() {
-    return Template.VQ_DSS_schema.fragmentForm.get();
-  },
+	showFragmentBlock: function() {
+    	return Template.VQ_DSS_schema.ShowFragmentBlock.get();
+	},
+	fragmentForm: function() {
+    	return Template.VQ_DSS_schema.fragmentForm.get();
+	},
 });
 
 function getParams() {
@@ -240,14 +240,14 @@ function getInfo() {
 			$('#nsFilter option:selected').text(), $('#disconnBig option:selected').text(),  $('#diffG option:selected').text()];
 }
 
-async function getClassesAndProperties(addSupClasses = true) {
+async function getClassesAndProperties(addSupClasses = true) {  
 	//addSupClasses Pagaidām ir konstante, bet būs iespēja virsklašu pielikšanu atslēgt
 	let classList = Template.VQ_DSS_schema.Classes.get();
-  let classIds = classList.map(v => v.id);
+	let classIds = classList.map(v => v.id);
 	let namespaces = {};
 	let namespacesL = [];
-  if (!$("#addSup").is(":checked"))
-    addSupClasses = false;
+	if (!$("#addSup").is(":checked"))
+    	addSupClasses = false;
 
 	if (addSupClasses) {
 		let all_s = [];
@@ -258,13 +258,13 @@ async function getClassesAndProperties(addSupClasses = true) {
 			else cl.sel = 0;
 		});
 	}
-  else
-  {
-    _.each(dataShapes.schema.diagram.filteredClassList, function(cl) {
+	else
+	{
+    	_.each(dataShapes.schema.diagram.filteredClassList, function(cl) {
 			if ( classIds.includes(cl.id)) cl.sel = 1;
 			else cl.sel = 0;
 		});
-  }
+	}
 
 	classList = dataShapes.schema.diagram.filteredClassList.filter(function(c){ return c.sel == 1});
 
@@ -300,6 +300,19 @@ async function getClassesAndProperties(addSupClasses = true) {
 		//namespacesL = namespacesL.sort((a, b) => { return b.cnt - a.cnt; })
 	}
 
+    let propT = [];  // TODO Te būs jāprecizē
+	let propS = [];
+    for (const p of dataShapes.schema.diagram.properties) {
+      if ( !unused_orphan_props.includes(p.full_name)) {
+		if ( p.object_cnt !== 0 && p.type_1 === '0') {
+		  propT.push(p);  	
+		}
+		if ( p.object_cnt != 0 && p.type_2 === '0' && p.isFollower === '0') {
+		  propS.push(p);	
+		}
+	  }	
+    }
+console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%', propT, propS)
 	namespacesL.unshift({name:`PREFIX ${dataShapes.schema.local_ns}: <${nsLoc.value}>`,cnt:namespaces[dataShapes.schema.local_ns]});
 	return [classList, propList, namespacesL];
 }
@@ -1039,20 +1052,22 @@ Template.VQ_DSS_schema.events({
   },
   'click #freeProp': function() {
     let freeProp = false;
-		if ( $("#freeProp").is(":checked") ) {
-      freeProp = true;
-		}
-		const properties = dataShapes.schema.diagram.properties;
+	if ( $("#freeProp").is(":checked") ) {
+    	freeProp = true;
+	}
+	const properties = dataShapes.schema.diagram.properties;
     let propF = [];
     for (const p of properties) {
-      if ( freeProp) {
-        if ( p.object_cnt !== 0 && ( p.type_1 === '0' || p.type_2 === '0')) {
-          propF.push(p);
+      if ( !unused_orphan_props.includes(p.full_name)) {
+        if ( freeProp) {
+          if ( p.object_cnt !== 0 && ( p.type_1 === '0' || p.type_2 === '0')) {
+            propF.push(p);
+          }
         }
-      }
-      else {
-        if ( p.object_cnt !== 0 ) {
-          propF.push(p);
+        else {
+          if ( p.object_cnt !== 0 && ( p.source_cover_complete === false || p.target_cover_complete === false ) ) {
+            propF.push(p);
+          }
         }
       }
     }
@@ -1078,8 +1093,8 @@ Template.VQ_DSS_schema.events({
 		}
 	},
   'click #propMoveL': function() {
-		if ($("#propertiesFS").val() != undefined) {
-			const selected = $("#propertiesFS").val().map(v => Number(v));
+	if ($("#propertiesFS").val() != undefined) {
+	  const selected = $("#propertiesFS").val().map(v => Number(v));
       let propFS = [];
       let propF = Template.VQ_DSS_schema.PropertiesF.get();
       for (const cl of Template.VQ_DSS_schema.PropertiesFS.get()) {
@@ -1094,29 +1109,35 @@ Template.VQ_DSS_schema.events({
       propFS = propFS.sort(function(a,b){ return b.cnt-a.cnt;});
       Template.VQ_DSS_schema.PropertiesF.set(propF);
       Template.VQ_DSS_schema.PropertiesFS.set(propFS);
-		}
-	},
+	}
+  },
   'click #makeDiagrAJOOProperties': async function() {
     const propSelected = Template.VQ_DSS_schema.PropertiesFS.get();
+    let freeProp = false;
+		if ( $("#freeProp").is(":checked") ) {
+      freeProp = true;
+		}
     if ( propSelected.length === 0 ) {
       return;
     }
     const propSelectedIds = propSelected.map(v => v.id);
+    console.log('Kādas propertijas ir atlasītas', propSelected)
     console.log('Kādas propertijas ir atlasītas', propSelectedIds)
 
     let allParams = {main: {p_list: propSelectedIds, props:true}};
     let rr = await dataShapes.callServerFunction("xx_getCPInfo", allParams);
     const cp_info = rr.data;
+    console.log(cp_info)
     for (const cp of cp_info) {
       if ( cp.type_id == 2 )
         cp.name = `NO ${cp.prefix}:${cp.display_name} (${cp.cnt})`;
-      else
-      cp.name = `UZ ${cp.prefix}:${cp.display_name} (${cp.cnt})`;
+      else if ( cp.type_id == 1 )
+        cp.name = `UZ ${cp.prefix}:${cp.display_name} (${cp.cnt})`;
     }
     console.log('CP_rels_info', rr.data)
     rr = await dataShapes.callServerFunction("xx_getPPInfo", allParams);
     const pp_info = rr.data;
-    console.log('PP_rels_info', rr.data)
+    console.log('PP_rels_info', rr.data.length)
 
     let prop_tree = {};
     let namespaces = {};
@@ -1132,12 +1153,28 @@ Template.VQ_DSS_schema.events({
       prop_tree[p.id] = {id:p.id, p_name:p.p_name, full_name:p.full_name, prefix:p.prefix, c_from:c_from, c_to:c_to, cnt:Number(p.cnt), type_1:p.type_1, type_2: p.type_2,
         pp_type_1a: pp_info_type_1a, pp_type_1b: pp_info_type_1b, pp_type_2: pp_info_type_2, pp_type_3: pp_info_type_3 };
 
+      if ( freeProp ) {
+        if ( p.type_2 === '0' ) {
+          prop_tree[p.id].putSource = true;
+        }
+        if ( p.type_1 === '0' ) {
+          prop_tree[p.id].putTarget = true;
+        }
+      }
+      else {
+        if ( !p.source_cover_complete ) {
+          prop_tree[p.id].putSource = true;
+        }
+        if ( !p.target_cover_complete ) {
+          prop_tree[p.id].putTarget = true;
+        }
+      }
+
       if ( namespaces[p.prefix] == undefined )
         namespaces[p.prefix] = 1;
       else
         namespaces[p.prefix] = namespaces[p.prefix] + 1;
     }
-
 
     let prop_full_names = {};
     for (const p of dataShapes.schema.diagram.properties) {
@@ -1161,24 +1198,36 @@ Template.VQ_DSS_schema.events({
       diagram_description:`Propertiju diagramma`
     };
 
+    let connected = {};
+    function put_line(line_type, source, target, compartments) {
+      table_representation[line_type][`${source}_${target}`] = { source: source, target: target, compartments: compartments};
+      connected[source] = true;
+      connected[target] = true;
+
+    }
     for (const k of Object.keys(prop_tree)) {
 			const el = prop_tree[k];
 
-      if ( el.type_2 === '0' ) {
+      if ( el.putSource) {
         let p_in = [];
         for (const pp of el.pp_type_1b) {
           p_in.push({name: `Ienāk ${prop_full_names[pp.property_1_id]} cnt-${pp.cnt}`, cnt:pp.cnt});
-          if ( prop_tree[pp.property_1_id] !== undefined &&  prop_tree[pp.property_1_id].type_1 === '0')
-            table_representation.Intersect[`S${el.id}_T${pp.property_1_id}`] = { source: `T2_${el.id}`, target: `T1_${pp.property_1_id}`, compartments:{ Information: `Savienojas - ${pp.cnt}`}};
+          connected[`T2_${el.id}`] = true;
+          if ( prop_tree[pp.property_1_id] !== undefined && prop_tree[pp.property_1_id].putTarget) {
+            put_line('Intersect', `T2_${el.id}`, `T1_${pp.property_1_id}`, { Information: `Savienojas - ${pp.cnt}`});
+            //table_representation.Intersect[`S${el.id}_T${pp.property_1_id}`] = { source: `T2_${el.id}`, target: `T1_${pp.property_1_id}`, compartments:{ Information: `Savienojas - ${pp.cnt}`}};
+            //connected[`T2_${el.id}`] = true;
+            //connected[`T1_${pp.property_1_id}`] = true;
+          }
         }
         // for (const pp of el.pp_type_1a) {
         //  p_in.push({name:` Ienāk 21 ${prop_tree[pp.property_2_id].full_name} (${pp.cnt})`, cnt:pp.cnt});
         //}
         //if ( el.type_1 === '0' || p_in.length > 0 && el.c_to.length > 0 ) {
           table_representation.Class[`T2_${el.id}`] = { compartments:{
-            Name:`Source for ${el.p_name}`,
+            Name:`Source for ${el.p_name} ID-${el.id}`,
             AttributesT:{out:p_in, in:el.c_to, c:[]},
-            ClassList:[{cnt:el.cnt, shortName:el.display_name, name:el.p_name}]},
+            ClassList:[{cnt:el.cnt, shortName:el.full_name, name:`Source for ${el.p_name}`}]},
             TypeOld:'Class',
             TypeNew:'Classifier',
             Cnt:el.cnt
@@ -1189,21 +1238,24 @@ Template.VQ_DSS_schema.events({
         //  table_representation.Class[`T2_${el.id}`].TypeNew = 'Class0';
       }
 
-      if ( el.type_1 === '0' ) {
+      if ( el.putTarget ) {
         let p_out = [];
         for (const pp of el.pp_type_1a) {
-          p_out.push({name:` Iziet ${prop_full_names[pp.property_2_id]} cnt-${pp.cnt}`, cnt:pp.cnt});
-          if ( prop_tree[pp.property_2_id] !== undefined &&  prop_tree[pp.property_2_id].type_2 === '0')
-            table_representation.Intersect[`T${el.id}_S${pp.property_2_id}`] = { source: `T1_${el.id}`, target: `T2_${pp.property_2_id}`, compartments:{ Information: `Savienojas - ${pp.cnt}`}};
+          p_out.push({name:`Iziet ${prop_full_names[pp.property_2_id]} cnt-${pp.cnt}`, cnt:pp.cnt});
+          connected[`T1_${el.id}`] = true;
+          if ( prop_tree[pp.property_2_id] !== undefined &&  prop_tree[pp.property_2_id].putSource) {
+            put_line('Intersect', `T1_${el.id}`, `T2_${pp.property_2_id}`, { Information: `Savienojas - ${pp.cnt}`});
+            //table_representation.Intersect[`T${el.id}_S${pp.property_2_id}`] = { source: `T1_${el.id}`, target: `T2_${pp.property_2_id}`, compartments:{ Information: `Savienojas - ${pp.cnt}`}};
+          }
         }
         //for (const pp of el.pp_type_1b) {
         //  p_out.push({name: `Iziet 21 ${prop_tree[pp.property_1_id].full_name} (${pp.cnt})`, cnt:pp.cnt});
         //}
         //if ( el.type_2 === '0' || p_out.length > 0 && el.c_from.length > 0 ) {
           table_representation.Class[`T1_${el.id}`] = { compartments:{
-            Name:`Target for ${el.p_name}`,
+            Name:`Target for ${el.p_name} ID-${el.id}`,
             AttributesT:{out:el.c_from, in:p_out, c:[]},
-            ClassList:[{cnt:el.cnt, shortName:el.display_name, name:el.p_name}]},
+            ClassList:[{cnt:el.cnt, shortName:el.full_name, name:`Target for ${el.p_name}`}]},
             TypeOld:'Class',
             TypeNew:'Class',
             Cnt:el.cnt
@@ -1218,28 +1270,31 @@ Template.VQ_DSS_schema.events({
 
     for (const k of Object.keys(prop_tree)) {
 			const el = prop_tree[k];
-      if ( el.type_2 === '0' && table_representation.Class[`T2_${el.id}`] !== undefined ) {
+      if ( el.putSource && table_representation.Class[`T2_${el.id}`] !== undefined ) {
         if (el.pp_type_2.length > 0 ) {
           for (const el2 of el.pp_type_2) {
             if (table_representation.Class[`T2_${el2.property_2_id}`] !== undefined) {
               if ( el.id !==  el2.property_2_id) {
-                table_representation.ObjectProperty[`T2_${el.id }_T2_${el2.property_2_id}`] = { source: `T2_${el.id}`, target: `T2_${el2.property_2_id}`, compartments:{ Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]}};
+                put_line('ObjectProperty', `T2_${el.id}`, `T2_${el2.property_2_id}`, { Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]});
+                //table_representation.ObjectProperty[`T2_${el.id }_T2_${el2.property_2_id}`] = { source: `T2_${el.id}`, target: `T2_${el2.property_2_id}`, compartments:{ Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]}};
               }
             }
           }
         }
       }
-      if ( el.type_1 === '0' && table_representation.Class[`T1_${el.id}`] !== undefined ) {
+      if ( el.putTarget && table_representation.Class[`T1_${el.id}`] !== undefined ) {
         if (el.pp_type_3.length > 0 ) {
           for (const el2 of el.pp_type_3) {
             if (table_representation.Class[`T1_${el2.property_2_id}`] !== undefined) {
               if ( el.id !== el2.property_2_id) {
-                table_representation.ObjectProperty[`T1_${el.id}_T1_${el2.property_2_id}`] = { source: `T1_${el.id}`, target: `T1_${el2.property_2_id}`, compartments:{ Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]}};
+                put_line('ObjectProperty', `T1_${el.id}`, `T1_${el2.property_2_id}`, { Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]});
+                //table_representation.ObjectProperty[`T1_${el.id}_T1_${el2.property_2_id}`] = { source: `T1_${el.id}`, target: `T1_${el2.property_2_id}`, compartments:{ Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]}};
               }
             }
           }
         }
       }
+
       // Nez vai šis ir interesanti ?
       //if ( el.type_2 === '0' &&  el.type_1 === '0' ) {
       //  const idFrom = `T1_${el.id}`;
@@ -1248,37 +1303,46 @@ Template.VQ_DSS_schema.events({
       //}
     }
 
-/*
-    for (const k of Object.keys(prop_tree)) {
-			const el = prop_tree[k];
+    table_representation.Class['T1_0'] = { compartments:{
+      Name:'Targets ... ',
+      AttributesT:{out:[], in:[], c:[]},
+      ClassList:[]},
+      TypeOld:'Class',
+      TypeNew:'Class',
+      IsGroup: true,
+      Cnt:1
+    };
 
-      if ( el.type_2 === '0' ) {
-        table_representation.Class[el.id] = { compartments:{
-          Name:el.p_name,
-          AttributesT:{out:el.c_from, in:el.c_to, c:[]},
-          ClassList:[{cnt:el.cnt, shortName:el.display_name, name:el.p_name}]},
-          TypeOld:'Class',
-          TypeNew:'Class',
-          Cnt:el.cnt
-        };
+    table_representation.Class['T2_0'] = { compartments:{
+      Name:'Sources ... ',
+      AttributesT:{out:[], in:[], c:[]},
+      ClassList:[]},
+      TypeOld:'Class',
+      TypeNew:'Classifier',
+      IsGroup: true,
+      Cnt:1
+    };
 
-
-      }
-      table_representation.Class[el.id] = { compartments:{
-        Name:el.p_name,
-        AttributesT:{out:el.c_from, in:el.c_to, c:[]},
-        ClassList:[{cnt:el.cnt, shortName:el.display_name, name:el.p_name}]},
-        TypeOld:'Class',
-        TypeNew:'Class',
-        Cnt:el.cnt
-      };
-
-      if (el.pp_type_2.length > 0 ) {
-        for (const el2 of el.pp_type_2) {
-          table_representation.ObjectProperty[`${el.id }_${el2.property_2_id}`] = { source: el.id, target: el2.property_2_id, compartments:{ Name: [{name: el2.cnt, shortName: el2.cnt, cnt: el2.cnt}]}};
+    for (const k of Object.keys(table_representation.Class)) {
+      el = table_representation.Class[k];
+      if ( k !== 'T1_0' && k !== 'T2_0') {
+        if ( connected[k] === undefined ) {
+          if ( el.TypeNew === 'Class') {
+            table_representation.Class['T1_0'].compartments.ClassList.push(table_representation.Class[k].compartments.ClassList[0]);
+          }
+          else {
+            table_representation.Class['T2_0'].compartments.ClassList.push(table_representation.Class[k].compartments.ClassList[0]);
+          }
+          delete table_representation.Class[k];
         }
       }
-    } */
+    }
+
+    if ( table_representation.Class['T1_0'].compartments.ClassList.length === 0 )
+      delete table_representation.Class['T1_0'];
+
+    if ( table_representation.Class['T2_0'].compartments.ClassList.length === 0 )
+      delete table_representation.Class['T2_0'];
 
     const nsLoc = dataShapes.schema.namespaces.find(function(n){ return n.name == dataShapes.schema.local_ns });
     let namespacesL = [];
@@ -1293,7 +1357,7 @@ Template.VQ_DSS_schema.events({
     namespacesL.unshift({name:`PREFIX ${dataShapes.schema.local_ns}: <${nsLoc.value}>`,cnt:namespaces[dataShapes.schema.local_ns]});
     table_representation.Namespaces.n_0.compartments.List = namespacesL;
 
-    console.log(table_representation)
+    console.log(table_representation, connected)
 
     await Meteor.callAsync("importOntologyNew", {projectId: Session.get("activeProject"), versionId: Session.get("versionId")}, table_representation);
 
@@ -1381,14 +1445,16 @@ function setClassList0() {
 	setClassListInfo(classes, restClasses);
 
 	if ( dataShapes.schema.diagram.properties != undefined) {
-    console.log('AAAAAAAAAAAAAAA', dataShapes.schema.diagram.properties)
+    //console.log('AAAAAAAAAAAAAAA', dataShapes.schema.diagram.properties)
 		const properties = dataShapes.schema.diagram.properties;
     let propF = [];
 		Template.VQ_DSS_schema.Properties.set(properties);
 		Template.VQ_DSS_schema.PropCount.set(properties.length);
     for (const p of properties) {
-      if ( p.object_cnt !== 0 && ( p.type_1 === '0' || p.type_2 === '0')) {
-        propF.push(p);
+      if ( !unused_orphan_props.includes(p.full_name )) {
+        if ( p.object_cnt !== 0 && ( p.type_1 === '0' || p.type_2 === '0')) {
+          propF.push(p);
+        }
       }
     }
     Template.VQ_DSS_schema.PropertiesF.set(propF);
@@ -1508,6 +1574,7 @@ const unused_props = [
 	'http://www.w3.org/2004/02/skos/core#prefLabel',
 	'http://www.w3.org/2004/02/skos/core#altLabel',
 	'http://www.w3.org/2000/01/rdf-schema#label' ];
+const unused_orphan_props = [ 'rdf:type', 'rdf:first', 'rdf:rest', 'rdf:value', 'rdf:_1', 'rdf:_2', 'rdf:_3', 'rdf:_4', 'rdf:_5', 'rdfs:label', 'rdfs:comment', 'owl:sameAs' ];
 
 function setPropSliderInfo() {
 	//let propSliderIntValuesTemp = [1,5,10,20,50,100,200,500,1000,2000,5000];  // TODO jāsakrīt ar propSliderIntValues
@@ -2177,12 +2244,12 @@ async function getBasicClasses() {
   //console.log('Izsauc - getBasicClasses')
 	clearData();
 	//state = 1;
-	const classesAndProperties = await getClassesAndProperties(); // Var pateikt, ka nav jāliek virsklases klāt
+	const classesAndProperties = await getClassesAndProperties(); // Var pateikt, ka nav jāliek virsklases klāt (Tagad ir parametrs formā, kas ir galvenais)
 	rezFull.namespaces = classesAndProperties[2];
 	const c_list = classesAndProperties[0];
 	let p_list = classesAndProperties[1];
-  const rr0 = await dataShapes.callServerFunction("xx_getPropList2", {main: { c_list: `${c_list}`}});
-  console.log('getBasicClasses- Salīdzināšana', p_list.length, rr0.data.length)
+  //const rr0 = await dataShapes.callServerFunction("xx_getPropList2", {main: { c_list: `${c_list}`}});
+  //console.log('getBasicClasses- propertiju saraksta salīdzināšana', p_list.length, rr0.data.length)
 	params = getParams();
 	let rr;
 	const addIds = params.addIds;
@@ -2192,6 +2259,7 @@ async function getBasicClasses() {
 	let cp_info;
 
 	rr = await dataShapes.callServerFunction("xx_getClassListInfo", allParams);
+  console.log('$$$$$$$$$', rr.data)
 	// Pamata klašu saraksta izveidošana
 	_.each(rr.data, function(cl) {
 		const id = `c_${cl.id}`;
@@ -2267,8 +2335,9 @@ async function getBasicClasses() {
 		const c_from_full = cp_info_p_full.filter(function(cp){ return cp.type_id == 2});
 		const c_to_full = cp_info_p_full.filter(function(cp){ return cp.type_id == 1});
 		let c_to = cp_info_p.filter(function(cp){ return cp.type_id == 1});
-		if (cp_info_p_o.length == 0 )
-			c_to = [];
+
+		//if (cp_info_p_o.length == 0 )  // TODO Šis liekas bija kaut kādiem ne gluži labiem datiem 
+		//	c_to = [];
 
 		if ( p.max_cardinality == -1 )
 			p.max_cardinality = '*';
@@ -2299,7 +2368,7 @@ async function getBasicClasses() {
 				if ( !rezFull.classes[cl_id].all_atr.includes(pp.id)) rezFull.classes[cl_id].all_atr.push(pp.id);
 			}
 		}
-		else if ( c_from.length > 0  && c_to.length > 0) {
+		else if ( c_from.length > 0  || c_to.length > 0) {  // TODO te bija && 
 			for (const c_1 of c_from) {
 				const from_id = `c_${c_1.class_id}`;
 				if ( c_1.object_cnt > 0 ) {
@@ -2818,7 +2887,12 @@ function countAssociations() {
 function makeAssociations() {
 	const remBig = params.disconnBig > 0;
 	const remCount = params.disconnBig;
-	const hideSmall = params.hideSmall;
+	let hideSmall = params.hideSmall;
+	let showEssent = 0;
+	if ( hideSmall < 0 ) {
+		showEssent = -1/hideSmall;
+		hideSmall = 0;
+	} 
 	const showIntersect = params.showIntersect;
 
 	function findNewClassList(atr, type = '') {
@@ -2870,11 +2944,11 @@ function makeAssociations() {
 	}
 
 	// Savelk asociācijas
-	for (const clId of Object.keys(rezFull.classes)) {
+	for (const clId of Object.keys(rezFull.classes)) { 
 		const classInfo = rezFull.classes[clId];
 		if ( classInfo.used) {
 			for ( const atr of classInfo.atr_list) {
-				if ( atr.type == 'out' && atr.cnt > 0 && atr.cnt_full > hideSmall ) {
+				if ( atr.type == 'out' && atr.cnt > 0 && atr.cnt_full > hideSmall && atr.object_cnt > classInfo.cnt*showEssent ) {
 					let hasAssoc = false;
 					if ( has_cpc ) {
 						const cpc_info_full = cpc_info.filter(function(i){
@@ -2989,7 +3063,7 @@ function makeDiagramData() {
 			if ( atr_info.type == 'out' ) {
 				if ( p_list_full[`p_${atr_info.p_id}`].in_diagram ) {
 					if ( atr_info.object_cnt_dgr > 0 )
-						rez = `${p_name} ${cntString} [${atr_info.max_cardinality}] ${atr_info.is_domain}$ ${u_to_type} dgr,IRI`;
+						rez = `${p_name} ${cntString} [${atr_info.max_cardinality}] ${atr_info.is_domain} ${u_to_type} dgr,IRI`;
 					else
 						rez = `${p_name} ${cntString} [${atr_info.max_cardinality}] ${atr_info.is_domain} ${u_to_type} IRI`;
 				}

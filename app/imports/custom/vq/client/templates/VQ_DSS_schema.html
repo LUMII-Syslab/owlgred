@@ -98,7 +98,7 @@
                   <label class="form-check-label">
                     <input class="form-check-input" name = "freeProp" id="freeProp" type="checkbox" checked = "checked">
                     <span class="custom-checkbox"></span>
-                      Only free properties
+                      Only orphan properties
                   </label>
                   <div class="container-fluid">
                     <div class="row">
@@ -347,6 +347,8 @@
                           <option value=5 >Draw object properties ( triples > 5 ) </option>
                           <option value=10 >Draw object properties ( triples > 10 )</option>
                           <option value=100 >Draw object properties ( triples > 100 )</option>
+                          <option value=-10 >Draw essential properties of a class ( > 10% ) </option> 
+                          <option value=-100 >Draw essential properties of a class ( > 1% ) </option> 
                         </select>
                         <label class="form-check-label" style="padding-top:10px;">
                           <input class="form-check-input" name = "compClassView" id="compClassView" type="checkbox" checked = "checked">
