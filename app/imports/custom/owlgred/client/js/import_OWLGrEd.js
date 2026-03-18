@@ -103,6 +103,8 @@ function saveOntologyN3(ontologyText){
 
 	routeTriplesN3(store, ontologyStructure, prefixes)
 
+	extendWithQualifierAnnotationsN3(store, ontologyStructure, prefixes)
+
 	extendWithAnnotationsN3(store, ontologyStructure)
 
 	// console.log("ontologyStructure3", ontologyStructure)
@@ -115,10 +117,16 @@ function makeState(prefixes = {}) {
   return {
     prefixes,
     classes: {}, individuals: {}, objectProperties: {}, dataProperties: {}, annotationProperties: {}, dataTypes: {}, allDisjointClasses: [], allDisjointProperties: [], allDifferent: [],
-    // auxiliary indexes
+
+    unprocessedAxioms: [],
+    _usedQuadKeys: new Set(),
+	
+
     isAnnotationProp: new Set(),
     isObjectProp: new Set(),
     isDataProp: new Set(),
+	
+	qualifierAnnotationProperty: 'http://lumii.lv/2011/1.0/extended#qualifier',
   };
 }
 
@@ -292,7 +300,8 @@ function discoverEntitiesN3(store, state, prefixes = {}) {
 		range: [],
 		characteristics: {},
 		inverseOf: [] ,
-		propertyChains: []
+		propertyChains: [],
+		Qualifiers: []
 	  }));
 	  state.isObjectProp.add(sIri);
 	  return;
@@ -303,7 +312,8 @@ function discoverEntitiesN3(store, state, prefixes = {}) {
         ...makeEntity(iri, 'DatatypeProperty'),
         domain: [],
         range: [],
-        characteristics: {}
+        characteristics: {},
+		Qualifiers: []
       }));
       state.isDataProp.add(sIri);
       return;
@@ -400,6 +410,108 @@ const owlOntology = namedNode(OWL + "Ontology");
 
 function routeTriplesN3(store, state, prefixes = {}) {
   const qAll = store.getQuads(null, null, null, null);
+  
+  const quadKey = (q) => {
+	  const termKey = (t) => `${t.termType}:${t.value}`;
+	  return `${termKey(q.subject)} ${termKey(q.predicate)} ${termKey(q.object)}`;
+	};
+
+	const markQuad = (q) => {
+	  state._usedQuadKeys.add(quadKey(q));
+	};
+
+	const markMatches = (s, p = null, o = null) => {
+	  for (const q of store.getQuads(s, p, o, null)) {
+		markQuad(q);
+	  }
+	};
+
+	const STRUCTURAL_EXPR_PREDS = new Set([
+	  RDF + 'type',
+	  RDF + 'first',
+	  RDF + 'rest',
+	  RDFS + 'subClassOf',
+	  RDFS + 'domain',
+	  RDFS + 'range',
+	  OWL + 'equivalentClass',
+	  OWL + 'disjointWith',
+	  OWL + 'complementOf',
+	  OWL + 'intersectionOf',
+	  OWL + 'unionOf',
+	  OWL + 'oneOf',
+	  OWL + 'members',
+	  OWL + 'distinctMembers',
+	  OWL + 'onProperty',
+	  OWL + 'someValuesFrom',
+	  OWL + 'allValuesFrom',
+	  OWL + 'hasValue',
+	  OWL + 'minCardinality',
+	  OWL + 'maxCardinality',
+	  OWL + 'cardinality',
+	  OWL + 'minQualifiedCardinality',
+	  OWL + 'maxQualifiedCardinality',
+	  OWL + 'qualifiedCardinality',
+	  OWL + 'onClass',
+	  OWL + 'onDataRange',
+	  OWL + 'inverseOf',
+	  OWL + 'onDatatype',
+	  OWL + 'withRestrictions',
+	  OWL + 'propertyChainAxiom',
+	  OWL + 'hasKey',
+	  OWL + 'sourceIndividual',
+	  OWL + 'assertionProperty',
+	  OWL + 'targetIndividual',
+	  OWL + 'targetValue'
+	]);
+
+	const markRdfList = (head, seen = new Set()) => {
+	  if (!head || head.termType !== 'BlankNode' || seen.has(head.value)) return;
+	  seen.add(head.value);
+
+	  const firstQs = store.getQuads(head, namedNode(RDF + 'first'), null, null);
+	  const restQs  = store.getQuads(head, namedNode(RDF + 'rest'), null, null);
+
+	  for (const q of firstQs) {
+		markQuad(q);
+		markExpressionGraph(q.object, seen);
+	  }
+	  for (const q of restQs) {
+		markQuad(q);
+		if (q.object.termType === 'BlankNode') markRdfList(q.object, seen);
+	  }
+	};
+
+	const markExpressionGraph = (term, seen = new Set()) => {
+	  if (!term || term.termType !== 'BlankNode') return;
+	  if (seen.has(term.value)) return;
+	  seen.add(term.value);
+
+	  const outgoing = store.getQuads(term, null, null, null);
+	  for (const q of outgoing) {
+		if (!STRUCTURAL_EXPR_PREDS.has(q.predicate.value)) continue;
+		markQuad(q);
+
+		if (
+		  q.predicate.value === RDF + 'first' ||
+		  q.predicate.value === RDF + 'rest' ||
+		  q.predicate.value === OWL + 'intersectionOf' ||
+		  q.predicate.value === OWL + 'unionOf' ||
+		  q.predicate.value === OWL + 'oneOf' ||
+		  q.predicate.value === OWL + 'members' ||
+		  q.predicate.value === OWL + 'distinctMembers' ||
+		  q.predicate.value === OWL + 'withRestrictions' ||
+		  q.predicate.value === OWL + 'hasKey' ||
+		  q.predicate.value === OWL + 'propertyChainAxiom'
+		) {
+		  if (q.object.termType === 'BlankNode') markRdfList(q.object, seen);
+		  continue;
+		}
+
+		if (q.object.termType === 'BlankNode') {
+		  markExpressionGraph(q.object, seen);
+		}
+	  }
+	};
 
   const isDatatype = (iri) =>
     iri.startsWith(XSD) || iri === RDFS + 'Literal' || iri === RDF + 'langString' ||
@@ -452,6 +564,7 @@ function routeTriplesN3(store, state, prefixes = {}) {
       b.range ||= [];
 	  b.inverseOf ||= [];
       b.propertyChains ||= [];
+	  b.Qualifiers ||= [];
       return b;
     }
     b = state.dataProperties[iri];
@@ -462,6 +575,7 @@ function routeTriplesN3(store, state, prefixes = {}) {
       b.characteristics ||= {};
       b.domain ||= [];
       b.range ||= [];
+	  b.Qualifiers ||= [];
       return b;
     }
     // allow annotation properties to use same helpers where relevant
@@ -568,7 +682,10 @@ function routeTriplesN3(store, state, prefixes = {}) {
         state.individuals[s.value] ||
         state.annotationProperties[s.value] ||
         state.dataTypes?.[s.value];
-      if (tgt) tgt.label = o.value;
+      if (tgt) {
+		  tgt.label = o.value;
+		  markQuad(q);
+	  }
       continue;
     }
 
@@ -854,7 +971,8 @@ if (p.value === OWL + 'disjointWith') {
 				equivalentProperties: [],
 				disjointProperties: [],
 				inverseOf: [],
-				propertyChains: []
+				propertyChains: [],
+				Qualifiers: []
 			  };
 			}
 			state.isObjectProp.add?.(it.iri);
@@ -869,7 +987,8 @@ if (p.value === OWL + 'disjointWith') {
 				kind: 'DatatypeProperty',
 				domain: [],
 				range: [],
-				characteristics: {}
+				characteristics: {},
+				Qualifiers: []
 			  };
 			}
 			state.isDataProp.add?.(it.iri);
@@ -896,7 +1015,8 @@ if (p.value === OWL + 'disjointWith') {
 		  dataProperties: [],
 		  objectProperties: [],
 		  restrictions: [],
-		  keys: []
+		  keys: [],
+		  Qualifiers: []
 		};
 	  }
 
@@ -927,7 +1047,8 @@ if (p.value === OWL + 'disjointWith') {
 				equivalentProperties: [],
 				disjointProperties: [],
 				inverseOf: [],
-				propertyChains: []
+				propertyChains: [],
+				Qualifiers: []
 			  };
 			}
 			state.isObjectProp.add?.(it.iri);
@@ -942,7 +1063,8 @@ if (p.value === OWL + 'disjointWith') {
 				kind: 'DatatypeProperty',
 				domain: [],
 				range: [],
-				characteristics: {}
+				characteristics: {},
+				Qualifiers: []
 			  };
 			}
 			state.isDataProp.add?.(it.iri);
@@ -1086,7 +1208,8 @@ if (p.value === OWL + 'disjointWith') {
 		  equivalentProperties: [],
 		  disjointProperties: [],
 		  inverseOf: [],
-		  propertyChains: []
+		  propertyChains: [],
+		  Qualifiers: []
 		});
 
 	  state.isObjectProp.add(s.value);
@@ -1116,7 +1239,8 @@ if (p.value === OWL + 'disjointWith') {
 			equivalentProperties: [],
 			disjointProperties: [],
 			inverseOf: [],
-			propertyChains: []
+			propertyChains: [],
+			Qualifiers: []
 		  });
 		  state.isObjectProp.add(it.iri);
 		}
@@ -1347,6 +1471,159 @@ if (p.value === OWL + 'disjointWith') {
   }
 }
 
+function getDatatypeLocalName(iri) {
+  if (!iri || typeof iri !== 'string') return null;
+  if (iri.startsWith(XSD)) return iri.slice(XSD.length);
+  if (iri.startsWith(RDFS)) return iri.slice(RDFS.length);
+  if (iri.startsWith(RDF)) return iri.slice(RDF.length);
+  if (iri.startsWith(OWL)) return iri.slice(OWL.length);
+  return null;
+}
+
+function formatCardinalityRange({
+  cardinality = null,
+  minCardinality = null,
+  maxCardinality = null,
+  qualifiedCardinality = null,
+  minQualifiedCardinality = null,
+  maxQualifiedCardinality = null
+} = {}) {
+  const exact = qualifiedCardinality ?? cardinality;
+  if (Number.isFinite(exact)) return `${exact}..${exact}`;
+
+  const min = minQualifiedCardinality ?? minCardinality;
+  const max = maxQualifiedCardinality ?? maxCardinality;
+
+  if (Number.isFinite(min) && Number.isFinite(max)) return `${min}..${max}`;
+  if (Number.isFinite(min)) return `${min}..*`;
+  if (Number.isFinite(max)) return `0..${max}`;
+
+  return null;
+}
+
+function extendWithQualifierAnnotationsN3(store, structure, prefixes = {}) {
+  const QUALIFIER_IRI =
+    structure.qualifierAnnotationProperty ||
+    'http://lumii.lv/2011/1.0/extended#qualifier';
+
+  const annotatedPropertyPred = namedNode(OWL + 'annotatedProperty');
+  const annotatedSourcePred = namedNode(OWL + 'annotatedSource');
+  const annotatedTargetPred = namedNode(OWL + 'annotatedTarget');
+  const rdfTypePred = namedNode(RDF + 'type');
+  const owlAxiomNode = namedNode(OWL + 'Axiom');
+
+  const getPropertyBucket = (iri) =>
+    structure.objectProperties?.[iri] ||
+    structure.dataProperties?.[iri] ||
+    null;
+
+  const getOrCreateQualifier = (propertyBucket, targetIri) => {
+    propertyBucket.Qualifiers ||= [];
+
+    let qualifier = propertyBucket.Qualifiers.find(q => q && q._iri === targetIri);
+    if (!qualifier) {
+      qualifier = {
+        Property: iriToPrefixed(targetIri, prefixes),
+        Type: null,
+        Multiplicity: null,
+        _iri: targetIri
+      };
+      propertyBucket.Qualifiers.push(qualifier);
+    }
+    return qualifier;
+  };
+
+  // direct assertions:
+  // :p ex:qualifier :dateFrom , :dateTo .
+  for (const q of store.getQuads(null, namedNode(QUALIFIER_IRI), null, null)) {
+    if (q.subject.termType !== 'NamedNode' || q.object.termType !== 'NamedNode') continue;
+
+    const propertyBucket = getPropertyBucket(q.subject.value);
+    if (!propertyBucket) continue;
+
+    getOrCreateQualifier(propertyBucket, q.object.value);
+  }
+
+  // annotated assertions:
+  // [] a owl:Axiom ;
+  //    owl:annotatedSource :p ;
+  //    owl:annotatedProperty ex:qualifier ;
+  //    owl:annotatedTarget :dateFrom ;
+  //    rdfs:range xsd:dateTime ;
+  //    owl:maxCardinality 1 .
+  for (const axiomQuad of store.getQuads(null, rdfTypePred, owlAxiomNode, null)) {
+    const axiomNode = axiomQuad.subject;
+
+    const annotatedProperty =
+      store.getQuads(axiomNode, annotatedPropertyPred, null, null)[0]?.object;
+    if (annotatedProperty?.termType !== 'NamedNode') continue;
+    if (annotatedProperty.value !== QUALIFIER_IRI) continue;
+
+    const annotatedSource =
+      store.getQuads(axiomNode, annotatedSourcePred, null, null)[0]?.object;
+    const annotatedTarget =
+      store.getQuads(axiomNode, annotatedTargetPred, null, null)[0]?.object;
+
+    if (annotatedSource?.termType !== 'NamedNode') continue;
+    if (annotatedTarget?.termType !== 'NamedNode') continue;
+
+    const propertyBucket = getPropertyBucket(annotatedSource.value);
+    if (!propertyBucket) continue;
+
+    const qualifier = getOrCreateQualifier(propertyBucket, annotatedTarget.value);
+
+    const rangeObj =
+      store.getQuads(axiomNode, namedNode(RDFS + 'range'), null, null)[0]?.object;
+    if (rangeObj?.termType === 'NamedNode') {
+      qualifier.Type =
+        getDatatypeLocalName(rangeObj.value) ||
+        iriToPrefixed(rangeObj.value, prefixes);
+    }
+
+    const litToInt = (predicateIri) => {
+      const lit = store.getQuads(axiomNode, namedNode(predicateIri), null, null)[0]?.object;
+      return lit?.termType === 'Literal' ? Number(lit.value) : null;
+    };
+
+    const multiplicity = formatCardinalityRange({
+      cardinality: litToInt(OWL + 'cardinality'),
+      minCardinality: litToInt(OWL + 'minCardinality'),
+      maxCardinality: litToInt(OWL + 'maxCardinality'),
+      qualifiedCardinality: litToInt(OWL + 'qualifiedCardinality'),
+      minQualifiedCardinality: litToInt(OWL + 'minQualifiedCardinality'),
+      maxQualifiedCardinality: litToInt(OWL + 'maxQualifiedCardinality')
+    });
+
+    if (multiplicity !== null) {
+      qualifier.Multiplicity = multiplicity;
+    }
+  }
+
+  // cleanup helper field and dedup
+  for (const bucketMap of [structure.objectProperties, structure.dataProperties]) {
+    for (const iri of Object.keys(bucketMap || {})) {
+      const propertyBucket = bucketMap[iri];
+      if (!propertyBucket) continue;
+
+      if (!Array.isArray(propertyBucket.Qualifiers)) {
+        propertyBucket.Qualifiers = [];
+        continue;
+      }
+
+      const seen = new Set();
+      propertyBucket.Qualifiers = propertyBucket.Qualifiers.filter(q => {
+        if (!q || !q._iri) return false;
+        if (seen.has(q._iri)) return false;
+        seen.add(q._iri);
+        delete q._iri;
+        return true;
+      });
+    }
+  }
+
+  return structure;
+}
+
 function extendWithAnnotationsN3(store, structure) {
   // Define built-in annotation properties to capture (in addition to those declared in the ontology)
   const builtInAnnProps = [
@@ -1493,7 +1770,7 @@ async function createOntologyStructure(ontology, importSettings){
 	let differentIndivids = [];
 	let sameAsIndivids = [];
 	
-  // console.log("SSSSSSSSSSSSSSS", ontology, importSettings["showClasses"]);
+  console.log("SSSSSSSSSSSSSSS", ontology, importSettings["showClasses"]);
   if((importSettings?.showOntoAnnotations ?? true) === true && ontology.ontology && ontology.ontology.annotations){
 	  for(let an = 0; an < ontology.ontology.annotations.length; an++){
 		  let annotation = ontology.ontology.annotations[an];
@@ -1731,6 +2008,17 @@ async function createOntologyStructure(ontology, importSettings){
 				}
 			  }
 		  }
+		  
+		  for(let sp = 0; sp < dataProperty.Qualifiers.length; sp++){
+			  let mult = dataProperty.Qualifiers[sp].Multiplicity;
+			  if(mult === "0..*" || mult === null) mult = "";
+			  dataProperty.Qualifiers[sp] = [
+				{name: "Property", value: dataProperty.Qualifiers[sp].Property},
+				{name: "Type", value: dataProperty.Qualifiers[sp].Type},
+				{name: "Multiplicity", value: mult}
+		      ]
+		  }
+	  
 		let equivalentProperties = `${equivelentResult.map(item => item.input).join(', ')}`;
 		let superProperties = `${superResult.map(item => item.input).join(', ')}`;
 		let disjointProperties = `${disjointResult.map(item => item.input).join(', ')}`;
@@ -1780,7 +2068,8 @@ async function createOntologyStructure(ontology, importSettings){
 		}).join(', ');
 
 		let attrName = dataProperty.prefixed || " ";
-		cls.dataProperties[dp] = [
+		if(dataProperty.Qualifiers.length === 0){
+		    cls.dataProperties[dp] = [
 				  {name:"Name",value:attrName},
 				  {name:"Type",value:(dataProperty.rangeExpression || formatDatatypeForUI(dataProperty.range[0], ontology)) || " "},
 				  {name:"Multiplicity",value:multiplicity},
@@ -1790,7 +2079,8 @@ async function createOntologyStructure(ontology, importSettings){
 				  {name:"SuperProperties",input:superProperties, value:JSON.stringify(superResult)},
 				  {name:"DisjointProperties",input:disjointProperties, value:JSON.stringify(disjointResult)}
 				]
-	   }
+	        }
+		}
 	   
 	   
 	   	if((importSettings?.showObjectProperties ?? true) === true && (importSettings?.showObjectPropertiesType_text) === true){
@@ -2048,7 +2338,7 @@ async function createOntologyStructure(ontology, importSettings){
 
 
 	// main loop
-	 if((importSettings?.showObjectProperties ?? true) === true && importSettings?.showObjectPropertiesType_graph === true){
+  if((importSettings?.showObjectProperties ?? true) === true && importSettings?.showObjectPropertiesType_graph === true){
 	for (const iri in objectProperties) {
 	  if (handled.has(iri)) continue;
 
@@ -2059,7 +2349,7 @@ async function createOntologyStructure(ontology, importSettings){
 	  const invIri = Array.isArray(ob.inverseOf) && ob.inverseOf.length ? ob.inverseOf[0] : null;
 	  let inv = null, collapseWithInverse = false;
 	  // showObjectPropertiesMergeInverse
-	  if((importSettings?.showObjectPropertiesMergeInverse ?? true) === true){
+	  if((importSettings?.showObjectPropertiesMergeInverse ?? true) === true && ob.Qualifiers.length === 0){
 		  if (invIri && objectProperties[invIri]) {
 			inv = objectProperties[invIri];
 
@@ -2086,7 +2376,7 @@ async function createOntologyStructure(ontology, importSettings){
 		// Ensure we don't process secondary later
 		handled.add(secondary);
 		objectProperties[secondary].handled = true;
-	  }
+	  } else { ob.inverseOf = []}
 	
 		
 	  // createdLinks[iri] = cl;
@@ -2104,6 +2394,16 @@ async function createOntologyStructure(ontology, importSettings){
 		  for(let ep = 0; ep < ob.equivalentProperties.length; ep++){
 			ob.equivalentProperties[ep] = [{ name: "EquivalentProperty", value: objectProperties[ob.equivalentProperties[ep]]?.prefixed || iriToPrefixed(ob.equivalentProperties[ep], ontologyPrefixes)}];
 		  }
+	  }
+	  
+	  for(let sp = 0; sp < ob.Qualifiers.length; sp++){
+		  let mult = ob.Qualifiers[sp].Multiplicity;
+		  if(mult === "0..*" || mult === null) mult = "";
+		ob.Qualifiers[sp] = [
+			{name: "Property", value: ob.Qualifiers[sp].Property},
+			{name: "Type", value: ob.Qualifiers[sp].Type},
+			{name: "Multiplicity", value: mult}
+	   ]
 	  }
 
 	  if((importSettings?.showObjectPropertiesAnnotations ?? true) === true){
@@ -2247,7 +2547,6 @@ async function createOntologyStructure(ontology, importSettings){
 			}
 		}
 	  }
-
 		// objectProperties[iri] = ob;
 	}
 	}
@@ -2815,6 +3114,7 @@ async function visualizeOntology(ontology){
 		  { name: "EquivalentProperty", value: objectProperties[ep]?.prefixed || iriToPrefixed(ep, ontologyPrefixes) }
 		]);
 	  }
+	  
 
 	   if(ob.label){
 		  await cl.addCompartmentSubCompartments2("Annotation",[

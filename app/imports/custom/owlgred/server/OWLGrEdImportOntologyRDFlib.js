@@ -173,6 +173,7 @@ async function saveOntologyRDFlib(ontologyText) {
 
   discoverEntitiesRDFlib(store, ontologyStructure, prefixes);
   routeTriplesRDFlib(store, ontologyStructure, prefixes);
+  extendWithQualifierAnnotationsRDFlib(store, ontologyStructure, prefixes);
   extendWithAnnotationsRDFlib(store, ontologyStructure);
 
   return ontologyStructure;
@@ -192,6 +193,7 @@ function makeState(prefixes = {}) {
     isAnnotationProp: new Set(),
     isObjectProp: new Set(),
     isDataProp: new Set(),
+	qualifierAnnotationProperty: 'http://lumii.lv/2011/1.0/extended#qualifier',
   };
 }
 
@@ -360,7 +362,8 @@ function discoverEntitiesRDFlib(store, state, prefixes = {}) {
 		range: [],
 		characteristics: {},
 		inverseOf: [] ,
-		propertyChains: []
+		propertyChains: [],
+		Qualifiers: []
 	  }));
 	  state.isObjectProp.add(sIri);
 	  return;
@@ -371,7 +374,8 @@ function discoverEntitiesRDFlib(store, state, prefixes = {}) {
         ...makeEntity(iri, 'DatatypeProperty'),
         domain: [],
         range: [],
-        characteristics: {}
+        characteristics: {},
+		Qualifiers: []
       }));
       state.isDataProp.add(sIri);
       return;
@@ -519,6 +523,7 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
       b.range ||= [];
 	  b.inverseOf ||= [];
       b.propertyChains ||= [];
+	  b.Qualifiers ||= [];
       return b;
     }
     b = state.dataProperties[iri];
@@ -529,6 +534,7 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
       b.characteristics ||= {};
       b.domain ||= [];
       b.range ||= [];
+	  b.Qualifiers ||= [];
       return b;
     }
     // allow annotation properties to use same helpers where relevant
@@ -537,6 +543,7 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
 	  b.superProperties ||= [];
       b.domain ||= [];
       b.range ||= [];
+	  b.Qualifiers ||= [];
       return b;
     }
     return null;
@@ -921,7 +928,8 @@ if (p.value === OWL + 'disjointWith') {
 				equivalentProperties: [],
 				disjointProperties: [],
 				inverseOf: [],
-				propertyChains: []
+				propertyChains: [],
+				Qualifiers: []
 			  };
 			}
 			state.isObjectProp.add?.(it.iri);
@@ -936,7 +944,8 @@ if (p.value === OWL + 'disjointWith') {
 				kind: 'DatatypeProperty',
 				domain: [],
 				range: [],
-				characteristics: {}
+				characteristics: {},
+				Qualifiers: []
 			  };
 			}
 			state.isDataProp.add?.(it.iri);
@@ -994,7 +1003,8 @@ if (p.value === OWL + 'disjointWith') {
 				equivalentProperties: [],
 				disjointProperties: [],
 				inverseOf: [],
-				propertyChains: []
+				propertyChains: [],
+				Qualifiers: []
 			  };
 			}
 			state.isObjectProp.add?.(it.iri);
@@ -1009,7 +1019,8 @@ if (p.value === OWL + 'disjointWith') {
 				kind: 'DatatypeProperty',
 				domain: [],
 				range: [],
-				characteristics: {}
+				characteristics: {},
+				Qualifiers: []
 			  };
 			}
 			state.isDataProp.add?.(it.iri);
@@ -1160,7 +1171,8 @@ if (p.value === OWL + 'disjointWith') {
 		  equivalentProperties: [],
 		  disjointProperties: [],
 		  inverseOf: [],
-		  propertyChains: []
+		  propertyChains: [],
+		  Qualifiers: []
 		});
 
 	  state.isObjectProp.add(s.value);
@@ -1190,7 +1202,8 @@ if (p.value === OWL + 'disjointWith') {
 			equivalentProperties: [],
 			disjointProperties: [],
 			inverseOf: [],
-			propertyChains: []
+			propertyChains: [],
+			Qualifiers: []
 		  });
 		  state.isObjectProp.add(it.iri);
 		}
@@ -1419,6 +1432,163 @@ if (p.value === OWL + 'disjointWith') {
   for (const ind of Object.values(state.individuals)) {
     ind.types = (ind.types || []).filter(t => t !== OWL + 'NamedIndividual');
   }
+}
+
+function getDatatypeLocalName2(iri) {
+  if (!iri || typeof iri !== 'string') return null;
+  if (iri.startsWith(XSD)) return iri.slice(XSD.length);
+  if (iri.startsWith(RDFS)) return iri.slice(RDFS.length);
+  if (iri.startsWith(RDF)) return iri.slice(RDF.length);
+  if (iri.startsWith(OWL)) return iri.slice(OWL.length);
+  return null;
+}
+
+function formatCardinalityRange({
+  cardinality = null,
+  minCardinality = null,
+  maxCardinality = null,
+  qualifiedCardinality = null,
+  minQualifiedCardinality = null,
+  maxQualifiedCardinality = null
+} = {}) {
+  const exact = qualifiedCardinality ?? cardinality;
+  if (Number.isFinite(exact)) return `${exact}..${exact}`;
+
+  const min = minQualifiedCardinality ?? minCardinality;
+  const max = maxQualifiedCardinality ?? maxCardinality;
+
+  if (Number.isFinite(min) && Number.isFinite(max)) return `${min}..${max}`;
+  if (Number.isFinite(min)) return `${min}..*`;
+  if (Number.isFinite(max)) return `0..${max}`;
+
+  return null;
+}
+
+function extendWithQualifierAnnotationsRDFlib(store, structure, prefixes = {}) {
+  const QUALIFIER_IRI =
+    structure.qualifierAnnotationProperty ||
+    'http://lumii.lv/2011/1.0/extended#qualifier';
+
+  const annotatedPropertyPred = $rdf.sym(OWL + 'annotatedProperty');
+  const annotatedSourcePred = $rdf.sym(OWL + 'annotatedSource');
+  const annotatedTargetPred = $rdf.sym(OWL + 'annotatedTarget');
+  const rdfTypePred = $rdf.sym(RDF + 'type');
+  const owlAxiomNode = $rdf.sym(OWL + 'Axiom');
+  const qualifierPred = $rdf.sym(QUALIFIER_IRI);
+
+  const getPropertyBucket = (iri) =>
+    structure.objectProperties?.[iri] ||
+    structure.dataProperties?.[iri] ||
+    null;
+
+  const getOrCreateQualifier = (propertyBucket, targetIri) => {
+    propertyBucket.Qualifiers ||= [];
+
+    let qualifier = propertyBucket.Qualifiers.find(q => q && q._iri === targetIri);
+    if (!qualifier) {
+      qualifier = {
+        Property: iriToPrefixed(targetIri, prefixes),
+        Type: null,
+        Multiplicity: null,
+        _iri: targetIri
+      };
+      propertyBucket.Qualifiers.push(qualifier);
+    }
+    return qualifier;
+  };
+
+  // direct assertions:
+  // :p ex:qualifier :dateFrom , :dateTo .
+  for (const st of store.match(null, qualifierPred, null, null)) {
+    const s = st.subject;
+    const o = st.object;
+
+    if (s.termType !== 'NamedNode' || o.termType !== 'NamedNode') continue;
+
+    const propertyBucket = getPropertyBucket(s.value);
+    if (!propertyBucket) continue;
+
+    getOrCreateQualifier(propertyBucket, o.value);
+  }
+
+  // annotated assertions:
+  // [] a owl:Axiom ;
+  //    owl:annotatedSource :p ;
+  //    owl:annotatedProperty ex:qualifier ;
+  //    owl:annotatedTarget :dateFrom ;
+  //    rdfs:range xsd:dateTime ;
+  //    owl:maxCardinality 1 .
+  for (const axiomSt of store.match(null, rdfTypePred, owlAxiomNode, null)) {
+    const axiomNode = axiomSt.subject;
+
+    const annotatedProperty =
+      store.match(axiomNode, annotatedPropertyPred, null, null)[0]?.object;
+    if (annotatedProperty?.termType !== 'NamedNode') continue;
+    if (annotatedProperty.value !== QUALIFIER_IRI) continue;
+
+    const annotatedSource =
+      store.match(axiomNode, annotatedSourcePred, null, null)[0]?.object;
+    const annotatedTarget =
+      store.match(axiomNode, annotatedTargetPred, null, null)[0]?.object;
+
+    if (annotatedSource?.termType !== 'NamedNode') continue;
+    if (annotatedTarget?.termType !== 'NamedNode') continue;
+
+    const propertyBucket = getPropertyBucket(annotatedSource.value);
+    if (!propertyBucket) continue;
+
+    const qualifier = getOrCreateQualifier(propertyBucket, annotatedTarget.value);
+
+    const rangeObj =
+      store.match(axiomNode, $rdf.sym(RDFS + 'range'), null, null)[0]?.object;
+    if (rangeObj?.termType === 'NamedNode') {
+      qualifier.Type =
+        getDatatypeLocalName2(rangeObj.value) ||
+        iriToPrefixed(rangeObj.value, prefixes);
+    }
+
+    const litToInt = (predicateIri) => {
+      const lit = store.match(axiomNode, $rdf.sym(predicateIri), null, null)[0]?.object;
+      return lit?.termType === 'Literal' ? Number(lit.value) : null;
+    };
+
+    const multiplicity = formatCardinalityRange({
+      cardinality: litToInt(OWL + 'cardinality'),
+      minCardinality: litToInt(OWL + 'minCardinality'),
+      maxCardinality: litToInt(OWL + 'maxCardinality'),
+      qualifiedCardinality: litToInt(OWL + 'qualifiedCardinality'),
+      minQualifiedCardinality: litToInt(OWL + 'minQualifiedCardinality'),
+      maxQualifiedCardinality: litToInt(OWL + 'maxQualifiedCardinality')
+    });
+
+    if (multiplicity !== null) {
+      qualifier.Multiplicity = multiplicity;
+    }
+  }
+
+  // cleanup helper field and dedup
+  for (const bucketMap of [structure.objectProperties, structure.dataProperties]) {
+    for (const iri of Object.keys(bucketMap || {})) {
+      const propertyBucket = bucketMap[iri];
+      if (!propertyBucket) continue;
+
+      if (!Array.isArray(propertyBucket.Qualifiers)) {
+        propertyBucket.Qualifiers = [];
+        continue;
+      }
+
+      const seen = new Set();
+      propertyBucket.Qualifiers = propertyBucket.Qualifiers.filter(q => {
+        if (!q || !q._iri) return false;
+        if (seen.has(q._iri)) return false;
+        seen.add(q._iri);
+        delete q._iri;
+        return true;
+      });
+    }
+  }
+
+  return structure;
 }
 
 function extendWithAnnotationsRDFlib(store, structure) {

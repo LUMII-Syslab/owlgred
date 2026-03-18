@@ -395,7 +395,84 @@ Meteor.methods({
 
 			}
 		}
+		
+		//Data Property
+		 elemType = await ElementTypes.findOneAsync({name: "DataProperty", diagramTypeId: diagram_type._id});
+		if (!elemType) {
+			console.error("No DataProperty type");
+			return;
+		}
 
+		let elemStyle = elemType["styles"][0];
+		
+		if((importSettings?.showDataProperties ?? true) === true){
+		  for (const key of Object.keys(ontology.dataProperties)) {
+			const item = ontology.dataProperties[key];
+			if(item.domain.length === 1 && item.Qualifiers.length > 0){
+				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
+				  
+				 let new_line_id = await Elements.insertAsync(object);
+				  element_map[key] = new_line_id;
+				  
+				  // linePropertyClass
+				  let elemTypeLine = await ElementTypes.findOneAsync({name: "linePropertyClass", diagramTypeId: diagram_type._id});
+				  if (!elemTypeLine) {
+						console.error("No linePropertyClass type");
+						return;
+				  }
+
+				  elemStyle = elemTypeLine["styles"][0];
+				  let line_layoutSettings = ( elemTypeLine.layoutSettings !== undefined) ?  elemTypeLine.layoutSettings : {};
+				  const d = item.domain[0];
+				  let objectLine = await Create_New_OWLGrEd_Element(list, elemTypeLine, diagram_type, new_diagram_id, elemStyle, true, element_map[d], new_line_id, line_layoutSettings);
+
+				  let objectLine_id = await Elements.insertAsync(objectLine);
+				  element_map[objectLine_id] = objectLine_id;
+				  				
+				  let listForCompartment = {
+					diagram_id: new_diagram_id,
+					diagram_type_id: diagram_type._id,
+					projectId: list.projectId,
+					versionId: list.versionId,
+					element_id: new_line_id,
+					element_type_id: elemType._id
+				  }
+				  await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+				  await setHorizontalLine(listForCompartment, "HorizontalLine19")
+				  
+				  // SuperProperty
+				for(let i = 0; i < item.superProperties.length; i++){
+				   await addCompartmentSubCompartments2(listForCompartment, "SuperProperties", item.superProperties[i])
+				}
+				// DisjointProperty
+				for(let i = 0; i < item.disjointProperties.length; i++){
+				   await addCompartmentSubCompartments2(listForCompartment, "DisjointProperties", item.disjointProperties[i])
+				}
+				// EquivalentProperty
+				for(let i = 0; i < item.equivalentProperties.length; i++){
+				   await addCompartmentSubCompartments2(listForCompartment, "EquivalentProperties", item.equivalentProperties[i])
+				}
+				// Label
+				if(item.label) {await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
+				  {name:"AnnotationType",value:"Label"},
+				  {name:"Value",value:item.label},
+				  {name:"Language",value:""},
+				 ])
+				}
+				// Annotation
+				for(let i = 0; i < item.annotations.length; i++){
+				   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
+				}
+				  
+				  // qualifiers
+				  const qualifiers = item.Qualifiers || [];
+				  for (let i = 0; i < qualifiers.length; i++) {
+					await addCompartmentSubCompartments2(listForCompartment, "Qualifiers", qualifiers[i])
+				  }
+			}
+		  }
+		}
+		
 		// Association
 		elemType = await ElementTypes.findOneAsync({name: "Association", diagramTypeId: diagram_type._id});
 		if (!elemType) {
@@ -404,22 +481,117 @@ Meteor.methods({
 		}
 
 		let assocStyles = elemType["styles"];
-		let elemStyle = assocStyles.find(s => s.name === 'Association_direct');
+		elemStyle = assocStyles.find(s => s.name === 'Association_direct');
 
         let line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
 		if((importSettings?.showObjectProperties ?? true) === true && importSettings?.showObjectPropertiesType_graph === true){
 		  for (const key of Object.keys(ontology.objectProperties)) {
 			const item = ontology.objectProperties[key];
 			if(!item.handled && item.domain.length === 1 && item.range.length === 1 ){
+				let object;
+				let new_line_id;
 				const d = item.domain[0], r = item.range[0];
-				if(item.inverseOf.length > 0){
-					elemStyle = assocStyles.find(s => s.name === 'Association_both_end');
-				}
-				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[d], element_map[r], line_layoutSettings);
+				if(item.Qualifiers.length > 0){
+					
+				  elemType = await ElementTypes.findOneAsync({name: "ObjectProperty", diagramTypeId: diagram_type._id});
+				  if (!elemType) {
+						console.error("No ObjectProperty type");
+						return;
+				  }
 
-				let new_line_id = await Elements.insertAsync(object);
-				element_map[key] = new_line_id;
+				  elemStyle = elemType["styles"][0];
+				  object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
+				  
+				  new_line_id = await Elements.insertAsync(object);
+				  element_map[key] = new_line_id;
+				  
+				  // linePropertyClass
+				  let elemTypeLine = await ElementTypes.findOneAsync({name: "linePropertyClass", diagramTypeId: diagram_type._id});
+				  if (!elemTypeLine) {
+						console.error("No linePropertyClass type");
+						return;
+				  }
 
+				  elemStyle = elemTypeLine["styles"][0];
+				  let line_layoutSettings = ( elemTypeLine.layoutSettings !== undefined) ?  elemTypeLine.layoutSettings : {};
+
+				  let objectLine = await Create_New_OWLGrEd_Element(list, elemTypeLine, diagram_type, new_diagram_id, elemStyle, true, element_map[d], new_line_id, line_layoutSettings);
+
+				  let objectLine_id = await Elements.insertAsync(objectLine);
+				  element_map[objectLine_id] = objectLine_id;
+				  
+				  objectLine = await Create_New_OWLGrEd_Element(list, elemTypeLine, diagram_type, new_diagram_id, elemStyle, true, new_line_id, element_map[r], line_layoutSettings);
+
+				  objectLine_id = await Elements.insertAsync(objectLine);
+				  element_map[objectLine_id] = objectLine_id;
+				
+				  let listForCompartment = {
+					diagram_id: new_diagram_id,
+					diagram_type_id: diagram_type._id,
+					projectId: list.projectId,
+					versionId: list.versionId,
+					element_id: new_line_id,
+					element_type_id: elemType._id
+				  }
+				  await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+					if (item.FunctionalProperty)        await add_one_compartment(listForCompartment, "Functional", "true", "{func}");
+					if (item.InverseFunctionalProperty) await add_one_compartment(listForCompartment, "InverseFunctional", "true", "{invf}");
+					if (item.TransitiveProperty)        await add_one_compartment(listForCompartment, "Transitive", "true", "{tran}");
+					if (item.SymmetricProperty)         await add_one_compartment(listForCompartment, "Symmetric", "true", "{sym}");
+					if (item.AsymmetricProperty)        await add_one_compartment(listForCompartment, "Asymmetric", "true", "{asym}");
+					if (item.ReflexiveProperty)         await add_one_compartment(listForCompartment, "Reflexive", "true", "{ref}");
+					if (item.IrreflexiveProperty)       await add_one_compartment(listForCompartment, "Irreflexive", "true", "{iref}");
+					if (item.multiplicity) {
+					await add_one_compartment(listForCompartment, "Multiplicity", item.multiplicity, "["+item.multiplicity+"]");
+					}
+					// SuperProperty
+					for(let i = 0; i < item.superProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "SuperProperties", item.superProperties[i])
+					}
+					// DisjointProperty
+					for(let i = 0; i < item.disjointProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "DisjointProperties", item.disjointProperties[i])
+					}
+					// EquivalentProperty
+					for(let i = 0; i < item.equivalentProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "EquivalentProperties", item.equivalentProperties[i])
+					}
+					// Label
+					if(item.label) {await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
+					  {name:"AnnotationType",value:"Label"},
+					  {name:"Value",value:item.label},
+					  {name:"Language",value:""},
+					 ])
+					}
+					// Annotation
+					for(let i = 0; i < item.annotations.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
+					}
+					// PropertyChains
+					for(let i = 0; i < item.propertyChains.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "PropertyChains", item.propertyChains[i])
+					}
+					  
+				  // qualifiers
+				  const qualifiers = item.Qualifiers || [];
+				  for (let i = 0; i < qualifiers.length; i++) {
+					await addCompartmentSubCompartments2(listForCompartment, "Qualifiers", qualifiers[i])
+				  }
+				   await setHorizontalLine(listForCompartment, "HorizontalLine14")
+				  
+				} else {
+				
+					
+					if(item.inverseOf.length > 0){
+						elemStyle = assocStyles.find(s => s.name === 'Association_both_end');
+					}
+					object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[d], element_map[r], line_layoutSettings);
+
+					new_line_id = await Elements.insertAsync(object);
+					element_map[key] = new_line_id;
+				
+				
+				
 				let listForCompartment = {
 					diagram_id: new_diagram_id,
 					diagram_type_id: diagram_type._id,
@@ -467,7 +639,8 @@ Meteor.methods({
 				   await addCompartmentSubCompartments2(listForCompartment, "PropertyChains", item.propertyChains[i])
 				}
 
-				if(item.inverseOf.length > 0){
+				if(item.inverseOf.length > 0 && item.prefixedInv){
+					console.log("QQQQQQQQQQQQ", item, item.inverseOf.length, item.prefixedInv)
 					await add_one_compartment(listForCompartment, "NameInv", item.prefixedInv, item.prefixedInv)
 					if (item.FunctionalPropertyInv)        await add_one_compartment(listForCompartment, "FunctionalInv", "true", "{func}");
 					if (item.InverseFunctionalPropertyInv) await add_one_compartment(listForCompartment, "InverseFunctionalInv", "true", "{invf}");
@@ -512,6 +685,7 @@ Meteor.methods({
 					   await addCompartmentSubCompartments2(listForCompartment, "PropertyChainsInv", propertyChainsInv[i])
 					}
 				}
+			  }
 			}
 		  }
 		}
