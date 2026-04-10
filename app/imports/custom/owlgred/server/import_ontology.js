@@ -86,6 +86,7 @@ Meteor.methods({
 		}
 		for (const key of Object.keys(ontology.ontology.annotations)) {
 			const item = ontology.ontology.annotations[key];
+
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
 				continue;
@@ -124,7 +125,7 @@ Meteor.methods({
 			const item = ontology.classes[key];
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
-				return;
+				continue;
 			}
 
             let elemStyle = elemType["styles"][0];
@@ -237,9 +238,10 @@ Meteor.methods({
 				 	  {name:"Language",value:""},
 					])
 				}	
-				
-			  for(let i = 0; i < item.annotations.length; i++){
-			   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
+			  if(item.annotations){
+			    for(let i = 0; i < item.annotations.length; i++){
+			     await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
+			    }
 			  }
 			}
 
@@ -286,8 +288,13 @@ Meteor.methods({
 			if(item.keys.length>0){
 				await setHorizontalLine(listForCompartment, "HorizontalLine5")
 			}
-
-
+			
+			// Individuals
+			if(item.individuals){
+			  for(let i = 0; i < item.individuals.length; i++){
+			    await addCompartmentSubCompartments2(listForCompartment, "Individuals", item.individuals[i])
+			  }
+			}
 		}
 
 		//Super Classes as boxes
@@ -336,12 +343,12 @@ Meteor.methods({
 
 				  elemStyle = elemType["styles"][0];
 				  let line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
+				  if(element_map[iri]){
+					  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[horizontalFork_box_id], element_map[iri], line_layoutSettings);
 
-				  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[horizontalFork_box_id], element_map[iri], line_layoutSettings);
-
-				  let generalizationToFork_box_id = await Elements.insertAsync(object);
-				  element_map[generalizationToFork_box_id] = generalizationToFork_box_id;
-
+					  let generalizationToFork_box_id = await Elements.insertAsync(object);
+					  element_map[generalizationToFork_box_id] = generalizationToFork_box_id;
+				  } else {console.error("No superclass for GeneralizationToFork", iri)}
 
 				  // AssocToFork
 				  elemType = await ElementTypes.findOneAsync({name: "AssocToFork", diagramTypeId: diagram_type._id});
@@ -353,9 +360,11 @@ Meteor.methods({
 				  line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
 
 				  for(let sc = 0; sc < subClasses.length; sc++){
-					  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[subClasses[sc]], element_map[horizontalFork_box_id], line_layoutSettings);
-					  let new_line_id = await Elements.insertAsync(object);
-					  element_map[new_line_id] = new_line_id;
+					  if( element_map[subClasses[sc]]){
+						  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[subClasses[sc]], element_map[horizontalFork_box_id], line_layoutSettings);
+						  let new_line_id = await Elements.insertAsync(object);
+						  element_map[new_line_id] = new_line_id;
+					  } else {console.error("No sub class for GeneralizationToFork", subClasses[sc])}
 				  }
 			  
 			  }else if((importSettings?.showSubclassesGraphicsType_lines ?? true) === true){
@@ -370,29 +379,38 @@ Meteor.methods({
 				  let line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
 				  
 				  for(let sc = 0; sc < subClasses.length; sc++){
+					if( element_map[subClasses[sc]] && element_map[iri]){
 					  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[subClasses[sc]], element_map[iri], line_layoutSettings);
 					  let new_line_id = await Elements.insertAsync(object);
 					  element_map[new_line_id] = new_line_id;
+					} else {
+						if(!element_map[iri]) console.error("No superclass for Generalization", iri);
+						if(!element_map[subClasses[sc]]) console.error("No sub class for Generalization", subClasses[sc]);
+					}
 				  }
 				  
 			  }
 
 			} else {
 			  // Generalization
-			  elemType = await ElementTypes.findOneAsync({name: "Generalization", diagramTypeId: diagram_type._id});
-			  if (!elemType) {
+			  if( element_map[subClasses[0]] && element_map[iri]){
+			    elemType = await ElementTypes.findOneAsync({name: "Generalization", diagramTypeId: diagram_type._id});
+			    if (!elemType) {
 					console.error("No Generalization type");
 					return;
+			    }
+		
+			    let elemStyle = elemType["styles"][0];
+			    let line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
+
+			    let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[subClasses[0]], element_map[iri], line_layoutSettings);
+
+			    let generalizationToFork_box_id = await Elements.insertAsync(object);
+			    element_map[generalizationToFork_box_id] = generalizationToFork_box_id;
+			  }else {
+				if(!element_map[iri]) console.error("No superclass for Generalization", iri);
+				if(!element_map[subClasses[0]]) console.error("No sub class for Generalization", subClasses[sc]);
 			  }
-
-			  let elemStyle = elemType["styles"][0];
-			  let line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
-
-			  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[subClasses[0]], element_map[iri], line_layoutSettings);
-
-			  let generalizationToFork_box_id = await Elements.insertAsync(object);
-			  element_map[generalizationToFork_box_id] = generalizationToFork_box_id;
-
 			}
 		}
 		
@@ -409,6 +427,7 @@ Meteor.methods({
 		  for (const key of Object.keys(ontology.dataProperties)) {
 			const item = ontology.dataProperties[key];
 			if(item.domain.length === 1 && item.Qualifiers.length > 0){
+			  if(item.domain[0]){
 				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
 				  
 				 let new_line_id = await Elements.insertAsync(object);
@@ -469,6 +488,7 @@ Meteor.methods({
 				  for (let i = 0; i < qualifiers.length; i++) {
 					await addCompartmentSubCompartments2(listForCompartment, "Qualifiers", qualifiers[i])
 				  }
+			  }else{console.error("No domain class for data property", item)}
 			}
 		  }
 		}
@@ -487,10 +507,11 @@ Meteor.methods({
 		if((importSettings?.showObjectProperties ?? true) === true && importSettings?.showObjectPropertiesType_graph === true){
 		  for (const key of Object.keys(ontology.objectProperties)) {
 			const item = ontology.objectProperties[key];
-			if(!item.handled && item.domain.length === 1 && item.range.length === 1 ){
-				let object;
-				let new_line_id;
-				const d = item.domain[0], r = item.range[0];
+			if(!item.handled && item.domain.length === 1 && item.range.length === 1 && element_map[item.domain[0]] && element_map[item.range[0]]){
+			  let object;
+			  let new_line_id;
+			  const d = item.domain[0], r = item.range[0];
+			  if(element_map[d] && element_map[r]){
 				if(item.Qualifiers.length > 0){
 					
 				  elemType = await ElementTypes.findOneAsync({name: "ObjectProperty", diagramTypeId: diagram_type._id});
@@ -592,100 +613,104 @@ Meteor.methods({
 				
 				
 				
-				let listForCompartment = {
-					diagram_id: new_diagram_id,
-					diagram_type_id: diagram_type._id,
-					projectId: list.projectId,
-					versionId: list.versionId,
-					element_id: new_line_id,
-					element_type_id: elemType._id
-				}
-				await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
-				if (item.FunctionalProperty)        await add_one_compartment(listForCompartment, "Functional", "true", "{func}");
-			    if (item.InverseFunctionalProperty) await add_one_compartment(listForCompartment, "InverseFunctional", "true", "{invf}");
-			    if (item.TransitiveProperty)        await add_one_compartment(listForCompartment, "Transitive", "true", "{tran}");
-			    if (item.SymmetricProperty)         await add_one_compartment(listForCompartment, "Symmetric", "true", "{sym}");
-			    if (item.AsymmetricProperty)        await add_one_compartment(listForCompartment, "Asymmetric", "true", "{asym}");
-			    if (item.ReflexiveProperty)         await add_one_compartment(listForCompartment, "Reflexive", "true", "{ref}");
-			    if (item.IrreflexiveProperty)       await add_one_compartment(listForCompartment, "Irreflexive", "true", "{iref}");
-				if (item.multiplicity) {
-				await add_one_compartment(listForCompartment, "Multiplicity", item.multiplicity, "["+item.multiplicity+"]");
-				}
-				// SuperProperty
-				for(let i = 0; i < item.superProperties.length; i++){
-				   await addCompartmentSubCompartments2(listForCompartment, "SuperProperties", item.superProperties[i])
-				}
-				// DisjointProperty
-				for(let i = 0; i < item.disjointProperties.length; i++){
-				   await addCompartmentSubCompartments2(listForCompartment, "DisjointProperties", item.disjointProperties[i])
-				}
-				// EquivalentProperty
-				for(let i = 0; i < item.equivalentProperties.length; i++){
-				   await addCompartmentSubCompartments2(listForCompartment, "EquivalentProperties", item.equivalentProperties[i])
-				}
-				// Label
-				if(item.label) {await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
-				  {name:"AnnotationType",value:"Label"},
-				  {name:"Value",value:item.label},
-				  {name:"Language",value:""},
-				 ])
-				}
-				// Annotation
-				for(let i = 0; i < item.annotations.length; i++){
-				   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
-				}
-				// PropertyChains
-				for(let i = 0; i < item.propertyChains.length; i++){
-				   await addCompartmentSubCompartments2(listForCompartment, "PropertyChains", item.propertyChains[i])
-				}
-
-				if(item.inverseOf.length > 0 && item.prefixedInv){
-					console.log("QQQQQQQQQQQQ", item, item.inverseOf.length, item.prefixedInv)
-					await add_one_compartment(listForCompartment, "NameInv", item.prefixedInv, item.prefixedInv)
-					if (item.FunctionalPropertyInv)        await add_one_compartment(listForCompartment, "FunctionalInv", "true", "{func}");
-					if (item.InverseFunctionalPropertyInv) await add_one_compartment(listForCompartment, "InverseFunctionalInv", "true", "{invf}");
-					if (item.TransitivePropertyInv)        await add_one_compartment(listForCompartment, "TransitiveInv", "true", "{tran}");
-					if (item.SymmetricPropertyInv)         await add_one_compartment(listForCompartment, "SymmetricInv", "true", "{sym}");
-					if (item.AsymmetricPropertyInv)        await add_one_compartment(listForCompartment, "AsymmetricInv", "true", "{asym}");
-					if (item.ReflexivePropertyInv)         await add_one_compartment(listForCompartment, "ReflexiveInv", "true", "{ref}");
-					if (item.IrreflexivePropertyInv)       await add_one_compartment(listForCompartment, "IrreflexiveInv", "true", "{iref}");
-					if (item.multiplicityInv) {
-						await add_one_compartment(listForCompartment, "MultiplicityInv", item.multiplicityInv, item.multiplicityInv);
+					let listForCompartment = {
+						diagram_id: new_diagram_id,
+						diagram_type_id: diagram_type._id,
+						projectId: list.projectId,
+						versionId: list.versionId,
+						element_id: new_line_id,
+						element_type_id: elemType._id
+					}
+					await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+					if (item.FunctionalProperty)        await add_one_compartment(listForCompartment, "Functional", "true", "{func}");
+					if (item.InverseFunctionalProperty) await add_one_compartment(listForCompartment, "InverseFunctional", "true", "{invf}");
+					if (item.TransitiveProperty)        await add_one_compartment(listForCompartment, "Transitive", "true", "{tran}");
+					if (item.SymmetricProperty)         await add_one_compartment(listForCompartment, "Symmetric", "true", "{sym}");
+					if (item.AsymmetricProperty)        await add_one_compartment(listForCompartment, "Asymmetric", "true", "{asym}");
+					if (item.ReflexiveProperty)         await add_one_compartment(listForCompartment, "Reflexive", "true", "{ref}");
+					if (item.IrreflexiveProperty)       await add_one_compartment(listForCompartment, "Irreflexive", "true", "{iref}");
+					if (item.multiplicity) {
+					await add_one_compartment(listForCompartment, "Multiplicity", item.multiplicity, "["+item.multiplicity+"]");
 					}
 					// SuperProperty
-					const superProps = item.superPropertiesInv || [];
-					for (let i = 0; i < superProps.length; i++) {
-					   await addCompartmentSubCompartments2(listForCompartment, "SuperPropertiesInv", superProps[i])
+					for(let i = 0; i < item.superProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "SuperProperties", item.superProperties[i])
 					}
 					// DisjointProperty
-					const disjointProps = item.disjointPropertiesInv || [];
-					for(let i = 0; i < disjointProps.length; i++){
-					   await addCompartmentSubCompartments2(listForCompartment, "DisjointPropertiesInv", disjointProps[i])
+					for(let i = 0; i < item.disjointProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "DisjointProperties", item.disjointProperties[i])
 					}
 					// EquivalentProperty
-					const equivalentProps = item.equivalentPropertiesInv || [];
-					for(let i = 0; i < equivalentProps.length; i++){
-					   await addCompartmentSubCompartments2(listForCompartment, "EquivalentPropertiesInv", equivalentProps[i])
+					for(let i = 0; i < item.equivalentProperties.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "EquivalentProperties", item.equivalentProperties[i])
 					}
 					// Label
-					if(item.labelInv) {await addCompartmentSubCompartments2(listForCompartment, "AnnotationInv",[
+					if(item.label) {await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
 					  {name:"AnnotationType",value:"Label"},
-					  {name:"Value",value:item.labelInv},
+					  {name:"Value",value:item.label},
 					  {name:"Language",value:""},
 					 ])
 					}
 					// Annotation
-					const annot = item.annotationsInv || [];
-					for(let i = 0; i < annot.length; i++){
-					   await addCompartmentSubCompartments2(listForCompartment, "AnnotationInv", annot[i])
+					for(let i = 0; i < item.annotations.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
 					}
 					// PropertyChains
-					const propertyChainsInv = item.propertyChainsInv || [];
-					for(let i = 0; i < propertyChainsInv.length; i++){
-					   await addCompartmentSubCompartments2(listForCompartment, "PropertyChainsInv", propertyChainsInv[i])
+					for(let i = 0; i < item.propertyChains.length; i++){
+					   await addCompartmentSubCompartments2(listForCompartment, "PropertyChains", item.propertyChains[i])
 					}
+
+					if(item.inverseOf.length > 0 && item.prefixedInv){
+
+						await add_one_compartment(listForCompartment, "NameInv", item.prefixedInv, item.prefixedInv)
+						if (item.FunctionalPropertyInv)        await add_one_compartment(listForCompartment, "FunctionalInv", "true", "{func}");
+						if (item.InverseFunctionalPropertyInv) await add_one_compartment(listForCompartment, "InverseFunctionalInv", "true", "{invf}");
+						if (item.TransitivePropertyInv)        await add_one_compartment(listForCompartment, "TransitiveInv", "true", "{tran}");
+						if (item.SymmetricPropertyInv)         await add_one_compartment(listForCompartment, "SymmetricInv", "true", "{sym}");
+						if (item.AsymmetricPropertyInv)        await add_one_compartment(listForCompartment, "AsymmetricInv", "true", "{asym}");
+						if (item.ReflexivePropertyInv)         await add_one_compartment(listForCompartment, "ReflexiveInv", "true", "{ref}");
+						if (item.IrreflexivePropertyInv)       await add_one_compartment(listForCompartment, "IrreflexiveInv", "true", "{iref}");
+						if (item.multiplicityInv) {
+							await add_one_compartment(listForCompartment, "MultiplicityInv", item.multiplicityInv, item.multiplicityInv);
+						}
+						// SuperProperty
+						const superProps = item.superPropertiesInv || [];
+						for (let i = 0; i < superProps.length; i++) {
+						   await addCompartmentSubCompartments2(listForCompartment, "SuperPropertiesInv", superProps[i])
+						}
+						// DisjointProperty
+						const disjointProps = item.disjointPropertiesInv || [];
+						for(let i = 0; i < disjointProps.length; i++){
+						   await addCompartmentSubCompartments2(listForCompartment, "DisjointPropertiesInv", disjointProps[i])
+						}
+						// EquivalentProperty
+						const equivalentProps = item.equivalentPropertiesInv || [];
+						for(let i = 0; i < equivalentProps.length; i++){
+						   await addCompartmentSubCompartments2(listForCompartment, "EquivalentPropertiesInv", equivalentProps[i])
+						}
+						// Label
+						if(item.labelInv) {await addCompartmentSubCompartments2(listForCompartment, "AnnotationInv",[
+						  {name:"AnnotationType",value:"Label"},
+						  {name:"Value",value:item.labelInv},
+						  {name:"Language",value:""},
+						 ])
+						}
+						// Annotation
+						const annot = item.annotationsInv || [];
+						for(let i = 0; i < annot.length; i++){
+						   await addCompartmentSubCompartments2(listForCompartment, "AnnotationInv", annot[i])
+						}
+						// PropertyChains
+						const propertyChainsInv = item.propertyChainsInv || [];
+						for(let i = 0; i < propertyChainsInv.length; i++){
+						   await addCompartmentSubCompartments2(listForCompartment, "PropertyChainsInv", propertyChainsInv[i])
+						}
+					}
+				  }
+				} else {
+					if(!element_map[d]) console.error("Object property DOMAIN not found", item)
+					if(!element_map[r]) console.error("Object property RANGE not found", item)
 				}
-			  }
 			}
 		  }
 		}
@@ -741,6 +766,11 @@ Meteor.methods({
 			  if(multiplicity !== null && multiplicity !== "0..*"){
 				await add_one_compartment(listForCompartment, "Multiplicity", multiplicity, "["+multiplicity+"]");
 			  }
+		  } else {
+			  if(!item.subject) console.error("No restriction subject", item);
+			  if(!objectR) console.error("No restriction object", item);
+			  if(!item.subject) console.error("No restriction subject class", item);
+			  if(!item.subject) console.error("No restriction object class", item);
 		  }
 		}
 
@@ -757,21 +787,26 @@ Meteor.methods({
 		if(ontology.complementOf){
 			for (const key of Object.keys(ontology.complementOf)) {
 			  const item = ontology.complementOf[key];
+			  if(element_map[item.subject] && element_map[item.object]){
 
-			  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.subject], element_map[item.object], line_layoutSettings);
+			    let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.subject], element_map[item.object], line_layoutSettings);
 
-			  let new_line_id = await Elements.insertAsync(object);
-			  element_map[new_line_id] = new_line_id;
+			    let new_line_id = await Elements.insertAsync(object);
+			    element_map[new_line_id] = new_line_id;
 
-			  let listForCompartment = {
+			    let listForCompartment = {
 						diagram_id: new_diagram_id,
 						diagram_type_id: diagram_type._id,
 						projectId: list.projectId,
 						versionId: list.versionId,
 						element_id: new_line_id,
 						element_type_id: elemType._id
+			    }
+			    await add_one_compartment(listForCompartment, "Label", "<<complementOf>>", "<<complementOf>>");
+			  } else {
+				if(!element_map[item.subject]) console.error("No sybject class for ComplementOf", item);
+				if(!element_map[item.object]) console.error("No sybject object for ComplementOf", item);
 			  }
-			  await add_one_compartment(listForCompartment, "Label", "<<complementOf>>", "<<complementOf>>");
 			}
 		}
 		//Individuals
@@ -783,10 +818,10 @@ Meteor.methods({
 
 		for (const key of Object.keys(ontology.individuals)) {
 			const item = ontology.individuals[key];
-			if (element_map[key]) {
-				console.error("Key already exists", key, element_map);
-				continue;
-			}
+			// if (element_map[key]) {
+				// console.error("Key already exists", key, element_map);
+				// continue;
+			// }
 
             let elemStyle = elemType["styles"][0];
 			let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
@@ -817,22 +852,28 @@ Meteor.methods({
 			  }
 			  let elemStyleAnC = elemTypeAnC["styles"][0];
 			  let line_layoutSettings = ( elemStyleAnC.layoutSettings !== undefined) ?  elemStyleAnC.layoutSettings : {};
-			  let objectC = await Create_New_OWLGrEd_Element(list, elemStyleAnC, diagram_type, new_diagram_id, elemStyleAnC, true, new_box_id, element_map[item.classID], line_layoutSettings);
+			  
+			  for(let t = 0; t < item.classID.length; t++){
+				  if(element_map[item.classID[t]]){
+					let objectC = await Create_New_OWLGrEd_Element(list, elemStyleAnC, diagram_type, new_diagram_id, elemStyleAnC, true, new_box_id, element_map[item.classID[t]], line_layoutSettings);
 
-			  let new_line_id_An = await Elements.insertAsync(objectC);
-			  element_map[new_line_id_An] = new_line_id_An;
-			  
-			  let listForCompartmentL = {
-					diagram_id: new_diagram_id,
-					diagram_type_id: diagram_type._id,
-					projectId: list.projectId,
-					versionId: list.versionId,
-					element_id: new_line_id_An,
-					element_type_id: elemTypeAnC._id
-			  }
-			  
-			  await add_one_compartment(listForCompartmentL, "Label", "<<instanceOf>>", "<<instanceOf>>");
-					
+					let new_line_id_An = await Elements.insertAsync(objectC);
+					element_map[new_line_id_An] = new_line_id_An;
+					  
+					let listForCompartmentL = {
+						diagram_id: new_diagram_id,
+						diagram_type_id: diagram_type._id,
+						projectId: list.projectId,
+						versionId: list.versionId,
+						element_id: new_line_id_An,
+						element_type_id: elemTypeAnC._id
+					}
+					  
+					await add_one_compartment(listForCompartmentL, "Label", "<<instanceOf>>", "<<instanceOf>>");
+				  } else {
+					  console.error("No Class for individual", item, t)
+				  }
+			  }	
 			}
 			
 			//Annotations
@@ -928,29 +969,36 @@ Meteor.methods({
 				}
 			}
 			// DataPropertyAssertions
-			for(let i = 0; i < item.dataPropertyAssertions.length; i++){
+			if(item.dataPropertyAssertions){
+			  for(let i = 0; i < item.dataPropertyAssertions.length; i++){
 				await addCompartmentSubCompartments2(listForCompartment, "DataPropertyAssertion", item.dataPropertyAssertions[i])
+			  }
 			}
-
 			// NegativeDataPropertyAssertions
-			for(let i = 0; i < item.negativeDataPropertyAssertions.length; i++){
+			if(item.negativeDataPropertyAssertions){
+			  for(let i = 0; i < item.negativeDataPropertyAssertions.length; i++){
 				await addCompartmentSubCompartments2(listForCompartment, "NegativeDataPropertyAssertion", item.negativeDataPropertyAssertions[i])
+			  }
 			}
-			if(item.dataPropertyAssertions.length > 0){
+			if(item.dataPropertyAssertions && item.dataPropertyAssertions.length > 0){
 				await setHorizontalLine(listForCompartment, "HorizontalLine10")
 			}
-			if(item.negativeDataPropertyAssertions.length > 0){
+			if(item.negativeDataPropertyAssertions && item.negativeDataPropertyAssertions.length > 0){
 				await setHorizontalLine(listForCompartment, "HorizontalLine9")
 			}
 			// DifferentIndividuals
-			for(let i = 0; i < item.differentIndividuals.length; i++){
+			if(item.differentIndividuals){
+			  for(let i = 0; i < item.differentIndividuals.length; i++){
 				await addCompartmentSubCompartments2(listForCompartment, "DifferentIndividuals", item.differentIndividuals[i])
+			  }
 			}
 			// SameIndividuals
-			for(let i = 0; i < item.sameIndividuals.length; i++){
+			if(item.sameIndividuals){
+			  for(let i = 0; i < item.sameIndividuals.length; i++){
 				await addCompartmentSubCompartments2(listForCompartment, "SameIndividuals", item.sameIndividuals[i])
+			  }
 			}
-			if(item.sameIndividuals.length > 0 || item.differentIndividuals.length > 0){
+			if((item.sameIndividuals && item.sameIndividuals.length > 0) || (item.differentIndividuals && item.differentIndividuals.length > 0)){
 				await setHorizontalLine(listForCompartment, "HorizontalLine11")
 			}
 		}
@@ -966,29 +1014,34 @@ Meteor.methods({
 		assocStyles = elemType.styles;
 		elemStyle= assocStyles.find(s => s.name === 'Link_direct');
         line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
+		
+		if(ontology.objectPropertyAssertions){
+			for (const key of Object.keys(ontology.objectPropertyAssertions)) {
+			  const item = ontology.objectPropertyAssertions[key];
+			  if(element_map[item.source] && element_map[item.target]){
+				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.source], element_map[item.target], line_layoutSettings);
 
-		for (const key of Object.keys(ontology.objectPropertyAssertions)) {
-		  const item = ontology.objectPropertyAssertions[key];
+				let new_line_id = await Elements.insertAsync(object);
+				element_map[new_line_id] = new_line_id;
 
-		  let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, true, element_map[item.source], element_map[item.target], line_layoutSettings);
-
-		  let new_line_id = await Elements.insertAsync(object);
-		  element_map[new_line_id] = new_line_id;
-
-		  let listForCompartment = {
-					diagram_id: new_diagram_id,
-					diagram_type_id: diagram_type._id,
-					projectId: list.projectId,
-					versionId: list.versionId,
-					element_id: new_line_id,
-					element_type_id: elemType._id
-		  }
-		  let propertyInput = item.prefixed;
-		  if(item.negative === true){
-			await add_one_compartment(listForCompartment, "IsNegativeAssertion", "true");
-			propertyInput = "\u27C2"+propertyInput;
-		  }
-		  await add_one_compartment(listForCompartment, "Property", item.prefixed, propertyInput);
+				let listForCompartment = {
+						diagram_id: new_diagram_id,
+						diagram_type_id: diagram_type._id,
+						projectId: list.projectId,
+						versionId: list.versionId,
+						element_id: new_line_id,
+						element_type_id: elemType._id
+				}
+				let propertyInput = item.prefixed;
+				if(item.negative === true){
+					await add_one_compartment(listForCompartment, "IsNegativeAssertion", "true");
+					propertyInput = "\u27C2"+propertyInput;
+				}
+				await add_one_compartment(listForCompartment, "Property", item.prefixed, propertyInput);
+			  } else {
+				console.error("No Individual box for object Property Assertion", item); 
+			  }
+			}
 		}
 
 		//AnnotationProperty
@@ -1002,7 +1055,7 @@ Meteor.methods({
 			const item = ontology.annotationProperties[key];
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
-				return;
+				continue;
 			}
 
             let elemStyle = elemType["styles"][0];
@@ -1085,7 +1138,7 @@ Meteor.methods({
 			const item = ontology.dataTypes[key];
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
-				return;
+				continue;
 			}
 
             let elemStyle = elemType["styles"][0];
@@ -1128,10 +1181,10 @@ Meteor.methods({
 		//DisjointClasses
 		for (const key of Object.keys(ontology.allDisjointClasses)) {
 			const item = ontology.allDisjointClasses[key];
-			if (element_map[key]) {
-				console.error("Key already exists", key, element_map);
-				return;
-			}
+			// if (element_map[key]) {
+				// console.error("Key already exists", key, element_map);
+				// return;
+			// }
 
 			if(item.length > 2){
 				elemType = await ElementTypes.findOneAsync({name: "DisjointClasses", diagramTypeId: diagram_type._id});
@@ -1170,6 +1223,8 @@ Meteor.methods({
 
 					let new_line_id = await Elements.insertAsync(object);
 					element_map[new_line_id] = new_line_id;
+				  } else {
+					console.error("No Disjoint Class", item[c]);
 				  }
 				}
 		  } else if(item.length === 2 && element_map[item[0]] && element_map[item[1]]){
@@ -1179,7 +1234,6 @@ Meteor.methods({
 					console.error("No Disjoint type");
 					return;
 				}
-
 			  elemStyle = elemType["styles"][0];
 			  line_layoutSettings = ( elemType.layoutSettings !== undefined) ?  elemType.layoutSettings : {};
 
@@ -1197,6 +1251,9 @@ Meteor.methods({
 						element_type_id: elemType._id
 			  }
 			  await add_one_compartment(listForCompartment, "Label", "<<disjoint>>", "<<disjoint>>");
+		  } else {
+			  if(!element_map[item[0]])console.error("No Disjoint Class", item[0]);
+			  if(!element_map[item[1]])console.error("No Disjoint Class", item[1]);
 		  }
 		}
 
@@ -1205,7 +1262,7 @@ Meteor.methods({
 			const item = ontology.equivalentClasses[key];
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
-				return;
+				continue;
 			}
 
 			if(item.length > 2){
@@ -1245,7 +1302,7 @@ Meteor.methods({
 
 					let new_line_id = await Elements.insertAsync(object);
 					element_map[new_line_id] = new_line_id;
-				  }
+				  } else {console.error("No Equivalent Class", item[c]);}
 				}
 		  } else if(item.length === 2 && element_map[item[0]] && element_map[item[1]]){
 			  // Disjoint
@@ -1272,6 +1329,9 @@ Meteor.methods({
 						element_type_id: elemType._id
 			  }
 			  await add_one_compartment(listForCompartment, "Label", "<<equivalent>>", "<<equivalent>>");
+		  }else {
+			  if(!element_map[item[0]])console.error("No Equivalent Class", item[0]);
+			  if(!element_map[item[1]])console.error("No Equivalent Class", item[1]);
 		  }
 		}
 	},

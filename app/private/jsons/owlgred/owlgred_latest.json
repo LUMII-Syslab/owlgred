@@ -1740,6 +1740,101 @@
             },
 			{
               "object": {
+                "_id": "jAxB645Y8QErMfb8f",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "fCNoA6sqGLdTB2Dmg",
+                "elementId": "xQtWJgZ7CDTazoQjt",
+                "index": 2100,
+                "noRepresentation": false,
+                "tabIndex": 2200,
+                "dialogTabId": "eLy7pfE4GnHAPeeFq",
+                "name": "Individuals",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "custom",
+                  "templateName": "classInstanceFieldOWLGrEd"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "5a056f8f20b07d71dcce3e8a",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 12,
+                      "fontStyle": "normal",
+                      "fontFamily": "Courier New",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [
+                  {
+                    "_id": "304eddff333se156378bsa82",
+                    "name": "Individuals",
+                    "extensionPoints": [
+                      {
+                        "extensionPoint": "procDecompose",
+                        "procedure": ""
+                      }
+                    ],
+                    "prefix": "\u25C7 ",
+                    "suffix": null,
+                    "defaultValue": null,
+                    "subCompartmentTypes": [
+                      {
+                        "_id": "su465uhs7s8gf52uadmk58g1",
+                        "index": 1,
+                        "name": "Individual",
+                        "label": "Individual",
+                        "extensionPoints": [],
+                        "prefix": "\u25C7 ",
+                        "suffix": null,
+                        "defaultValue": null,
+                        "inputType": {
+                          "type": "input"
+                        },
+                        "subCompartmentTypes": []
+                      }
+                    ],
+                    "label": "Individuals"
+                  }
+                ],
+                "label": "Individuals"
+              }
+            },
+			{
+              "object": {
                 "_id": "xqSwZAqS3CfetDrf2",
                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
@@ -1826,6 +1921,16 @@
               "name": "Attributes",
               "elementTypeId": "fCNoA6sqGLdTB2Dmg",
               "index": 2
+            },
+            {
+              "_id": "eLy7pfE4GnHAPeeFq",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "name": "Individuals",
+              "elementTypeId": "fCNoA6sqGLdTB2Dmg",
+              "index": 3
             }
           ]
         },
@@ -2014,7 +2119,7 @@
                     "style": {
                       "align": "left",
                       "fill": "#000000",
-                      "padding": 0,
+                      "padding": 5,
                       "placement": "start-left",
                       "visible": true,
                       "fontSize": 14,
@@ -2092,7 +2197,7 @@
                     "style": {
                       "align": "left",
                       "fill": "#000000",
-                      "padding": 0,
+                      "padding": 5,
                       "placement": "start-left",
                       "visible": true,
                       "fontSize": 14,
@@ -3346,6 +3451,10 @@
             "superTypeIds": [
               "aoQGghJQhzuMJfmjk"
             ],
+			"subTypeIds": [
+			  "JE9K4Qh9zDbCJa7dr",
+			  "mbvfcx2rE8aYcMQuN"
+			],
             "type": "Box",
             "extensionPoints": [
               {
@@ -4101,6 +4210,19 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "H8FNs96AQiZ9vH4tM",
             "superTypeIds": [],
+			"subTypeIds": [
+			  "fCNoA6sqGLdTB2Dmg",
+			  "8RrMQyXGMbDGsvpc9",
+			  "AXu2kc6YyPp35ukcD",
+			  "JE9K4Qh9zDbCJa7dr",
+			  "mbvfcx2rE8aYcMQuN",
+			  "LD92ncnTAN2qYPHwk",
+			  "aYqpwmYuXruCiBiJz",
+			  "9WbQQ3AcS4MtSFDi4",
+			  "bpSBgMuA2cRuAeK36",
+			  "NqiYLnvSvi4ZEQNSg",
+			  "yiG2MLbQHXXPm4WvY"
+			],
             "type": "Box",
             "extensionPoints": [
               {
@@ -5940,6 +6062,10 @@
             "superTypeIds": [
               "aoQGghJQhzuMJfmjk"
             ],
+			"subTypeIds": [
+			  "NqiYLnvSvi4ZEQNSg",
+			  "yiG2MLbQHXXPm4WvY"
+			],
             "type": "Box",
             "extensionPoints": [
               {
@@ -10299,6 +10425,10 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "6LpTjhDPTpafeYfct",
             "superTypeIds": [],
+			"subTypeIds": [
+			  "nT9Lq7pDSsKHEdKgu",
+			  "dRDNsPiTrajpdPpef"
+			],
             "type": "Box",
             "extensionPoints": [
               {
@@ -11607,6 +11737,10 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "3DLa5WWqBZzvBNpPA",
             "superTypeIds": [],
+			"subTypeIds": [
+			  "Rh7erKfchEsyywKa6",
+			  "JHeLkaixx4Q33KyRR"
+			],
             "type": "Box",
             "extensionPoints": [
               {
@@ -19430,7 +19564,15 @@
           "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
           "diagramId": "RZqspitY6nvRBmxnf",
           "elementTypeIds": [
-            "iHs8T6AoQFiuoZySt"
+            "iHs8T6AoQFiuoZySt",
+			"grfWxsysaaT8jyykL",
+			"Dp8gtAtp4iHJ6fX6t",
+			"tYr9LjDcwbJzfbDcK",
+			"wdKArJJ53DEQt58ht",
+			"hZyaSJM6JWJdQsa7X",
+			"ZA9FsFHYgotX3PoH6",
+			"WRd6zRsLqHhxbxCWk",
+			"HHkts5wEzHHbqdri3"
           ],
           "name": "Association",
           "type": "Line",
@@ -19443,7 +19585,9 @@
           "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
           "diagramId": "RZqspitY6nvRBmxnf",
           "elementTypeIds": [
-            "GTcNiygfwENhF3DFn"
+            "GTcNiygfwENhF3DFn",
+			"QeoDvzd5LX2NAZTd8",
+			"mNNxNLT8aRDkNbQXb"
           ],
           "name": "Generalization",
           "type": "Line",
@@ -19461,32 +19605,6 @@
           "name": "HorizontalFork",
           "type": "Box",
           "index": 4
-        },
-        {
-          "_id": "4i35BK6xm7mWCENrf",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "RZqspitY6nvRBmxnf",
-          "elementTypeIds": [
-            "Dp8gtAtp4iHJ6fX6t"
-          ],
-          "name": "AssocToFork",
-          "type": "Line",
-          "index": 5
-        },
-        {
-          "_id": "sR5ZYstAcWFXtJBcm",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "RZqspitY6nvRBmxnf",
-          "elementTypeIds": [
-            "QeoDvzd5LX2NAZTd8"
-          ],
-          "name": "GeneralizationToFork",
-          "type": "Line",
-          "index": 6
         },
         {
           "_id": "dpjzgEdoHetuFbAtk",
@@ -19513,19 +19631,6 @@
           "name": "DisjointClasses",
           "type": "Box",
           "index": 8
-        },
-        {
-          "_id": "qJMrRbdheWCSqEwm5",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "YmKxYYpQMzPP6GQcw",
-          "elementTypeIds": [
-            "ZA9FsFHYgotX3PoH6"
-          ],
-          "name": "Line",
-          "type": "Line",
-          "index": 9
         },
         {
           "_id": "zwS3dJ29mpz9op83S",
@@ -19606,19 +19711,6 @@
           "index": 16
         },
         {
-          "_id": "R6YBfkaNMJ2yhRxLj",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "RZqspitY6nvRBmxnf",
-          "elementTypeIds": [
-            "WRd6zRsLqHhxbxCWk"
-          ],
-          "name": "Connector",
-          "type": "Line",
-          "index": 17
-        },
-        {
           "_id": "a5TZ7jdFmgTy8hbsn",
           "toolId": "cHSidEZPTvZRSFFtZ",
           "versionId": "EtJZ6WzJNMpthfpC3",
@@ -19645,32 +19737,6 @@
           "index": 20
         },
         {
-          "_id": "SzeBLrBD2pN7tmiQt",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "YmKxYYpQMzPP6GQcw",
-          "elementTypeIds": [
-            "grfWxsysaaT8jyykL"
-          ],
-          "name": "LinkObject",
-          "type": "Line",
-          "index": 21
-        },
-        {
-          "_id": "kdvxxNQMszLnqbXHX",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "RZqspitY6nvRBmxnf",
-          "elementTypeIds": [
-            "tYr9LjDcwbJzfbDcK"
-          ],
-          "name": "InstanceOf",
-          "type": "Line",
-          "index": 22
-        },
-        {
           "_id": "utDzonSiE7iWoaNp4",
           "toolId": "cHSidEZPTvZRSFFtZ",
           "versionId": "EtJZ6WzJNMpthfpC3",
@@ -19695,19 +19761,6 @@
           "name": "SameAsIndivids",
           "type": "Box",
           "index": 24
-        },
-        {
-          "_id": "hcvbcewdgtXwnDDmu",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "RZqspitY6nvRBmxnf",
-          "elementTypeIds": [
-            "HHkts5wEzHHbqdri3"
-          ],
-          "name": "Line",
-          "type": "Line",
-          "index": 25
         },
         {
           "_id": "2LPwt6pGb988wBYge",
@@ -19761,32 +19814,6 @@
           "type": "Box",
           "index": 37
         },
-		{
-          "_id": "aLGLQAkGeq4rfpZiZ",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "YmsfLsQHNYsgFDJab",
-          "elementTypeIds": [
-            "mNNxNLT8aRDkNbQXb"
-          ],
-          "name": "GeneralizationProperty",
-          "type": "Line",
-          "index": 38
-        },
-        {
-          "_id": "FZRR96MTXMhMzM5Yi",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "b8QRj5Ye5nBXGtQx5",
-          "elementTypeIds": [
-            "wdKArJJ53DEQt58ht"
-          ],
-          "name": "linePropertyClass",
-          "type": "Line",
-          "index": 39
-        },
         {
           "_id": "8dZn3yqZrRh9LysXS",
           "toolId": "cHSidEZPTvZRSFFtZ",
@@ -19812,19 +19839,6 @@
           "name": "DataPropertyAssertion",
           "type": "Box",
           "index": 41
-        },
-        {
-          "_id": "NqHqJcSbJqHGug2eq",
-          "toolId": "cHSidEZPTvZRSFFtZ",
-          "versionId": "EtJZ6WzJNMpthfpC3",
-          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
-          "diagramId": "b8QRj5Ye5nBXGtQx5",
-          "elementTypeIds": [
-            "hZyaSJM6JWJdQsa7X"
-          ],
-          "name": "linePropertyObject",
-          "type": "Line",
-          "index": 43
         },
         {
           "_id": "c36KBosHZHEFzfEZv",

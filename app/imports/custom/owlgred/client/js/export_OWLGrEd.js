@@ -472,6 +472,53 @@ async function saveOntologyInFormatOwlgred(){
 							}
 						}
 					}
+					
+					const classIndividuals = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Individuals", [{title:"Individual",name:"Individual"}]);
+
+					for(let axiom = 0; axiom < classIndividuals.length; axiom++){
+
+						let individualProperties = JSON.parse(classIndividuals[axiom].Individual);
+						
+						
+						const IndividualName = individualProperties[0].value;
+						ontologyObject = createExportStructureElement(ontology, "NamedIndividual", IndividualName);
+						ontologyObject.push({
+							"type": "Declaration",
+							"axiom": {
+								"type": "NamedIndividual",
+								"axiom": {
+									"IRI": await getFullName(IndividualName)
+								}
+							}
+						})
+						ontologyObject.push(
+						{
+							"type": "ClassAssertion",
+							"axiom": [
+								{
+									"IRI": await getFullName(className)
+								},
+								{
+									"IRI": await getFullName(IndividualName)
+								}
+							]
+						})
+						
+						// DataPropertyAssertion
+						for(let axiom = 1; axiom < individualProperties.length; axiom++){
+							let annotationObject = {};
+							annotationObject.type = "DataPropertyAssertion";
+							annotationObject.axiom = [];
+							const PropertyName = await getFullName(individualProperties[axiom]["name"]);
+
+							annotationObject.axiom.push({IRI: PropertyName})
+							annotationObject.axiom.push({IRI: await getFullName(IndividualName)})
+							annotationObject.axiom.push({value: individualProperties[axiom]["value"]})
+							// annotationObject.axiom.push({type: await getTypeExpression(DataPropertyAssertion[axiom]["Type"], ontology)})
+							ontologyObject.push(annotationObject);
+						}
+					}
+					
 				} else if(elem_type[elemType]["name"] === "Restriction"){
 					const Role = await elemOWLGrEd.getCompartmentValue("Role");
 					const IsInverse = await elemOWLGrEd.getCompartmentValue("IsInverse");

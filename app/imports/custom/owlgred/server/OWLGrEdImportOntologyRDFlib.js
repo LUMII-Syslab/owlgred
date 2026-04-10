@@ -198,23 +198,90 @@ function makeState(prefixes = {}) {
 }
 
 function iriToPrefixed(iri, prefixes = {}) {
+  if (!iri) return iri;
 
+  // Expand RDF/XML entity-style namespace usage:
+  //   &Prefix;LocalName
+  // or
+  //   http://.../&Prefix;LocalName
+  iri = iri.replace(/&([A-Za-z_][\w.-]*);([A-Za-z_][\w.-]*)/g, (full, entityPrefix, local) => {
+    return prefixes[entityPrefix] ? prefixes[entityPrefix] + local : full;
+  });
+
+  // Try existing prefixes first
   for (const [prefix, base] of Object.entries(prefixes)) {
     if (iri.startsWith(base)) {
       const local = iri.slice(base.length);
 
-      // Rule 2: default prefix ("" or ":") → just the local name
       if (prefix === '' || prefix === ':') {
         return local;
       }
 
-      // Rule 1: normal prefix → prefix:localName
       return `${prefix}:${local}`;
     }
   }
 
-  // Rule 3: prefix unknown → return full IRI
-  return iri;
+  // Split unknown IRI into namespace + local name
+  const parts = splitNamespaceAndLocal(iri);
+  if (!parts) return iri;
+
+  const { namespace, local } = parts;
+
+  // Reuse prefix if same namespace already exists under another key
+  for (const [prefix, base] of Object.entries(prefixes)) {
+    if (base === namespace) {
+      return (prefix === '' || prefix === ':') ? local : `${prefix}:${local}`;
+    }
+  }
+
+  // Auto-create new readable prefix from namespace
+  const newPrefix = makePrefixFromNamespace(namespace, prefixes);
+  prefixes[newPrefix] = namespace;
+
+  return `${newPrefix}:${local}`;
+}
+
+function splitNamespaceAndLocal(iri) {
+  if (!iri) return null;
+
+  const hash = iri.lastIndexOf('#');
+  if (hash !== -1 && hash < iri.length - 1) {
+    return {
+      namespace: iri.slice(0, hash + 1),
+      local: iri.slice(hash + 1)
+    };
+  }
+
+  const slash = iri.lastIndexOf('/');
+  if (slash !== -1 && slash < iri.length - 1) {
+    return {
+      namespace: iri.slice(0, slash + 1),
+      local: iri.slice(slash + 1)
+    };
+  }
+
+  return null;
+}
+
+function makePrefixFromNamespace(namespace, prefixes) {
+  let candidate = namespace
+    .replace(/[\/#]+$/, '')
+    .split(/[\/#]/)
+    .pop()
+    .replace(/\.(owl|rdf|ttl|xml)$/i, '')
+    .replace(/[^A-Za-z0-9_-]/g, '') || 'ns';
+
+  if (!/^[A-Za-z_]/.test(candidate)) {
+    candidate = `ns_${candidate}`;
+  }
+
+  let prefix = candidate;
+  let i = 1;
+  while (Object.prototype.hasOwnProperty.call(prefixes, prefix)) {
+    prefix = `${candidate}${i++}`;
+  }
+
+  return prefix;
 }
 
 function isBuiltInDatatype(iri) {
@@ -354,6 +421,20 @@ function discoverEntitiesRDFlib(store, state, prefixes = {}) {
       }));
       return;
     }
+	if (oIri === OWL + 'Thing') {
+	  ensure(state.classes, oIri, iri => ({
+		...makeEntity(iri, 'Class'),
+		superClasses: [],
+		equivalentClasses: [],
+		disjointWith: [],
+		instances: [],
+		dataProperties: [],
+		objectProperties: [],
+		restrictions: [],
+		keys: [],
+		complementOf: []
+	  }));
+	}
 
     if (oIri === OWL + 'ObjectProperty') {
 	  ensure(state.objectProperties, sIri, iri => ({
@@ -476,7 +557,29 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
     iri.startsWith(XSD) || iri === RDFS + 'Literal' || iri === RDF + 'langString' ||
     iri === RDF + 'PlainLiteral' || iri === OWL + 'real' || iri === OWL + 'rational';
 
-  // NEW: make sure we can create a datatype bucket on-the-fly
+   const ensureClass = (iri) => {
+    if (!state.classes[iri]) {
+      state.classes[iri] = {
+        iri,
+        prefixed: iriToPrefixed(iri, prefixes),
+        label: null,
+        annotations: [],
+        kind: 'Class',
+        superClasses: [],
+        equivalentClasses: [],
+        disjointWith: [],
+        instances: [],
+        dataProperties: [],
+        objectProperties: [],
+        restrictions: [],
+        keys: [],
+        complementOf: []
+      };
+    }
+    return state.classes[iri];
+  };
+
+  // make sure we can create a datatype bucket on-the-fly
   const ensureDatatype = (iri) => {
     if (typeof state.dataTypes === 'undefined') return null; // respect caller’s choice to omit datatypes
     if (!state.dataTypes[iri]) {
@@ -493,6 +596,24 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
       };
     }
     return state.dataTypes[iri];
+  };
+  
+  const ensureAnnotationProperty = (iri) => {
+	  if (!state.annotationProperties[iri]) {
+		state.annotationProperties[iri] = {
+		  iri,
+		  prefixed: iriToPrefixed(iri, prefixes),
+		  label: null,
+		  annotations: [],
+		  kind: 'AnnotationProperty',
+		  domain: [],
+		  range: [],
+		  superProperties: [],
+		  Qualifiers: []
+		};
+	  }
+	  state.isAnnotationProp.add(iri);
+	  return state.annotationProperties[iri];
   };
 
   // Ensure an individual bucket exists (local helper)
@@ -548,6 +669,14 @@ function routeTriplesRDFlib(store, state, prefixes = {}) {
     }
     return null;
   };
+  
+   const termKey = (t) =>
+    (t && t.termType === 'BlankNode') ? ('_:' + t.value) : t?.value;
+
+  const ontologySubjects = new Set(
+    store.match(null, $rdf.sym(RDF + 'type'), $rdf.sym(OWL + 'Ontology'), null)
+      .map(q => termKey(q.subject))
+  );
 
   
     // Remove a single pair of outer parentheses ONLY if they wrap the whole expression
@@ -1054,18 +1183,17 @@ if (p.value === OWL + 'disjointWith') {
       if (o.termType === 'NamedNode') {
         if (state.objectProperties[s.value]) state.objectProperties[s.value].domain.push(o.value);
         if (state.dataProperties[s.value])   state.dataProperties[s.value].domain.push(o.value);
-        if (state.annotationProperties[s.value])  state.annotationProperties[s.value].domain.push(o.value);
+        if (state.annotationProperties[s.value]) state.annotationProperties[s.value].domain.push(o.value);
 
-        // link property under class bucket (for OP/DP only)
-        const cls = state.classes[o.value];
-        if (cls) {
-          if (state.isObjectProp.has(s.value)) cls.objectProperties.push(s.value);
-          if (state.isDataProp.has(s.value))   cls.dataProperties.push(s.value);
-        }
+        // ensure class exists even without explicit declaration axiom
+        const cls = ensureClass(o.value);
+        if (state.isObjectProp.has(s.value)) cls.objectProperties.push(s.value);
+        if (state.isDataProp.has(s.value))   cls.dataProperties.push(s.value);
+
         continue;
       }
 
-      // Anonymous class-expression domain: create an unnamed class node and attach expr as equivalent class
+      // Anonymous class-expression domain
       if (o.termType === 'BlankNode') {
         const man = serializeClassExpressionForUI(store, o, prefixes);
         if (man) {
@@ -1073,7 +1201,7 @@ if (p.value === OWL + 'disjointWith') {
 
           if (state.objectProperties[s.value]) state.objectProperties[s.value].domain.push(anonIri);
           if (state.dataProperties[s.value])   state.dataProperties[s.value].domain.push(anonIri);
-          if (state.annotationProperties[s.value])  state.annotationProperties[s.value].domain.push(anonIri);
+          if (state.annotationProperties[s.value]) state.annotationProperties[s.value].domain.push(anonIri);
 
           const cls = state.classes[anonIri];
           if (cls) {
@@ -1092,6 +1220,11 @@ if (p.value === OWL + 'disjointWith') {
       if (state.objectProperties[s.value]) {
         if (o.termType === 'NamedNode') {
           state.objectProperties[s.value].range.push(o.value);
+
+          // ensure class exists even without explicit declaration axiom
+          const cls = ensureClass(o.value);
+          cls.objectProperties.push(s.value);
+
         } else if (o.termType === 'BlankNode') {
           const man = serializeClassExpressionForUI(store, o, prefixes);
           if (man) {
@@ -1103,29 +1236,38 @@ if (p.value === OWL + 'disjointWith') {
         }
       }
 
-      // DatatypeProperty range can be a named datatype OR a complex datatype expression bnode.
+      // DatatypeProperty range can be:
+      // 1) named datatype
+      // 2) named class  <-- add this case
+      // 3) complex datatype expression bnode
       if (state.dataProperties[s.value]) {
-        if (o.termType === 'NamedNode' && isDatatype(o.value)) {
-          state.dataProperties[s.value].range.push(o.value);
+        if (o.termType === 'NamedNode') {
+          if (isDatatype(o.value)) {
+            state.dataProperties[s.value].range.push(o.value);
+          } else {
+            // treat non-builtin named node in data property range as class
+            state.dataProperties[s.value].range.push(o.value);
+            const cls = ensureClass(o.value);
+            cls.dataProperties.push(s.value);
+          }
         } else if (o.termType === 'BlankNode') {
-			
           const man = serializeDataRangeForUI_RDFlib(
-			  store, o, prefixes,
-			  $rdf, RDF, OWL, XSD,
-			  getDatatypeLocalName,
-			  iriToPrefixed
-			);
+            store, o, prefixes,
+            $rdf, RDF, OWL, XSD,
+            getDatatypeLocalName,
+            iriToPrefixed
+          );
           if (man) state.dataProperties[s.value].rangeExpression = man;
-
         }
       }
 
-      // For annotation properties, range can be Class/IRI/Literal; we just record the IRI if NamedNode.
+      // For annotation properties, range can be Class/IRI/Literal
       if (state.annotationProperties[s.value] && o.termType === 'NamedNode') {
         state.annotationProperties[s.value].range.push(o.value);
       }
       continue;
     }
+
 
     // Property characteristics
     if (p.value === RDF + 'type' && s.termType === 'NamedNode') {
@@ -1350,20 +1492,63 @@ if (p.value === OWL + 'disjointWith') {
 	  OWL  + 'versionInfo', OWL + 'versionIRI', OWL + 'priorVersion',
 	  OWL  + 'backwardCompatibleWith', OWL + 'incompatibleWith', OWL + 'deprecated'
 	];
+	
+	
+	
+	// Annotation assertion on a named subject.
+	// If predicate is built-in OR declared annotation property OR custom undeclared,
+	// treat it as an annotation property and keep the assertion.
+	if (s.termType === 'NamedNode') {
+		if (ontologySubjects.has(termKey(s))) {
+		continue; // ontology annotation, do not create instance box
+	  }
+	  const isKnownAnn =
+		state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value);
 
-	// If this triple is an annotation assertion on a named entity (e.g. individual):
-	if ((state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value))
-		&& s.termType === 'NamedNode') {
-	 /* // Ensure the subject is recorded as an individual entity
-	  const entity = state.individuals[s.value] ?? ensureIndividual(s.value);
-	  // Store full annotation detail in the annotations array
-	  entity.annotations.push({
-		p: p.value,
-		v: o.termType === 'Literal' ? o.value : o.value,
-		dt: o.termType === 'Literal' ? (o.datatype ? o.datatype.value : null) : undefined,
-		lang: o.termType === 'Literal' ? (o.language || null) : undefined
-	  });*/
-	  continue;
+	  // Skip structural predicates here; they are handled elsewhere
+	  const structuralPreds = new Set([
+		RDF  + 'type',
+		RDFS + 'subClassOf',
+		RDFS + 'subPropertyOf',
+		RDFS + 'domain',
+		RDFS + 'range',
+		OWL  + 'equivalentClass',
+		OWL  + 'equivalentProperty',
+		OWL  + 'disjointWith',
+		OWL  + 'propertyDisjointWith',
+		OWL  + 'inverseOf',
+		OWL  + 'propertyChainAxiom',
+		OWL  + 'hasKey',
+		OWL  + 'sameAs',
+		OWL  + 'differentFrom',
+		OWL  + 'unionOf',
+		OWL  + 'intersectionOf',
+		OWL  + 'complementOf',
+		OWL  + 'oneOf'
+	  ]);
+
+	  if (isKnownAnn || !structuralPreds.has(p.value)) {
+		if (!isKnownAnn) {
+		  ensureAnnotationProperty(p.value);
+		}
+
+		const entity =
+		  state.classes[s.value] ||
+		  state.objectProperties[s.value] ||
+		  state.dataProperties[s.value] ||
+		  state.annotationProperties[s.value] ||
+		  state.dataTypes?.[s.value] ||
+		  state.individuals[s.value] ||
+		  ensureIndividual(s.value);
+
+		entity.annotations.push({
+		  p: p.value,
+		  v: o.termType === 'Literal' ? o.value : o.value,
+		  dt: o.termType === 'Literal' ? (o.datatype ? o.datatype.value : null) : undefined,
+		  lang: o.termType === 'Literal' ? (o.language || null) : undefined
+		});
+		continue;
+	  }
 	}
 
     // Individual facts
@@ -1374,6 +1559,49 @@ if (p.value === OWL + 'disjointWith') {
         state.individuals[s.value].objFacts.push({ p: p.value, object: o.value });
       }
       continue;
+    }
+  }
+  
+  // Default missing domains/ranges to owl:Thing only when needed
+
+  // Object properties:
+  // if no domain -> owl:Thing
+  // if no range  -> owl:Thing
+  for (const prop of Object.values(state.objectProperties)) {
+    prop.domain ||= [];
+    prop.range ||= [];
+
+    if (prop.domain.length === 0) {
+      prop.domain.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.objectProperties.includes(prop.iri)) {
+        owlThingClass.objectProperties.push(prop.iri);
+      }
+    }
+
+    if (prop.range.length === 0) {
+      prop.range.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.objectProperties.includes(prop.iri)) {
+        owlThingClass.objectProperties.push(prop.iri);
+      }
+    }
+  }
+
+  // Data properties:
+  // if no domain -> owl:Thing
+  for (const prop of Object.values(state.dataProperties)) {
+    prop.domain ||= [];
+
+    if (prop.domain.length === 0) {
+      prop.domain.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.dataProperties.includes(prop.iri)) {
+        owlThingClass.dataProperties.push(prop.iri);
+      }
     }
   }
 
@@ -1646,7 +1874,24 @@ function extendWithAnnotationsRDFlib(store, structure) {
       }
       // Only capture triples where predicate is an annotation property
       if (structuralPreds.has(p.value)) continue;
-      if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) continue;
+      if (structuralPreds.has(p.value)) continue;
+
+	  if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) {
+		  if (!structure.annotationProperties[p.value]) {
+			structure.annotationProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, structure.prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'AnnotationProperty',
+			  domain: [],
+			  range: [],
+			  superProperties: [],
+			  Qualifiers: []
+			};
+		  }
+		  structure.isAnnotationProp.add(p.value);
+	  }
       // Record the annotation on the ontology
       const ann = { p: p.value, v: o.termType === 'Literal' ? o.value : o.value };
       if (o.termType === 'Literal') {
@@ -1683,8 +1928,25 @@ function extendWithAnnotationsRDFlib(store, structure) {
       for (const { predicate: p, object: o } of store.match(subjectTerm, null, null, null)) {
         if (p.value === RDFS + 'label') continue;             // skip labels (already handled)
         if (structuralPreds.has(p.value)) continue;          // skip structural triples
-        if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) continue;  // not an annotation property
-        if (structure.isAnnotationProp.has(p.value) && !isBlank) continue; // avoid duplicating annotations already handled in routeTriplesN3
+        if (structuralPreds.has(p.value)) continue;
+
+		if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) {
+		  if (!structure.annotationProperties[p.value]) {
+			structure.annotationProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, structure.prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'AnnotationProperty',
+			  domain: [],
+			  range: [],
+			  superProperties: [],
+			  Qualifiers: []
+			};
+		  }
+		  structure.isAnnotationProp.add(p.value);
+		}
+		if (structure.isAnnotationProp.has(p.value) && !isBlank) continue; // avoid duplicating annotations already handled in routeTriplesN3
         // Add the annotation assertion to the entity
         addAnnotation(entity, p.value, o);
       }

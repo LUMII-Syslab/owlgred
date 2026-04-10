@@ -39,6 +39,7 @@ async function loadOntololgyFromProjectN3OWLGrEd(ontologyText, ontologyName){
 
 async function loadOntololgyFromProjectRDFLibOWLGrEd(ontologyText, ontologyName) {
   let ontology = await saveOntologyRDFlib(ontologyText);
+  
   const importSettings = await getImportParameters();
   ontology = await createOntologyStructure(ontology, importSettings);
 
@@ -132,23 +133,90 @@ function makeState(prefixes = {}) {
 
 // convert IRI to prefixed name ---
 function iriToPrefixed(iri, prefixes = {}) {
+  if (!iri) return iri;
 
+  // Expand RDF/XML entity-style namespace usage:
+  //   &Prefix;LocalName
+  // or
+  //   http://.../&Prefix;LocalName
+  iri = iri.replace(/&([A-Za-z_][\w.-]*);([A-Za-z_][\w.-]*)/g, (full, entityPrefix, local) => {
+    return prefixes[entityPrefix] ? prefixes[entityPrefix] + local : full;
+  });
+
+  // Try existing prefixes first
   for (const [prefix, base] of Object.entries(prefixes)) {
     if (iri.startsWith(base)) {
       const local = iri.slice(base.length);
 
-      // Rule 2: default prefix ("" or ":") → just the local name
       if (prefix === '' || prefix === ':') {
         return local;
       }
 
-      // Rule 1: normal prefix → prefix:localName
       return `${prefix}:${local}`;
     }
   }
 
-  // Rule 3: prefix unknown → return full IRI
-  return iri;
+  // Split unknown IRI into namespace + local name
+  const parts = splitNamespaceAndLocal(iri);
+  if (!parts) return iri;
+
+  const { namespace, local } = parts;
+
+  // Reuse prefix if same namespace already exists under another key
+  for (const [prefix, base] of Object.entries(prefixes)) {
+    if (base === namespace) {
+      return (prefix === '' || prefix === ':') ? local : `${prefix}:${local}`;
+    }
+  }
+
+  // Auto-create new readable prefix from namespace
+  const newPrefix = makePrefixFromNamespace(namespace, prefixes);
+  prefixes[newPrefix] = namespace;
+
+  return `${newPrefix}:${local}`;
+}
+
+function splitNamespaceAndLocal(iri) {
+  if (!iri) return null;
+
+  const hash = iri.lastIndexOf('#');
+  if (hash !== -1 && hash < iri.length - 1) {
+    return {
+      namespace: iri.slice(0, hash + 1),
+      local: iri.slice(hash + 1)
+    };
+  }
+
+  const slash = iri.lastIndexOf('/');
+  if (slash !== -1 && slash < iri.length - 1) {
+    return {
+      namespace: iri.slice(0, slash + 1),
+      local: iri.slice(slash + 1)
+    };
+  }
+
+  return null;
+}
+
+function makePrefixFromNamespace(namespace, prefixes) {
+  let candidate = namespace
+    .replace(/[\/#]+$/, '')
+    .split(/[\/#]/)
+    .pop()
+    .replace(/\.(owl|rdf|ttl|xml)$/i, '')
+    .replace(/[^A-Za-z0-9_-]/g, '') || 'ns';
+
+  if (!/^[A-Za-z_]/.test(candidate)) {
+    candidate = `ns_${candidate}`;
+  }
+
+  let prefix = candidate;
+  let i = 1;
+  while (Object.prototype.hasOwnProperty.call(prefixes, prefix)) {
+    prefix = `${candidate}${i++}`;
+  }
+
+  return prefix;
 }
 
 
@@ -349,16 +417,43 @@ function discoverEntitiesN3(store, state, prefixes = {}) {
     //  - subject is not already a schema entity (prop/class/datatype/annotationProp)
     //  - object is NOT any of the schema/entity kinds above
     //  - object is NOT owl:NamedIndividual (handled just above)
-    if (!isAlreadySchemaEntity(sIri) && oIri !== OWL + 'Ontology') {
-      ensure(state.individuals, sIri, iri => ({
-        ...makeEntity(iri, 'Individual'),
-        types: [],
-        dataFacts: [],
-        objFacts: []
-      }));
-      // Add the class IRI as type (skip NamedIndividual by guard above)
-      state.individuals[sIri].types.push(oIri);
-    }
+	if (!isAlreadySchemaEntity(sIri) && oIri !== OWL + 'Ontology') {
+	  ensure(state.individuals, sIri, iri => ({
+		...makeEntity(iri, 'Individual'),
+		types: [],
+		dataFacts: [],
+		objFacts: []
+	  }));
+
+	  // If this type IRI is being used as a class, ensure a class bucket exists
+	  if (!state.classes[oIri] && !state.objectProperties[oIri] && !state.dataProperties[oIri] &&
+		  !state.annotationProperties[oIri] && !state.dataTypes?.[oIri]) {
+		state.classes[oIri] = {
+		  iri: oIri,
+		  prefixed: iriToPrefixed(oIri, prefixes),
+		  label: null,
+		  annotations: [],
+		  kind: 'Class',
+		  superClasses: [],
+		  equivalentClasses: [],
+		  disjointWith: [],
+		  instances: [],
+		  dataProperties: [],
+		  objectProperties: [],
+		  restrictions: [],
+		  keys: [],
+		  complementOf: []
+		};
+	  }
+
+	  if (!state.individuals[sIri].types.includes(oIri)) {
+		state.individuals[sIri].types.push(oIri);
+	  }
+
+	  if (state.classes[oIri] && !state.classes[oIri].instances.includes(sIri)) {
+		state.classes[oIri].instances.push(sIri);
+	  }
+	}
   };
 
   // Pass A: rdf:type triples
@@ -424,6 +519,24 @@ function routeTriplesN3(store, state, prefixes = {}) {
 	  for (const q of store.getQuads(s, p, o, null)) {
 		markQuad(q);
 	  }
+	};
+	
+	const ensureAnnotationProperty = (iri) => {
+	  if (!state.annotationProperties[iri]) {
+		state.annotationProperties[iri] = {
+		  iri,
+		  prefixed: iriToPrefixed(iri, prefixes),
+		  label: null,
+		  annotations: [],
+		  kind: 'AnnotationProperty',
+		  domain: [],
+		  range: [],
+		  superProperties: [],
+		  Qualifiers: []
+		};
+	  }
+	  state.isAnnotationProp.add(iri);
+	  return state.annotationProperties[iri];
 	};
 
 	const STRUCTURAL_EXPR_PREDS = new Set([
@@ -517,7 +630,30 @@ function routeTriplesN3(store, state, prefixes = {}) {
     iri.startsWith(XSD) || iri === RDFS + 'Literal' || iri === RDF + 'langString' ||
     iri === RDF + 'PlainLiteral' || iri === OWL + 'real' || iri === OWL + 'rational';
 
-  // NEW: make sure we can create a datatype bucket on-the-fly
+  const ensureClass = (iri) => {
+	if (typeof state.classes === 'undefined') return null;
+    if (!state.classes[iri]) {
+      state.classes[iri] = {
+        iri,
+        prefixed: iriToPrefixed(iri, prefixes),
+        label: null,
+        annotations: [],
+        kind: 'Class',
+        superClasses: [],
+        equivalentClasses: [],
+        disjointWith: [],
+        instances: [],
+        dataProperties: [],
+        objectProperties: [],
+        restrictions: [],
+        keys: [],
+        complementOf: []
+      };
+    }
+    return state.classes[iri];
+  };
+
+  // make sure we can create a datatype bucket on-the-fly
   const ensureDatatype = (iri) => {
     if (typeof state.dataTypes === 'undefined') return null; // respect caller’s choice to omit datatypes
     if (!state.dataTypes[iri]) {
@@ -588,6 +724,14 @@ function routeTriplesN3(store, state, prefixes = {}) {
     }
     return null;
   };
+
+  const termKey = (t) =>
+    (t && t.termType === 'BlankNode') ? ('_:' + t.value) : t?.value;
+
+  const ontologySubjects = new Set(
+    store.match(null, $rdf.sym(RDF + 'type'), $rdf.sym(OWL + 'Ontology'), null)
+      .map(q => termKey(q.subject))
+  );
 
   
     // Remove a single pair of outer parentheses ONLY if they wrap the whole expression
@@ -1091,25 +1235,25 @@ if (p.value === OWL + 'disjointWith') {
       if (pb) pb.disjointProperties.push(o.value);
       continue;
     }
-
-    // Domains / Ranges
+	
+	
+	// Domains / Ranges
     if (p.value === RDFS + 'domain' && s.termType === 'NamedNode') {
       // Named class domain
       if (o.termType === 'NamedNode') {
         if (state.objectProperties[s.value]) state.objectProperties[s.value].domain.push(o.value);
         if (state.dataProperties[s.value])   state.dataProperties[s.value].domain.push(o.value);
-        if (state.annotationProperties[s.value])  state.annotationProperties[s.value].domain.push(o.value);
+        if (state.annotationProperties[s.value]) state.annotationProperties[s.value].domain.push(o.value);
 
-        // link property under class bucket (for OP/DP only)
-        const cls = state.classes[o.value];
-        if (cls) {
-          if (state.isObjectProp.has(s.value)) cls.objectProperties.push(s.value);
-          if (state.isDataProp.has(s.value))   cls.dataProperties.push(s.value);
-        }
+        // ensure class exists even without explicit declaration axiom
+        const cls = ensureClass(o.value);
+        if (state.isObjectProp.has(s.value)) cls.objectProperties.push(s.value);
+        if (state.isDataProp.has(s.value))   cls.dataProperties.push(s.value);
+
         continue;
       }
 
-      // Anonymous class-expression domain: create an unnamed class node and attach expr as equivalent class
+      // Anonymous class-expression domain
       if (o.termType === 'BlankNode') {
         const man = serializeClassExpressionForUI(store, o, prefixes);
         if (man) {
@@ -1117,7 +1261,7 @@ if (p.value === OWL + 'disjointWith') {
 
           if (state.objectProperties[s.value]) state.objectProperties[s.value].domain.push(anonIri);
           if (state.dataProperties[s.value])   state.dataProperties[s.value].domain.push(anonIri);
-          if (state.annotationProperties[s.value])  state.annotationProperties[s.value].domain.push(anonIri);
+          if (state.annotationProperties[s.value]) state.annotationProperties[s.value].domain.push(anonIri);
 
           const cls = state.classes[anonIri];
           if (cls) {
@@ -1136,6 +1280,11 @@ if (p.value === OWL + 'disjointWith') {
       if (state.objectProperties[s.value]) {
         if (o.termType === 'NamedNode') {
           state.objectProperties[s.value].range.push(o.value);
+
+          // ensure class exists even without explicit declaration axiom
+          const cls = ensureClass(o.value);
+          cls.objectProperties.push(s.value);
+
         } else if (o.termType === 'BlankNode') {
           const man = serializeClassExpressionForUI(store, o, prefixes);
           if (man) {
@@ -1147,22 +1296,38 @@ if (p.value === OWL + 'disjointWith') {
         }
       }
 
-      // DatatypeProperty range can be a named datatype OR a complex datatype expression bnode.
+      // DatatypeProperty range can be:
+      // 1) named datatype
+      // 2) named class  <-- add this case
+      // 3) complex datatype expression bnode
       if (state.dataProperties[s.value]) {
-        if (o.termType === 'NamedNode' && isDatatype(o.value)) {
-          state.dataProperties[s.value].range.push(o.value);
+        if (o.termType === 'NamedNode') {
+          if (isDatatype(o.value)) {
+            state.dataProperties[s.value].range.push(o.value);
+          } else {
+            // treat non-builtin named node in data property range as class
+            state.dataProperties[s.value].range.push(o.value);
+            const cls = ensureClass(o.value);
+            cls.dataProperties.push(s.value);
+          }
         } else if (o.termType === 'BlankNode') {
-          const man = serializeDataRangeForUI(store, o, prefixes);
+          const man = serializeDataRangeForUI(
+            store, o, prefixes,
+            $rdf, RDF, OWL, XSD,
+            getDatatypeLocalName,
+            iriToPrefixed
+          );
           if (man) state.dataProperties[s.value].rangeExpression = man;
         }
       }
 
-      // For annotation properties, range can be Class/IRI/Literal; we just record the IRI if NamedNode.
+      // For annotation properties, range can be Class/IRI/Literal
       if (state.annotationProperties[s.value] && o.termType === 'NamedNode') {
         state.annotationProperties[s.value].range.push(o.value);
       }
       continue;
     }
+
 
     // Property characteristics
     if (p.value === RDF + 'type' && s.termType === 'NamedNode') {
@@ -1388,29 +1553,103 @@ if (p.value === OWL + 'disjointWith') {
 	  OWL  + 'backwardCompatibleWith', OWL + 'incompatibleWith', OWL + 'deprecated'
 	];
 
-	// If this triple is an annotation assertion on a named entity (e.g. individual):
-	if ((state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value))
-		&& s.termType === 'NamedNode') {
-	 /* // Ensure the subject is recorded as an individual entity
-	  const entity = state.individuals[s.value] ?? ensureIndividual(s.value);
-	  // Store full annotation detail in the annotations array
-	  entity.annotations.push({
-		p: p.value,
-		v: o.termType === 'Literal' ? o.value : o.value,
-		dt: o.termType === 'Literal' ? (o.datatype ? o.datatype.value : null) : undefined,
-		lang: o.termType === 'Literal' ? (o.language || null) : undefined
-	  });*/
-	  continue;
-	}
+	// Annotation assertion on a named subject.
+	// If predicate is built-in OR declared annotation property OR custom undeclared,
+	// treat it as an annotation property and keep the assertion.
+	if (s.termType === 'NamedNode') {
+	   if (ontologySubjects.has(termKey(s))) {
+		continue; // ontology annotation, do not create instance box
+	  }
+	  const isKnownAnn =
+		state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value);
 
-    // Individual facts
-    if (state.individuals[s.value]) {
-      if (o.termType === 'Literal') {
-        state.individuals[s.value].dataFacts.push({ p: p.value, value: o.value, lang: o.language, dt: o.datatype?.value });
-      } else if (o.termType === 'NamedNode') {
-        state.individuals[s.value].objFacts.push({ p: p.value, object: o.value });
+	  // Skip structural predicates here; they are handled elsewhere
+	  const structuralPreds = new Set([
+		RDF  + 'type',
+		RDFS + 'subClassOf',
+		RDFS + 'subPropertyOf',
+		RDFS + 'domain',
+		RDFS + 'range',
+		OWL  + 'equivalentClass',
+		OWL  + 'equivalentProperty',
+		OWL  + 'disjointWith',
+		OWL  + 'propertyDisjointWith',
+		OWL  + 'inverseOf',
+		OWL  + 'propertyChainAxiom',
+		OWL  + 'hasKey',
+		OWL  + 'sameAs',
+		OWL  + 'differentFrom',
+		OWL  + 'unionOf',
+		OWL  + 'intersectionOf',
+		OWL  + 'complementOf',
+		OWL  + 'oneOf'
+	  ]);
+
+	  if (isKnownAnn || !structuralPreds.has(p.value)) {
+		if (!isKnownAnn) {
+		  ensureAnnotationProperty(p.value);
+		}
+
+		const entity =
+		  state.classes[s.value] ||
+		  state.objectProperties[s.value] ||
+		  state.dataProperties[s.value] ||
+		  state.annotationProperties[s.value] ||
+		  state.dataTypes?.[s.value] ||
+		  state.individuals[s.value] ||
+		  ensureIndividual(s.value);
+
+		entity.annotations.push({
+		  p: p.value,
+		  v: o.termType === 'Literal' ? o.value : o.value,
+		  dt: o.termType === 'Literal' ? (o.datatype ? o.datatype.value : null) : undefined,
+		  lang: o.termType === 'Literal' ? (o.language || null) : undefined
+		});
+		continue;
+	  }
+	}
+  }
+
+  // Default missing domains/ranges to owl:Thing only when needed
+
+  // Object properties:
+  // if no domain -> owl:Thing
+  // if no range  -> owl:Thing
+  for (const prop of Object.values(state.objectProperties)) {
+    prop.domain ||= [];
+    prop.range ||= [];
+
+    if (prop.domain.length === 0) {
+      prop.domain.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.objectProperties.includes(prop.iri)) {
+        owlThingClass.objectProperties.push(prop.iri);
       }
-      continue;
+    }
+
+    if (prop.range.length === 0) {
+      prop.range.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.objectProperties.includes(prop.iri)) {
+        owlThingClass.objectProperties.push(prop.iri);
+      }
+    }
+  }
+
+  // Data properties:
+  // if no domain -> owl:Thing
+  for (const prop of Object.values(state.dataProperties)) {
+    prop.domain ||= [];
+
+    if (prop.domain.length === 0) {
+      prop.domain.push(OWL + 'Thing');
+
+      const owlThingClass = ensureClass(OWL + 'Thing');
+      if (!owlThingClass.dataProperties.includes(prop.iri)) {
+        owlThingClass.dataProperties.push(prop.iri);
+      }
     }
   }
 
@@ -1679,7 +1918,24 @@ function extendWithAnnotationsN3(store, structure) {
       }
       // Only capture triples where predicate is an annotation property
       if (structuralPreds.has(p.value)) continue;
-      if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) continue;
+      if (structuralPreds.has(p.value)) continue;
+
+	  if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) {
+		  if (!structure.annotationProperties[p.value]) {
+			structure.annotationProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, structure.prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'AnnotationProperty',
+			  domain: [],
+			  range: [],
+			  superProperties: [],
+			  Qualifiers: []
+			};
+		  }
+		  structure.isAnnotationProp.add(p.value);
+	  }
       // Record the annotation on the ontology
       const ann = { p: p.value, v: o.termType === 'Literal' ? o.value : o.value };
       if (o.termType === 'Literal') {
@@ -1716,7 +1972,24 @@ function extendWithAnnotationsN3(store, structure) {
       for (const { predicate: p, object: o } of store.getQuads(subjectTerm, null, null, null)) {
         if (p.value === RDFS + 'label') continue;             // skip labels (already handled)
         if (structuralPreds.has(p.value)) continue;          // skip structural triples
-        if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) continue;  // not an annotation property
+        if (structuralPreds.has(p.value)) continue;
+
+		if (!structure.isAnnotationProp.has(p.value) && !builtInAnnProps.includes(p.value)) {
+		  if (!structure.annotationProperties[p.value]) {
+			structure.annotationProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, structure.prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'AnnotationProperty',
+			  domain: [],
+			  range: [],
+			  superProperties: [],
+			  Qualifiers: []
+			};
+		  }
+		  structure.isAnnotationProp.add(p.value);
+		}
         if (structure.isAnnotationProp.has(p.value) && !isBlank) continue; // avoid duplicating annotations already handled in routeTriplesN3
         // Add the annotation assertion to the entity
         addAnnotation(entity, p.value, o);
@@ -1770,7 +2043,70 @@ async function createOntologyStructure(ontology, importSettings){
 	let differentIndivids = [];
 	let sameAsIndivids = [];
 	
-  console.log("SSSSSSSSSSSSSSS", ontology, importSettings["showClasses"]);
+
+	const dataProperties = ontology.dataProperties;
+
+	// normalize multi-domain data properties BEFORE class rendering
+	if ((importSettings?.showDataProperties ?? true) === true) {
+	  for (const iri in dataProperties) {
+		const dp = dataProperties[iri];
+
+		if (Array.isArray(dp.domain) && dp.domain.length > 1) {
+		  const oldDomains = [...dp.domain];
+
+		  const classExpr = oldDomains
+			.map(domainIri => classes[domainIri]?.prefixed || iriToPrefixed(domainIri, ontologyPrefixes))
+			.filter(Boolean);
+
+		  if (classExpr.length > 1) {
+			const foundUnion = findClassByEquivalentExpression(classes, classExpr, 'and');
+			const classExprString = classExpr.join(" and ");
+
+			// remove from old classes
+			for (const oldDomainIri of oldDomains) {
+			  const oldCls = classes[oldDomainIri];
+			  if (oldCls?.dataProperties) {
+				oldCls.dataProperties = oldCls.dataProperties.filter(pIri => pIri !== dp.iri);
+			  }
+			}
+
+			let anonIri;
+
+			if (foundUnion) {
+			  anonIri = foundUnion.iri;
+			} else {
+			  anonIri = classExprString;
+			  classes[anonIri] = {
+				iri: anonIri,
+				prefixed: "",
+				label: null,
+				comment: null,
+				annotations: [],
+				kind: "Class",
+				superClasses: [],
+				equivalentClasses: [],
+				disjointWith: [],
+				restrictions: [],
+				keys: [],
+				objectProperties: [],
+				dataProperties: [],
+				complementOf: [],
+				instances: [],
+				equivalentClassExpressions: [classExprString]
+			  };
+			}
+
+			dp.domain = [anonIri];
+
+			classes[anonIri].dataProperties ||= [];
+			if (!classes[anonIri].dataProperties.includes(dp.iri)) {
+			  classes[anonIri].dataProperties.push(dp.iri);
+			}
+		  }
+		}
+	  }
+	}
+
   if((importSettings?.showOntoAnnotations ?? true) === true && ontology.ontology && ontology.ontology.annotations){
 	  for(let an = 0; an < ontology.ontology.annotations.length; an++){
 		  let annotation = ontology.ontology.annotations[an];
@@ -1785,7 +2121,8 @@ async function createOntologyStructure(ontology, importSettings){
 				]
 		  }
 	  }
-  }
+  } else {ontology.ontology.annotations = []}
+  
   
   if((importSettings?.showClasses ?? true) === true){
 	for (const iri in classes) {
@@ -1812,7 +2149,7 @@ async function createOntologyStructure(ontology, importSettings){
 			}
 		  }
 	    }
-	  }
+	  } else {cls.annotations = []}
 	  
 	  if((importSettings?.showPropertyRestrictions ?? true) === true){
 	    for(let r = 0; r < cls.restrictions.length; r++){
@@ -1955,6 +2292,8 @@ async function createOntologyStructure(ontology, importSettings){
 	  }
 
 	  ontology.complementOf = complementOf;
+	
+	
 
 	  
 	  if((importSettings?.showDataProperties ?? true) === true){
@@ -2299,6 +2638,7 @@ async function createOntologyStructure(ontology, importSettings){
       }
 	}
   }
+  
 	const createdLinks = {};
 // uniqueUndirectedPairs
 
@@ -2343,6 +2683,98 @@ async function createOntologyStructure(ontology, importSettings){
 	  if (handled.has(iri)) continue;
 
 	  const ob = objectProperties[iri];
+	  
+	  if(ob.domain.length > 1){
+		let classExpr = [];
+		for (let c = 0; c < ob.domain.length; c++) {
+			let className = classes[ob.domain[c]].prefixed;
+			classExpr.push(className);
+		}
+		const foundUnion = findClassByEquivalentExpression(classes, classExpr, 'and');
+		let classExprString = classExpr.join(" and ");
+		if(foundUnion){
+			ob.domain = [];
+			ob.domain.push(foundUnion.iri);
+		} else {
+			classes[classExprString] = {
+				"iri": classExprString,
+				"prefixed": "",
+				"label": null,
+				"comment": null,
+				"annotations": [],
+				"kind": "Class",
+				"superClasses": [],
+				"equivalentClasses": [
+					[
+						{
+							"name": "EquivalentClass",
+							"value": classExprString
+						}
+					]
+				],
+				"disjointWith": [],
+				"restrictions": [],
+				"keys": [],
+				"objectProperties": [
+					ob.iri
+				],
+				"dataProperties": [],
+				"complementOf": [],
+				"instances": [],
+				"equivalentClassExpressions": [
+					classExprString
+				]
+			}
+			ob.domain = [];
+			ob.domain.push(classExprString);
+		}	
+	  }
+	  if(ob.range.length > 1){
+		let classExpr = [];
+		for (let c = 0; c < ob.range.length; c++) {
+			let className = classes[ob.range[c]].prefixed;
+			classExpr.push(className);
+		}
+		const foundUnion = findClassByEquivalentExpression(classes, classExpr, 'and');
+		let classExprString = classExpr.join(" and ");
+		if(foundUnion){
+			ob.range = [];
+			ob.range.push(foundUnion.iri);
+		} else {
+			classes[classExprString] = {
+				"iri": classExprString,
+				"prefixed": "",
+				"label": null,
+				"comment": null,
+				"annotations": [],
+				"kind": "Class",
+				"superClasses": [],
+				"equivalentClasses": [
+					[
+						{
+							"name": "EquivalentClass",
+							"value": classExprString
+						}
+					]
+				],
+				"disjointWith": [],
+				"restrictions": [],
+				"keys": [],
+				"objectProperties": [
+					ob.iri
+				],
+				"dataProperties": [],
+				"complementOf": [],
+				"instances": [],
+				"equivalentClassExpressions": [
+					classExprString
+				]
+			}
+			ob.range = [];
+			ob.range.push(classExprString);
+		}
+	  }
+	  
 	  if (!(ob.domain?.length === 1 && ob.range?.length === 1)) continue;
 
 	  // Detect an inverse partner with swapped domain/range
@@ -2550,6 +2982,8 @@ async function createOntologyStructure(ontology, importSettings){
 		// objectProperties[iri] = ob;
 	}
 	}
+	
+	
 
 	restrictions = combineRestrictions(restrictions)
 	ontology.restrictions = restrictions;
@@ -2559,95 +2993,123 @@ async function createOntologyStructure(ontology, importSettings){
 		let objectPropertyAssertions = [];
 		for (const iri in individuals) {
 		  const individ = individuals[iri];
-		  if((importSettings?.showIndividualClassAssertions ?? true) === true){
-		    if(individ.types.length === 1 && ((importSettings?.showClassAssertionsType_text ?? true) === true || importSettings?.showClassAssertionsGraphicsKeepText === true)) {
-			  const className = ontology.classes[individ.types[0]]?.prefixed || iriToPrefixed(individ.types[0], ontology.prefixes);
-			  if(!className.startsWith("_:")) individ.className = className;
-		    } 
-			if(individ.types.length === 1 && (importSettings?.showClassAssertionsType_graph) === true){
-			  individ.classID = individ.types[0];
+		  
+		  // if((importSettings?.showIndividualsType_object ?? true) === true || individ.types.length > 1){
+		  if((importSettings?.showIndividualsType_object ?? true) === true){
+			  
+			  if((importSettings?.showIndividualClassAssertions ?? true) === true){
+				if(individ.types.length === 1) {
+					if((importSettings?.showClassAssertionsType_text ?? true) === true || importSettings?.showClassAssertionsGraphicsKeepText === true) {
+					  const className = ontology.classes[individ.types[0]]?.prefixed || iriToPrefixed(individ.types[0], ontology.prefixes);
+					  if(!className.startsWith("_:")) individ.className = className;
+					} 
+					if(importSettings?.showClassAssertionsType_graph === true){
+					  individ.classID = [];
+					  individ.classID.push(individ.types[0]);
+					}
+				} else if(individ.types.length > 1){
+					individ.classID = individ.types;
+				}
+			  }
+			 if((importSettings?.showIndividualAnnotations ?? true) === true){
+			   for(let an = 0; an < individ.annotations.length; an++){
+				  let annotation = individ.annotations[an];
+				  let annotationType = getBuiltInAnnotationShortName(annotation.p, ontology.annotationProperties);
+				  let value = annotation.v;
+				  let language = annotation.lang || "";
+				  if(value !== null && annotationType !== null){
+						individ.annotations[an] = [
+						  {name:"AnnotationType",value:annotationType},
+						  {name:"Value",value:value},
+						  {name:"Language",value:language},
+						]
+				  }
+				}
+			 }
+			 let dataFacts = individ.dataFacts;
+			 individ.dataPropertyAssertions = [];
+			 individ.negativeDataPropertyAssertions = [];
+			 individ.differentIndividuals = [];
+			 individ.sameIndividuals = [];
+			 for(let df = 0; df < dataFacts.length; df++){
+				let dataFact = dataFacts[df];
+				let dp = ontology.dataProperties[dataFact.p]?.prefixed || iriToPrefixed(dataFact.p, ontologyPrefixes);
+				let t = getDatatypeLocalName(dataFact.dt);
+				let value = dataFact.value;
+				let lang = dataFact.lang;
+				let negative = dataFact.negative
+
+				if(dp || value){
+					if((importSettings?.showIndividualsDataPropertyAssertions ?? true) === true && !negative){
+						individ.dataPropertyAssertions.push([
+					   {name:"Property",value:dp},
+					   {name:"Value",value:value},
+						{name:"Type",value:t}])
+					} else if((importSettings?.showIndividualsNegativeDataPropertyAssertions ?? true) === true) {
+						individ.negativeDataPropertyAssertions.push([
+					   {name:"Property",value:dp},
+					   {name:"Value",value:value},
+						{name:"Type",value:t}])
+					}
+				}
+			 }
+			 let objFacts = individ.objFacts;
+			 for(let df = 0; df < objFacts.length; df++){
+				let objFact = objFacts[df];
+				let op = objFact.p;
+				let ontologyPrefixes = ontology.prefixes;
+				let ob = individuals[objFact.object]?.prefixed || iriToPrefixed(objFact.object, ontologyPrefixes);
+				if(op || ob){
+
+					if(op === "http://www.w3.org/2002/07/owl#differentFrom" && (importSettings?.showDifferentIndividuals ?? true) === true){
+						if((importSettings?.showDifferentIndividualsType_graph ?? true) === true){
+							differentIndivids.push([ob, iri]);
+						}
+						if((importSettings?.showDifferentIndividualsType_text ?? true) === true){
+							individ.differentIndividuals.push([
+								{name:"Individual",value:ob}])
+						}
+					} else if(op === "http://www.w3.org/2002/07/owl#sameAs" && (importSettings?.showSameIndividuals ?? true) === true){
+						if((importSettings?.showSameIndividualsType_graph ?? true) === true){
+							sameAsIndivids.push([ob, iri]);
+						}
+						if((importSettings?.showSameIndividualsType_text ?? true) === true){
+						  individ.sameIndividuals.push([
+							{name:"Individual",value:ob}])
+							indiv.setHorizontalLine("HorizontalLine11");
+						}
+					} else {
+						let prefixedOP = ontology.objectProperties[op]?.prefixed || iriToPrefixed(op, ontologyPrefixes);
+						if((importSettings?.showIndividualsObjectPropertyAssertions ?? true) === true && objFact.negative !== true){
+							objectPropertyAssertions.push({iri: op, source:iri, target:objFact.object, prefixed:prefixedOP, negative:objFact.negative})
+						}
+						if((importSettings?.showIndividualsNegativeObjectPropertyAssertions ?? true) === true && objFact.negative === true){
+							objectPropertyAssertions.push({iri: op, source:iri, target:objFact.object, prefixed:prefixedOP, negative:objFact.negative})
+						}
+					}
+				}
+			 }
+		  } else if(importSettings?.showSameIndividualsType_class_list  === true && typeof individ.types[0] !== "undefined"){
+
+			for(let c = 0; c < individ.types.length; c++){
+			
+				const classObject = ontology.classes[individ.types[c]];
+				if(!classObject.individuals)classObject.individuals = [];
+				let classInstances = classObject.individuals;
+				let classInstanceList = [];
+				classInstanceList.push({
+					"id": "IRI",
+					"name": "IRI",
+					"value": individ.prefixed,
+					"input": individ.prefixed
+				})
+				classInstances.push([{name:"Individual", input:individ.prefixed, value:JSON.stringify(classInstanceList)}])
 			}
 		  }
-		 if((importSettings?.showIndividualAnnotations ?? true) === true){
-		   for(let an = 0; an < individ.annotations.length; an++){
-			  let annotation = individ.annotations[an];
-			  let annotationType = getBuiltInAnnotationShortName(annotation.p, ontology.annotationProperties);
-			  let value = annotation.v;
-			  let language = annotation.lang || "";
-			  if(value !== null && annotationType !== null){
-				    individ.annotations[an] = [
-					  {name:"AnnotationType",value:annotationType},
-					  {name:"Value",value:value},
-					  {name:"Language",value:language},
-					]
-			  }
-		    }
-		 }
-		 let dataFacts = individ.dataFacts;
-		 individ.dataPropertyAssertions = [];
-		 individ.negativeDataPropertyAssertions = [];
-		 individ.differentIndividuals = [];
-		 individ.sameIndividuals = [];
-		 for(let df = 0; df < dataFacts.length; df++){
-			let dataFact = dataFacts[df];
-			let dp = ontology.dataProperties[dataFact.p]?.prefixed || iriToPrefixed(dataFact.p, ontologyPrefixes);
-			let t = getDatatypeLocalName(dataFact.dt);
-			let value = dataFact.value;
-			let lang = dataFact.lang;
-			let negative = dataFact.negative
-
-			if(dp || value){
-				if((importSettings?.showIndividualsDataPropertyAssertions ?? true) === true && !negative){
-					individ.dataPropertyAssertions.push([
-				   {name:"Property",value:dp},
-				   {name:"Value",value:value},
-					{name:"Type",value:t}])
-				} else if((importSettings?.showIndividualsNegativeDataPropertyAssertions ?? true) === true) {
-					individ.negativeDataPropertyAssertions.push([
-				   {name:"Property",value:dp},
-				   {name:"Value",value:value},
-					{name:"Type",value:t}])
-				}
-			}
-		 }
-		 let objFacts = individ.objFacts;
-		 for(let df = 0; df < objFacts.length; df++){
-			let objFact = objFacts[df];
-			let op = objFact.p;
-			let ontologyPrefixes = ontology.prefixes;
-			let ob = individuals[objFact.object]?.prefixed || iriToPrefixed(objFact.object, ontologyPrefixes);
-			if(op || ob){
-
-				if(op === "http://www.w3.org/2002/07/owl#differentFrom" && (importSettings?.showDifferentIndividuals ?? true) === true){
-					if((importSettings?.showDifferentIndividualsType_graph ?? true) === true){
-						differentIndivids.push([ob, iri]);
-					}
-					if((importSettings?.showDifferentIndividualsType_text ?? true) === true){
-						individ.differentIndividuals.push([
-							{name:"Individual",value:ob}])
-					}
-				} else if(op === "http://www.w3.org/2002/07/owl#sameAs" && (importSettings?.showSameIndividuals ?? true) === true){
-					if((importSettings?.showSameIndividualsType_graph ?? true) === true){
-						sameAsIndivids.push([ob, iri]);
-					}
-					if((importSettings?.showSameIndividualsType_text ?? true) === true){
-					  individ.sameIndividuals.push([
-						{name:"Individual",value:ob}])
-						indiv.setHorizontalLine("HorizontalLine11");
-					}
-				} else {
-					let prefixedOP = ontology.objectProperties[op]?.prefixed || iriToPrefixed(op, ontologyPrefixes);
-					if((importSettings?.showIndividualsObjectPropertyAssertions ?? true) === true && objFact.negative !== true){
-						objectPropertyAssertions.push({iri: op, source:iri, target:objFact.object, prefixed:prefixedOP, negative:objFact.negative})
-					}
-					if((importSettings?.showIndividualsNegativeObjectPropertyAssertions ?? true) === true && objFact.negative === true){
-						objectPropertyAssertions.push({iri: op, source:iri, target:objFact.object, prefixed:prefixedOP, negative:objFact.negative})
-					}
-				}
-			}
-		 }
 		}
-
+		if(importSettings?.showSameIndividualsType_class_list  === true || importSettings?.showSameIndividualsType_object_list  === true ){
+			ontology.individuals = {}
+		}
 		ontology.objectPropertyAssertions = objectPropertyAssertions;
 	} else {ontology.individuals = {}}
 		
@@ -2662,7 +3124,7 @@ async function createOntologyStructure(ontology, importSettings){
 	} else {
 		ontology.annotationProperties = {};
 	}
-		
+	// console.log("ontology", ontology)
 	return ontology;
 }
 
@@ -4442,6 +4904,83 @@ function useOntologyPrefixAsDefault(prefixes, ontologyIRI) {
   delete updated[ontologyPrefix];
 
   return updated;
+}
+
+function normalizeExpressionParts(parts) {
+  return [...parts]
+    .map(x => x.trim())
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+function parseTopLevelBinaryExpression(expr, operator) {
+  const regex = operator === 'and' ? /\s+and\s+/i : /\s+or\s+/i;
+  return normalizeExpressionParts(expr.split(regex));
+}
+
+function findClassByEquivalentExpression(classes, classNames, operator = 'and') {
+  const targetParts = normalizeExpressionParts(classNames);
+
+  for (const classObj of Object.values(classes)) {
+    const expressions = classObj.equivalentClassExpressions || [];
+
+    for (const expr of expressions) {
+      const exprParts = parseTopLevelBinaryExpression(expr, operator);
+
+      if (
+        exprParts.length === targetParts.length &&
+        exprParts.every((part, i) => part === targetParts[i])
+      ) {
+        return classObj;
+      }
+    }
+  }
+
+  return null;
+}
+
+function ensureAnonClassForNamedExpr(classes, classExpr, propertyIri, propertyKind = 'object') {
+  const found = findClassByEquivalentExpression(classes, classExpr, 'or');
+  const classExprString = classExpr.join(" or ");
+
+  if (found) {
+    if (propertyKind === 'object') {
+      (found.objectProperties ||= []);
+      if (!found.objectProperties.includes(propertyIri)) found.objectProperties.push(propertyIri);
+    } else {
+      (found.dataProperties ||= []);
+      if (!found.dataProperties.includes(propertyIri)) found.dataProperties.push(propertyIri);
+    }
+    return found.iri;
+  }
+
+  classes[classExprString] = {
+    iri: classExprString,
+    prefixed: "",
+    label: null,
+    comment: null,
+    annotations: [],
+    kind: "Class",
+    superClasses: [],
+    equivalentClasses: [
+      [
+        {
+          name: "EquivalentClass",
+          value: classExprString
+        }
+      ]
+    ],
+    disjointWith: [],
+    restrictions: [],
+    keys: [],
+    objectProperties: propertyKind === 'object' ? [propertyIri] : [],
+    dataProperties: propertyKind === 'data' ? [propertyIri] : [],
+    complementOf: [],
+    instances: [],
+    equivalentClassExpressions: [classExprString]
+  };
+
+  return classExprString;
 }
 
 export {
