@@ -2398,7 +2398,7 @@ class VQ_Element_Async{
     {title:"graph",name:"Graph"},
     {title:"graphInstruction",name:"Graph instruction"},
     {title:"attributeConditionSelection",name:"AttributeConditionSelection"},
-	{title:"attributeCondition",name:"Attribute Condition", transformer:function(v) {return v=="true"}},
+	  {title:"attributeCondition",name:"Attribute Condition", transformer:function(v) {return v=="true"}},
     {title:"nodeLevelCondition",name:"Node-level Condition", transformer:function(v) {return v=="true"}},
     {title:"requireValues",name:"Require Values",transformer:function(v) {return v=="true"}},
     {title:"addLabel",name:"Add Label",transformer:function(v) {return v=="true"}},
@@ -2407,29 +2407,31 @@ class VQ_Element_Async{
 		{title:"groupValues",name:"GroupValues",transformer:function(v) {return v=="true"}},
 	  {title:"isInternal",name:"IsInternal",transformer:function(v) {return v=="true"}}]);
 
-	const compart_type = await CompartmentTypes.findOneAsync({name: "Attributes", elementTypeId: this.obj.elementTypeId})
-	const compart_type_id = compart_type["_id"];
-	var compartments = await Compartments.find({compartmentTypeId: compart_type_id, elementId: this.obj._id, }, {sort: {index: 1}}).fetchAsync();
+    var compratmentList = [];
 
-	var compratmentList = [];
+    const compart_type = await CompartmentTypes.findOneAsync({ name: "Attributes", elementTypeId: this.obj.elementTypeId })
+    if (compart_type) {
+      const compart_type_id = compart_type["_id"];
+      var compartments = await Compartments.find({ compartmentTypeId: compart_type_id, elementId: this.obj._id, }, { sort: { index: 1 } }).fetchAsync();
 
-	for(var compartment of compartments){
-		for(var field of field_list){
-			if(field["_id"] == compartment["_id"]) {
-				compratmentList.push(field);
-				break;
-			}
-		}
-	}
+      for (var compartment of compartments) {
+        for (var field of field_list) {
+          if (field["_id"] == compartment["_id"]) {
+            compratmentList.push(field);
+            break;
+          }
+        }
+      }
+    }
 
-	return compratmentList;
+	  return compratmentList;
   }
 
   async addField(exp,alias,requireValues,groupValues,isInternal,addLabel,addAltLabel,addDescription,graph,graphInstruction, condition, isAttributeCondition, isNodeLevelCondition) {
 
 	var prefixesValue = "";
 	var graphPrefixValue = "";
-	if(graph !== null && graph !="" && graphInstruction !== null && graphInstruction !== "") graphPrefixValue = "{" + graphInstruction + ": " + graph + "} ";
+	if(typeof graph !== "undefined" && graph !== null && graph !="" && graphInstruction !== null && graphInstruction !== "" && typeof graphInstruction !== "undefined") graphPrefixValue = "{" + graphInstruction + ": " + graph + "} ";
 	if(isInternal == true) prefixesValue = "h";
 	if(requireValues == true) prefixesValue = prefixesValue + "+";
 	if(prefixesValue !== "") prefixesValue = "{" + prefixesValue + "} ";
