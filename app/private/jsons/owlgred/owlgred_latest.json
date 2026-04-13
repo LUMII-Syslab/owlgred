@@ -206,57 +206,69 @@
             "item": "Paste",
             "procedure": "Paste"
           },
-          {
-            "item": "Save Ontology N3 Turtle",
-            "procedure": "saveOntologyN3TurtleOwlgred"
-          },
-          {
-            "item": "Save Ontology N3 n3",
-            "procedure": "saveOntologyN3n3Owlgred"
-          },
-          {
-            "item": "Save Ontology N3 n-triples",
-            "procedure": "saveOntologyN3ntriplesOwlgred"
-          },
-          {
-            "item": "Save Ontology N3 trig",
-            "procedure": "saveOntologyN3trigOwlgred"
-          },
-          {
-            "item": "Save Ontology RDFLib Turtle",
-            "procedure": "saveOntologyRDFLibTurtleOwlgred"
-          },
-          {
-            "item": "Save Ontology RDFLib rdf+xml",
-            "procedure": "saveOntologyRDFLibrdfxmlOwlgred"
-          },
-          {
-            "item": "Save Ontology RDFLib n-triples",
-            "procedure": "saveOntologyRDFLibntriplesOwlgred"
-          },
-          {
-            "item": "Save Ontology RDFLib n3",
-            "procedure": "saveOntologyRDFLibn3Owlgred"
-          },
-          {
-            "item": "Save Ontology RDFLib ld+json",
-            "procedure": "saveOntologyRDFLibldjsonOwlgred"
+		  {
+            "item": "Save Ontology ...",
+            "procedure": "saveOntologyRDFLibTurtleOwlgred",
+			"subMenu": [
+              {
+				"item": "N3 Turtle",
+				"procedure": "saveOntologyN3TurtleOwlgred"
+			  },
+			  {
+				"item": "N3 n3",
+				"procedure": "saveOntologyN3n3Owlgred"
+			  },
+			  {
+				"item": "N3 n-triples",
+				"procedure": "saveOntologyN3ntriplesOwlgred"
+			  },
+			  {
+				"item": "N3 trig",
+				"procedure": "saveOntologyN3trigOwlgred"
+			  },
+			  {
+				"item": "RDFLib Turtle",
+				"procedure": "saveOntologyRDFLibTurtleOwlgred"
+			  },
+			  {
+				"item": "RDFLib rdf+xml",
+				"procedure": "saveOntologyRDFLibrdfxmlOwlgred"
+			  },
+			  {
+				"item": "RDFLib n-triples",
+				"procedure": "saveOntologyRDFLibntriplesOwlgred"
+			  },
+			  {
+				"item": "RDFLib n3",
+				"procedure": "saveOntologyRDFLibn3Owlgred"
+			  },
+			  {
+				"item": "RDFLib ld+json",
+				"procedure": "saveOntologyRDFLibldjsonOwlgred"
+			  }
+            ]
           },
 		  {
-            "item": "Layout (default)",
-            "procedure": "ComputeLayout"
-          },
-          {
-            "item": "Layout as Graph",
-            "procedure": "ComputeUniversalLayout"
-          },
-          {
-            "item": "Layout as Flow",
-            "procedure": "ComputeFlowLayout"
-          },
-		  {
-            "item": "Load Ontolofy from File",
-            "procedure": "loadOntologyOWLGrEd"
+            "item": "Layout ...",
+            "procedure": "ComputeLayout",
+			"subMenu": [
+              {
+				"item": "Layout (default)",
+				"procedure": "ComputeLayout"
+			  },
+			  {
+				"item": "Layout as Graph",
+				"procedure": "ComputeUniversalLayout"
+			  },
+			  {
+				"item": "Layout as Flow",
+				"procedure": "ComputeFlowLayout"
+			  },
+			  {
+				"item": "Load Ontolofy from File",
+				"procedure": "loadOntologyOWLGrEd"
+			  }
+            ]
           }
         ],
         "readModeNoCollectionContextMenu": [],
