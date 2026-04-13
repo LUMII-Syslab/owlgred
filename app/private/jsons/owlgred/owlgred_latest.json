@@ -263,10 +263,6 @@
 			  {
 				"item": "Layout as Flow",
 				"procedure": "ComputeFlowLayout"
-			  },
-			  {
-				"item": "Load Ontolofy from File",
-				"procedure": "loadOntologyOWLGrEd"
 			  }
             ]
           }
