@@ -316,23 +316,7 @@ Meteor.methods({
 				  let horizontalFork_box_id = await Elements.insertAsync(horizontalFork);
 				  element_map[horizontalFork_box_id] = horizontalFork_box_id;
 				  
-				  if(importSettings?.showDisjointClassesMarkAtForks === true){
-					let res = containsSameArrayAndRemove(subClasses, ontology.allDisjointClasses);
-					if(res.found === true)
-					  ontology.allDisjointClasses = res.list;
 				  
-				      let listForCompartmentAn = {
-						diagram_id: new_diagram_id,
-						diagram_type_id: diagram_type._id,
-						projectId: list.projectId,
-						versionId: list.versionId,
-						element_id: horizontalFork_box_id,
-						element_type_id: elemType._id
-					}
-					
-					//Disjoint
-					await add_one_compartment(listForCompartmentAn, "Disjoint", "true", "{disjoint}");
-				  }
 
 				  // GeneralizationToFork
 				  elemType = await ElementTypes.findOneAsync({name: "GeneralizationToFork", diagramTypeId: diagram_type._id});
@@ -348,7 +332,27 @@ Meteor.methods({
 
 					  let generalizationToFork_box_id = await Elements.insertAsync(object);
 					  element_map[generalizationToFork_box_id] = generalizationToFork_box_id;
+					  
+					  
+					  if(importSettings?.showDisjointClassesMarkAtForks === true){
+						let res = containsSameArrayAndRemove(subClasses, ontology.allDisjointClasses);
+						if(res.found === true)
+						  ontology.allDisjointClasses = res.list;
+					  
+						  let listForCompartmentAn = {
+							diagram_id: new_diagram_id,
+							diagram_type_id: diagram_type._id,
+							projectId: list.projectId,
+							versionId: list.versionId,
+							element_id: generalizationToFork_box_id,
+							element_type_id: elemType._id
+						}
+						
+						//Disjoint
+						await add_one_compartment(listForCompartmentAn, "Disjoint", "true", "{disjoint}");
+					  }
 				  } else {console.error("No superclass for GeneralizationToFork", iri)}
+				  
 
 				  // AssocToFork
 				  elemType = await ElementTypes.findOneAsync({name: "AssocToFork", diagramTypeId: diagram_type._id});

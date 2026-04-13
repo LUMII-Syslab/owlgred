@@ -1259,12 +1259,22 @@ async function saveOntologyInFormatOwlgred(){
 					}
 					
 				} else if(elem_type[elemType]["name"] === "HorizontalFork"){
-					let disjoint = await elemOWLGrEd.getCompartmentValue("Disjoint");
-					let complete = await elemOWLGrEd.getCompartmentValue("Complete");
+					
 					let subClasses = await getElementsFromPath2(["end","start"], elemOWLGrEd);
+					let subClasses2 = await getElementsFromPath2(["start","end"], elemOWLGrEd);
+					
+					subClasses = subClasses.concat(subClasses2);
 					subClasses = removeDuplicatesById(subClasses);
+					
+					
+					let generalization = await getElementsFromPath(["start"], elemOWLGrEd);
+					let disjoint = await generalization.getCompartmentValue("Disjoint");
+					let complete = await generalization.getCompartmentValue("Complete");
+
 					const supClass = await getElementsFromPath(["start", "end"], elemOWLGrEd);
 					let className = await supClass.getCompartmentValue("Name");
+					subClasses = subClasses.filter(item => item.obj._id !== supClass.obj._id);
+					
 					if(!className){
 						const equivalentClasses = await supClass.getMultiCompartmentSubCompartmentValues("EquivalentClasses");
 						if(equivalentClasses.length> 0) className = equivalentClasses[0].EquivalentClass;
