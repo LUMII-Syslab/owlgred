@@ -395,6 +395,9 @@
             "readModeKeyStrokes": [],
             "contextMenu": [
               {
+                "item": "Manage Individuals",
+                "procedure": "ManageIndividuals"
+              },{
                 "item": "Cut",
                 "procedure": "Cut"
               },
@@ -1744,6 +1747,145 @@
                   }
                 ],
                 "label": "Attributes"
+              }
+            },
+			{
+              "object": {
+                "_id": "5ThCQE7U6rEAsEDwR",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "fCNoA6sqGLdTB2Dmg",
+                "elementId": "xQtWJgZ7CDTazoQjt",
+                "index": 2098,
+                "noRepresentation": false,
+                "tabIndex": 2198,
+                "dialogTabId": "eLy7pfE4GnHAPeeFq",
+                "name": "IndividualLabel",
+                "isObjectRepresentation": false,
+                "inputType": {
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "25d26f1d79525aac5ad974db",
+                    "style": {
+                      "align": "center",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": false,
+                      "fontSize": 16,
+                      "fontStyle": "bold",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "IndividualLabel"
+              }
+            },
+			{
+              "object": {
+                "_id": "5ThCQE7U6rEZxjDwR",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "fCNoA6sqGLdTB2Dmg",
+                "elementId": "xQtWJgZ7CDTazoQjt",
+                "index": 2099,
+                "noRepresentation": false,
+                "tabIndex": 2199,
+                "dialogTabId": "eLy7pfE4GnHAPeeFq",
+                "name": "OneOf",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "checkbox",
+                  "values": [
+                    {
+                      "value": "",
+                      "input": "false",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    },
+                    {
+                      "value": "\u2261 OneOf: ",
+                      "input": "true",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    }
+                  ]
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "5a056f8f20b07d71dcce3e8a",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 12,
+                      "fontStyle": "bold",
+                      "fontFamily": "Courier New",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "OneOf"
               }
             },
 			{

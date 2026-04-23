@@ -156,6 +156,7 @@ Template.AddInstance_OWLGrEd.events({
 	let selected_elem_id = Session.get("activeElement");
 	let elem = document.getElementById("add-instance-form-owlgred");
 	let act_el = await Elements.findOneAsync({_id: selected_elem_id});
+	    // if new individual
 		if(elem.getAttribute("compartmentId") === null){
 
 			if (await Elements.findOneAsync({_id: selected_elem_id})){
@@ -186,7 +187,7 @@ Template.AddInstance_OWLGrEd.events({
 			}
 		}
 	
-    console.log("attributeValues", attributeValues);
+    // console.log("attributeValues", attributeValues);
   },
 
   'click #cancel-add-new-instance-owlgred': function() {
