@@ -8558,7 +8558,7 @@
                 "isObjectRepresentation": false,
                 "inputType": {
                   "type": "custom",
-                  "templateName": "multiField"
+                  "templateName": "propertyChainFieldOWLGrEd"
                 },
                 "styles": [
                   {
@@ -15043,7 +15043,7 @@
                 "isObjectRepresentation": false,
                 "inputType": {
                   "type": "custom",
-                  "templateName": "propertyChainInvFieldOWLGrEd"
+                  "templateName": "propertyChainFieldOWLGrEd"
                 },
                 "styles": [
                   {
