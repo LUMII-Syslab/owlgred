@@ -2,9 +2,8 @@
   "tool": {
     "name": "OWLGrEd",
     "toolbar": "diagramsToolbar",
-	"toolGroup": "OWLGrEd",
-	"extensionPoints": [
-	]	
+    "toolGroup": "OWLGrEd",
+    "extensionPoints": []
   },
   "types": [
     {
@@ -21,7 +20,7 @@
             "extensionPoint": "createDiagram",
             "procedure": "CreateDiagram"
           },
-		  {
+          {
             "extensionPoint": "beforeRenderDiagram"
           },
           {
@@ -206,64 +205,64 @@
             "item": "Paste",
             "procedure": "Paste"
           },
-		  {
+          {
             "item": "Save Ontology ...",
             "procedure": "saveOntologyRDFLibTurtleOwlgred",
-			"subMenu": [
+            "subMenu": [
               {
-				"item": "N3 Turtle",
-				"procedure": "saveOntologyN3TurtleOwlgred"
-			  },
-			  {
-				"item": "N3 n3",
-				"procedure": "saveOntologyN3n3Owlgred"
-			  },
-			  {
-				"item": "N3 n-triples",
-				"procedure": "saveOntologyN3ntriplesOwlgred"
-			  },
-			  {
-				"item": "N3 trig",
-				"procedure": "saveOntologyN3trigOwlgred"
-			  },
-			  {
-				"item": "RDFLib Turtle",
-				"procedure": "saveOntologyRDFLibTurtleOwlgred"
-			  },
-			  {
-				"item": "RDFLib rdf+xml",
-				"procedure": "saveOntologyRDFLibrdfxmlOwlgred"
-			  },
-			  {
-				"item": "RDFLib n-triples",
-				"procedure": "saveOntologyRDFLibntriplesOwlgred"
-			  },
-			  {
-				"item": "RDFLib n3",
-				"procedure": "saveOntologyRDFLibn3Owlgred"
-			  },
-			  {
-				"item": "RDFLib ld+json",
-				"procedure": "saveOntologyRDFLibldjsonOwlgred"
-			  }
+                "item": "N3 Turtle",
+                "procedure": "saveOntologyN3TurtleOwlgred"
+              },
+              {
+                "item": "N3 n3",
+                "procedure": "saveOntologyN3n3Owlgred"
+              },
+              {
+                "item": "N3 n-triples",
+                "procedure": "saveOntologyN3ntriplesOwlgred"
+              },
+              {
+                "item": "N3 trig",
+                "procedure": "saveOntologyN3trigOwlgred"
+              },
+              {
+                "item": "RDFLib Turtle",
+                "procedure": "saveOntologyRDFLibTurtleOwlgred"
+              },
+              {
+                "item": "RDFLib rdf+xml",
+                "procedure": "saveOntologyRDFLibrdfxmlOwlgred"
+              },
+              {
+                "item": "RDFLib n-triples",
+                "procedure": "saveOntologyRDFLibntriplesOwlgred"
+              },
+              {
+                "item": "RDFLib n3",
+                "procedure": "saveOntologyRDFLibn3Owlgred"
+              },
+              {
+                "item": "RDFLib ld+json",
+                "procedure": "saveOntologyRDFLibldjsonOwlgred"
+              }
             ]
           },
-		  {
+          {
             "item": "Layout ...",
             "procedure": "ComputeLayout",
-			"subMenu": [
+            "subMenu": [
               {
-				"item": "Layout (default)",
-				"procedure": "ComputeLayout"
-			  },
-			  {
-				"item": "Layout as Graph",
-				"procedure": "ComputeUniversalLayout"
-			  },
-			  {
-				"item": "Layout as Flow",
-				"procedure": "ComputeFlowLayout"
-			  }
+                "item": "Layout (default)",
+                "procedure": "ComputeLayout"
+              },
+              {
+                "item": "Layout as Graph",
+                "procedure": "ComputeUniversalLayout"
+              },
+              {
+                "item": "Layout as Flow",
+                "procedure": "ComputeFlowLayout"
+              }
             ]
           }
         ],
@@ -293,7 +292,7 @@
           "diagramSize": 10,
           "dialogSize": 2
         },
-		"layoutSettings": {
+        "layoutSettings": {
           "layout": "INVERSE_VERTICAL",
           "arrangeMethod": "arrangeFromScratch"
         },
@@ -330,10 +329,10 @@
         },
         "name": "Seed",
         "editorType": "ajooEditor",
-		"editorMinHeight": 970,
+        "editorMinHeight": 970,
         "palette": {
-		  "width": 40,
-		  "height": 25,
+          "width": 40,
+          "height": 25,
           "buttonWidth": "",
           "buttonHeight": "",
           "padding": 3
@@ -397,7 +396,8 @@
               {
                 "item": "Manage Individuals",
                 "procedure": "ManageIndividuals"
-              },{
+              },
+              {
                 "item": "Cut",
                 "procedure": "Cut"
               },
@@ -460,10 +460,10 @@
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
             "exportAxioms": [
               "Declaration(Class($getUri(/Name)))",
-			  "DisjointClasses($getClassExpr /DisjointClasses:$getExpression(/DisjointClass))",
-			  "SubClassOf($getClassExpr /SuperClasses:$getExpression(/SuperClass))",
-			  "AnnotationAssertion(rdfs:comment $getClassExpr $value(/Comment))"
-			]
+              "DisjointClasses($getClassExpr /DisjointClasses:$getExpression(/DisjointClass))",
+              "SubClassOf($getClassExpr /SuperClasses:$getExpression(/SuperClass))",
+              "AnnotationAssertion(rdfs:comment $getClassExpr $value(/Comment))"
+            ]
           },
           "compartmentTypes": [
             {
@@ -530,10 +530,10 @@
                 "label": "Name"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrfq",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -548,7 +548,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -596,7 +596,7 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            },       
+            },
             {
               "object": {
                 "_id": "F94uzQcP4z9gCvX2F",
@@ -681,9 +681,9 @@
                   "type": "custom",
                   "templateName": "multiField"
                 },
-				"exportAxioms": [
-				  ""
-				],
+                "exportAxioms": [
+                  ""
+                ],
                 "styles": [
                   {
                     "name": "Default",
@@ -711,11 +711,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -762,10 +762,10 @@
                 "prefix": "\u2261 "
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrfw",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -780,7 +780,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -875,11 +875,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -926,10 +926,10 @@
                 "prefix": "\u2286 "
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrfe",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -944,7 +944,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -1012,9 +1012,9 @@
                   "type": "custom",
                   "templateName": "multiField"
                 },
-				"exportAxioms": [
-				  ""
-				],
+                "exportAxioms": [
+                  ""
+                ],
                 "styles": [
                   {
                     "name": "Default",
@@ -1042,11 +1042,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -1066,7 +1066,7 @@
                     "_id": "p2f69awnt2xm2k2dne5c851k",
                     "name": "DisjointClasses",
                     "extensionPoints": [],
-                    "prefix": "\u27C2 ",
+                    "prefix": "\u27c2 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -1086,17 +1086,17 @@
                         "label": "DisjointClass"
                       }
                     ],
-                    "label": "DisjointClasses(\u27C2)"
+                    "label": "DisjointClasses(\u27c2)"
                   }
                 ],
-                "label": "DisjointClasses(\u27C2)",
-                "prefix": "\u27C2 "
+                "label": "DisjointClasses(\u27c2)",
+                "prefix": "\u27c2 "
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrfr",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -1111,7 +1111,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -1229,7 +1229,7 @@
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
-					  {
+                      {
                         "_id": "0xpqbmmakr95pha2e18yif8e",
                         "index": 1,
                         "name": "Key",
@@ -1251,10 +1251,10 @@
                 "prefix": "key = "
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf1",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -1269,7 +1269,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -1732,7 +1732,7 @@
                         "_id": "su465uh97s8gf52uaamk58g9",
                         "index": 9,
                         "name": "DisjointProperties",
-                        "label": "DisjointProperties(\u27C2)",
+                        "label": "DisjointProperties(\u27c2)",
                         "extensionPoints": [],
                         "prefix": "{",
                         "suffix": "}",
@@ -1749,7 +1749,7 @@
                 "label": "Attributes"
               }
             },
-			{
+            {
               "object": {
                 "_id": "5ThCQE7U6rEAsEDwR",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -1764,8 +1764,7 @@
                 "dialogTabId": "eLy7pfE4GnHAPeeFq",
                 "name": "IndividualLabel",
                 "isObjectRepresentation": false,
-                "inputType": {
-                },
+                "inputType": {},
                 "styles": [
                   {
                     "name": "Default",
@@ -1811,7 +1810,7 @@
                 "label": "IndividualLabel"
               }
             },
-			{
+            {
               "object": {
                 "_id": "5ThCQE7U6rEZxjDwR",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -1888,7 +1887,7 @@
                 "label": "OneOf"
               }
             },
-			{
+            {
               "object": {
                 "_id": "jAxB645Y8QErMfb8f",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -1958,7 +1957,7 @@
                         "procedure": ""
                       }
                     ],
-                    "prefix": "\u25C7 ",
+                    "prefix": "\u25c7 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -1968,7 +1967,7 @@
                         "name": "Individual",
                         "label": "Individual",
                         "extensionPoints": [],
-                        "prefix": "\u25C7 ",
+                        "prefix": "\u25c7 ",
                         "suffix": null,
                         "defaultValue": null,
                         "inputType": {
@@ -1983,10 +1982,10 @@
                 "label": "Individuals"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf2",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -2001,7 +2000,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -2221,7 +2220,7 @@
             "name": "HorizontalFork",
             "isAbstract": false,
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
-			"exportAxioms": [
+            "exportAxioms": [
               ""
             ],
             "defaultFixedSize": {
@@ -2485,7 +2484,7 @@
                 "label": "ClassName"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf7",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -2503,7 +2502,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -2666,11 +2665,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -2765,11 +2764,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -2946,7 +2945,7 @@
                 "label": "Annotation"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf7",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -2964,7 +2963,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -3060,11 +3059,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -3144,7 +3143,7 @@
                 "label": "DataPropertyAssertion(=)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf6",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -3162,7 +3161,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -3258,11 +3257,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -3336,13 +3335,13 @@
                         "label": "Type"
                       }
                     ],
-                    "label": "NegativeDataPropertyAssertion(\u27C2)"
+                    "label": "NegativeDataPropertyAssertion(\u27c2)"
                   }
                 ],
-                "label": "NegativeDataPropertyAssertion(\u27C2)"
+                "label": "NegativeDataPropertyAssertion(\u27c2)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf5",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -3360,7 +3359,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -3444,10 +3443,10 @@
             "superTypeIds": [
               "aoQGghJQhzuMJfmjk"
             ],
-			"subTypeIds": [
-			  "JE9K4Qh9zDbCJa7dr",
-			  "mbvfcx2rE8aYcMQuN"
-			],
+            "subTypeIds": [
+              "JE9K4Qh9zDbCJa7dr",
+              "mbvfcx2rE8aYcMQuN"
+            ],
             "type": "Box",
             "extensionPoints": [
               {
@@ -3650,9 +3649,9 @@
             ],
             "name": "DifferentIndivids",
             "isAbstract": false,
-			"exportAxioms": [
-				""
-			],
+            "exportAxioms": [
+              ""
+            ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [
@@ -3962,9 +3961,9 @@
             ],
             "name": "SameAsIndivids",
             "isAbstract": false,
-			"exportAxioms": [
-				""
-			],
+            "exportAxioms": [
+              ""
+            ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [
@@ -4203,19 +4202,19 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "H8FNs96AQiZ9vH4tM",
             "superTypeIds": [],
-			"subTypeIds": [
-			  "fCNoA6sqGLdTB2Dmg",
-			  "8RrMQyXGMbDGsvpc9",
-			  "AXu2kc6YyPp35ukcD",
-			  "JE9K4Qh9zDbCJa7dr",
-			  "mbvfcx2rE8aYcMQuN",
-			  "LD92ncnTAN2qYPHwk",
-			  "aYqpwmYuXruCiBiJz",
-			  "9WbQQ3AcS4MtSFDi4",
-			  "bpSBgMuA2cRuAeK36",
-			  "NqiYLnvSvi4ZEQNSg",
-			  "yiG2MLbQHXXPm4WvY"
-			],
+            "subTypeIds": [
+              "fCNoA6sqGLdTB2Dmg",
+              "8RrMQyXGMbDGsvpc9",
+              "AXu2kc6YyPp35ukcD",
+              "JE9K4Qh9zDbCJa7dr",
+              "mbvfcx2rE8aYcMQuN",
+              "LD92ncnTAN2qYPHwk",
+              "aYqpwmYuXruCiBiJz",
+              "9WbQQ3AcS4MtSFDi4",
+              "bpSBgMuA2cRuAeK36",
+              "NqiYLnvSvi4ZEQNSg",
+              "yiG2MLbQHXXPm4WvY"
+            ],
             "type": "Box",
             "extensionPoints": [
               {
@@ -4421,9 +4420,9 @@
             ],
             "name": "Annotation",
             "isAbstract": false,
-			"exportAxioms": [
-				""
-			],
+            "exportAxioms": [
+              ""
+            ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [
@@ -4992,7 +4991,7 @@
                 "label": "Comment"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf4",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -5010,7 +5009,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -5058,7 +5057,7 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            }, 
+            },
             {
               "object": {
                 "_id": "RYZtFNNoKfH4LKHf6",
@@ -5106,11 +5105,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLine"
+                    "procedure": "setHorizontalLine"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLine"
+                    "procedure": "removeHorizontalLine"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -5124,7 +5123,7 @@
                   {
                     "extensionPoint": "dynamicDropDown"
                   }
-                ],      
+                ],
                 "subCompartmentTypes": [
                   {
                     "_id": "6e59dlq4077opej4dfdkejqa",
@@ -5153,12 +5152,12 @@
                     "label": "SuperProperties(<)"
                   }
                 ],
-				"prefix": "\u2286 ",
+                "prefix": "\u2286 ",
                 "suffix": null,
                 "label": "SuperProperties(<)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3CfetDrf3",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -5176,7 +5175,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -5224,7 +5223,7 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            }, 
+            },
             {
               "object": {
                 "_id": "eFuk3XhpiYtohete5",
@@ -5482,7 +5481,7 @@
                 "label": "Annotation"
               }
             }
-    	  ],
+          ],
           "dialog": [
             {
               "_id": "CNK9y8bZqo3kKyALs",
@@ -6055,10 +6054,10 @@
             "superTypeIds": [
               "aoQGghJQhzuMJfmjk"
             ],
-			"subTypeIds": [
-			  "NqiYLnvSvi4ZEQNSg",
-			  "yiG2MLbQHXXPm4WvY"
-			],
+            "subTypeIds": [
+              "NqiYLnvSvi4ZEQNSg",
+              "yiG2MLbQHXXPm4WvY"
+            ],
             "type": "Box",
             "extensionPoints": [
               {
@@ -6261,9 +6260,9 @@
             ],
             "name": "EquivalentClasses",
             "isAbstract": false,
-			"exportAxioms": [
-				""
-			],
+            "exportAxioms": [
+              ""
+            ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [
@@ -6581,9 +6580,9 @@
             ],
             "name": "DisjointClasses",
             "isAbstract": false,
-			"exportAxioms": [
-				""
-			],
+            "exportAxioms": [
+              ""
+            ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [
@@ -6902,26 +6901,26 @@
             "name": "ObjectProperty",
             "isAbstract": false,
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
-			"exportAxioms": [
+            "exportAxioms": [
               "Declaration(ObjectProperty($getUri(/Name)))",
-			  "ObjectPropertyDomain($getUri(/Name) $getDomainOrRange(/end/start))",
-			  "ObjectPropertyRange($getUri(/Name) $getDomainOrRange(/start/end))",
-			  "ObjectPropertyDomain($getUri(/Name) $getUri(/Domain))",
-			  "ObjectPropertyRange($getUri(/Name) $getUri(/Range))",
-			  "SubObjectPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
-			  "DisjointObjectProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
-			  "EquivalentObjectProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))",
-			  "FunctionalObjectProperty([/Functional == 'true'] $getUri(/Name))",
-			  "InverseFunctionalObjectProperty([/InverseFunctional == 'true'] $getUri(/Name))",
-			  "SymmetricObjectProperty([/Symmetric == 'true'] $getUri(/Name))",
-			  "AsymmetricObjectProperty([/Asymmetric == 'true'] $getUri(/Name))",
-			  "ReflexiveObjectProperty([/Reflexive == 'true'] $getUri(/Name))",
-			  "ReflexiveObjectProperty([/ReflexiveInv == 'true'] $getUri(/NameInv))",
-			  "IrreflexiveObjectProperty([/Irreflexive == 'true'] $getUri(/Name))",
-			  "TransitiveObjectProperty([/Transitive == 'true'] $getUri(/Name))"
+              "ObjectPropertyDomain($getUri(/Name) $getDomainOrRange(/end/start))",
+              "ObjectPropertyRange($getUri(/Name) $getDomainOrRange(/start/end))",
+              "ObjectPropertyDomain($getUri(/Name) $getUri(/Domain))",
+              "ObjectPropertyRange($getUri(/Name) $getUri(/Range))",
+              "SubObjectPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
+              "DisjointObjectProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
+              "EquivalentObjectProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))",
+              "FunctionalObjectProperty([/Functional == 'true'] $getUri(/Name))",
+              "InverseFunctionalObjectProperty([/InverseFunctional == 'true'] $getUri(/Name))",
+              "SymmetricObjectProperty([/Symmetric == 'true'] $getUri(/Name))",
+              "AsymmetricObjectProperty([/Asymmetric == 'true'] $getUri(/Name))",
+              "ReflexiveObjectProperty([/Reflexive == 'true'] $getUri(/Name))",
+              "ReflexiveObjectProperty([/ReflexiveInv == 'true'] $getUri(/NameInv))",
+              "IrreflexiveObjectProperty([/Irreflexive == 'true'] $getUri(/Name))",
+              "TransitiveObjectProperty([/Transitive == 'true'] $getUri(/Name))"
             ]
           },
-          "compartmentTypes": [ 
+          "compartmentTypes": [
             {
               "object": {
                 "_id": "aBZvomErwLWkFQLmR",
@@ -6997,10 +6996,10 @@
                 "label": "Name"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3ClveDrfq",
-               "toolId": "cHSidEZPTvZRSFFtZ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
                 "diagramId": "YmsfLsQHNYsgFDJab",
@@ -7015,7 +7014,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7064,7 +7063,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
                 "_id": "aBZvomErwLWkFQRwo",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7118,9 +7117,9 @@
                     "extensionPoint": "afterUpdate",
                     "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -7143,7 +7142,7 @@
                 "label": "Domain"
               }
             },
-			{
+            {
               "object": {
                 "_id": "aBZvomErwGTpFQRwo",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7197,9 +7196,9 @@
                     "extensionPoint": "afterUpdate",
                     "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -7222,7 +7221,7 @@
                 "label": "Range"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqe3lFrtDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7240,7 +7239,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7289,7 +7288,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{  
+            {
               "object": {
                 "_id": "kzRFTR38JoacThuQk",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7303,8 +7302,8 @@
                 "tabIndex": 55,
                 "dialogTabId": "JWM4CjSR3FuaaFaxp",
                 "name": "Multiplicity",
-				"prefix":"[",
-				"suffix":"]",
+                "prefix": "[",
+                "suffix": "]",
                 "isObjectRepresentation": false,
                 "inputType": {
                   "type": "combobox"
@@ -7336,11 +7335,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineProperty"
+                    "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -7359,7 +7358,7 @@
                 "label": "Multiplicity"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3lFrtDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7377,7 +7376,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7426,7 +7425,7 @@
                 "label": "HorizontalLine"
               }
             },
-            { 
+            {
               "object": {
                 "_id": "X7nzkzSwqcC4LuCeZ",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7477,11 +7476,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineProperty"
+                    "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -7532,7 +7531,7 @@
                 "label": "EquivalentProperties(=)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwQgiS3lFrtDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7550,7 +7549,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7599,7 +7598,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{  
+            {
               "object": {
                 "_id": "7jguapgdiR5y8WFFq",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7645,11 +7644,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineProperty"
+                    "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -7697,7 +7696,7 @@
                 "suffix": "}"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZAqS3lFrtDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7715,7 +7714,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7815,11 +7814,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineProperty"
+                    "procedure": "setHorizontalLineProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineProperty"
+                    "procedure": "removeHorizontalLineProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -7843,7 +7842,7 @@
                     "_id": "ce62d6ba3b333e62def7baqa",
                     "name": "DisjointProperties",
                     "extensionPoints": [],
-                    "prefix": "\u27C2 ",
+                    "prefix": "\u27c2 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -7863,14 +7862,14 @@
                         "label": "DisjointProperty"
                       }
                     ],
-                    "label": "DisjointProperties(\u27C2)"
+                    "label": "DisjointProperties(\u27c2)"
                   }
                 ],
                 "type": "text",
-                "label": "DisjointProperties(\u27C2)"
+                "label": "DisjointProperties(\u27c2)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYAqS3lFrtDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -7888,7 +7887,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -7937,7 +7936,7 @@
                 "label": "HorizontalLine"
               }
             },
-            { 
+            {
               "object": {
                 "_id": "mMPoqsQypYoChanDn",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8014,8 +8013,8 @@
                 "prefix": "{",
                 "suffix": "}"
               }
-            },            
-			{  
+            },
+            {
               "object": {
                 "_id": "SSaB2KxBMd9MB9Fp8",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8102,7 +8101,7 @@
                 "label": "InverseFunctional"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "yXENF96yXGrMt4PsE",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8189,7 +8188,7 @@
                 "label": "Symmetric"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "C434N3KnzN4oANfkN",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8276,7 +8275,7 @@
                 "label": "Asymmetric"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "ZNDdNnSioc6pBCRxX",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8363,7 +8362,7 @@
                 "label": "Reflexive"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "PjXvBLjxv4kF2sYF2",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8450,7 +8449,7 @@
                 "label": "Irreflexive"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "J7uR7AdEPNhwqBfho",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8537,7 +8536,7 @@
                 "label": "Transitive"
               }
             },
-            {  
+            {
               "object": {
                 "_id": "vK6RsznZyTwsp2nQ2",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8638,8 +8637,8 @@
                 "type": "text",
                 "label": "PropertyChains"
               }
-            },            
-			{
+            },
+            {
               "object": {
                 "_id": "KL6nf6Sy6da6zEZqk",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8772,7 +8771,7 @@
                 "label": "Annotation"
               }
             },
-			{
+            {
               "object": {
                 "_id": "nW5LaubgxiSK8MwM2",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -8783,8 +8782,8 @@
                 "elementId": "u8LPBBJCWedcAozMR",
                 "index": 1200,
                 "noRepresentation": false,
-                "tabIndex": 1200,
-                "dialogTabId": "JWM4CjSR3FuaaFaxp",
+                "tabIndex": 1,
+                "dialogTabId": "QlfRBMEqoaNzxHI8d",
                 "name": "Qualifiers",
                 "description": "",
                 "prefix": "\u2022 ",
@@ -8869,23 +8868,22 @@
                         "_id": "9xg8e93ohkpqj603jtdm3osl",
                         "index": 3,
                         "name": "Type",
-                        "extensionPoints": [],
+                        "extensionPoints": [
+                          {
+                            "extensionPoint": "dynamicDropDown",
+                            "procedure": "defaultTypesOwlgred"
+                          }
+                        ],
                         "prefix": null,
                         "suffix": null,
                         "defaultValue": null,
                         "inputType": {
                           "type": "combobox"
                         },
-						"extensionPoints": [
-                          {
-                            "extensionPoint": "dynamicDropDown",
-                            "procedure": "defaultTypesOwlgred"
-                          }
-                        ],
                         "subCompartmentTypes": [],
                         "label": "Type"
                       },
-					  {
+                      {
                         "_id": "4myxmzuqpuosdyj4o6y1m0s4",
                         "index": 4,
                         "name": "Multiplicity",
@@ -8923,6 +8921,16 @@
               "elementTypeId": "nT9Lq7pDSsKHEdKgu",
               "name": "Main",
               "index": 1
+            },
+            {
+              "_id": "QlfRBMEqoaNzxHI8d",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "name": "Qualifiers",
+              "elementTypeId": "nT9Lq7pDSsKHEdKgu",
+              "index": 2
             }
           ]
         },
@@ -9026,13 +9034,13 @@
             ],
             "name": "DataProperty",
             "isAbstract": false,
-			"exportAxioms": [
+            "exportAxioms": [
               "Declaration(DataProperty($getUri(/Name)))",
-			  "DataPropertyDomain($getUri(/Name) $getDomainOrRange(/end/start))",
-			  "DataPropertyDomain($getUri(/Name) $getUri(/Domain))",
-			  "SubDataPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
-			  "DisjointDataProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
-			  "EquivalentDataProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))"
+              "DataPropertyDomain($getUri(/Name) $getDomainOrRange(/end/start))",
+              "DataPropertyDomain($getUri(/Name) $getUri(/Domain))",
+              "SubDataPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
+              "DisjointDataProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
+              "EquivalentDataProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))"
             ],
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
@@ -9112,7 +9120,7 @@
                 "label": "Name"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqSwZA2TEClveDrfq",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9130,7 +9138,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -9179,7 +9187,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
                 "_id": "DPtBKMvGK5x9mXJ2W",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9229,11 +9237,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -9306,11 +9314,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -9333,7 +9341,7 @@
                 "label": "Range"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYAqS3lSerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9351,7 +9359,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -9400,7 +9408,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
                 "_id": "FmKFWkdsYWFGrcyTy",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9418,8 +9426,8 @@
                 "inputType": {
                   "type": "combobox"
                 },
-				"prefix":"[",
-				"suffix":"]",
+                "prefix": "[",
+                "suffix": "]",
                 "styles": [
                   {
                     "name": "Default",
@@ -9447,11 +9455,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -9470,7 +9478,7 @@
                 "label": "Multiplicity"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYAq7HlSerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9488,7 +9496,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -9537,9 +9545,9 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
-                 "_id": "xqX2oAxrgvR4euLKr",
+                "_id": "xqX2oAxrgvR4euLKr",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -9666,7 +9674,7 @@
                 "label": "Annotation"
               }
             },
-			{
+            {
               "object": {
                 "_id": "FmKFWkdsYDHGrcyTy",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9682,24 +9690,24 @@
                 "name": "IsFunctional",
                 "isObjectRepresentation": false,
                 "inputType": {
-                   "type": "checkbox",
-                    "values": [
-                       {
-                          "compartmentStyle": "NoStyle",
-                          "elementStyle": "NoStyle",
-                          "input": "true",
-                          "value": "func"
-                       },
-                       {
-                           "compartmentStyle": "NoStyle",
-                           "elementStyle": "NoStyle",
-                           "input": "false",
-                           "value": ""
-                        }
-                    ]
+                  "type": "checkbox",
+                  "values": [
+                    {
+                      "compartmentStyle": "NoStyle",
+                      "elementStyle": "NoStyle",
+                      "input": "true",
+                      "value": "func"
+                    },
+                    {
+                      "compartmentStyle": "NoStyle",
+                      "elementStyle": "NoStyle",
+                      "input": "false",
+                      "value": ""
+                    }
+                  ]
                 },
-				"prefix":"{",
-				"suffix":"}",
+                "prefix": "{",
+                "suffix": "}",
                 "styles": [
                   {
                     "name": "Default",
@@ -9743,8 +9751,8 @@
                 ],
                 "label": "IsFunctional"
               }
-            },	
-            { 
+            },
+            {
               "object": {
                 "_id": "X7nzkzSwflC4LuStr",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9795,11 +9803,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -9850,7 +9858,7 @@
                 "label": "EquivalentProperties(=)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViJ7RS3lSerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9868,7 +9876,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -9916,8 +9924,8 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            },			
-			{  
+            },
+            {
               "object": {
                 "_id": "7jguapgdiR5y8WFFq",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -9963,11 +9971,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix"
@@ -10015,7 +10023,7 @@
                 "suffix": ""
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYATe4lSerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -10033,7 +10041,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -10133,11 +10141,11 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setHorizontalLineDataProperty"
+                    "procedure": "setHorizontalLineDataProperty"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataProperty"
+                    "procedure": "removeHorizontalLineDataProperty"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -10161,7 +10169,7 @@
                     "_id": "ce62d6ba3b333e62def7bafr",
                     "name": "DisjointProperties",
                     "extensionPoints": [],
-                    "prefix": "\u27C2 ",
+                    "prefix": "\u27c2 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -10181,14 +10189,14 @@
                         "label": "DisjointProperty"
                       }
                     ],
-                    "label": "DisjointProperties(\u27C2)"
+                    "label": "DisjointProperties(\u27c2)"
                   }
                 ],
                 "type": "text",
-                "label": "DisjointProperties(\u27C2)"
+                "label": "DisjointProperties(\u27c2)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYAqS26SerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -10206,7 +10214,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -10255,7 +10263,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
                 "_id": "nW5LaubgxiSK8MwM2",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -10266,8 +10274,8 @@
                 "elementId": "cQS5ykhnkp6gsFdEi",
                 "index": 1100,
                 "noRepresentation": false,
-                "tabIndex": 1100,
-                "dialogTabId": "A2bhBcyjwQgjfMret",
+                "tabIndex": 1,
+                "dialogTabId": "QlfTI2p5fyvMlKWxA",
                 "name": "Qualifiers",
                 "description": "",
                 "prefix": "\u2022 ",
@@ -10352,23 +10360,22 @@
                         "_id": "9xg8e93ohkrsj603jtdm3osl",
                         "index": 3,
                         "name": "Type",
-                        "extensionPoints": [],
+                        "extensionPoints": [
+                          {
+                            "extensionPoint": "dynamicDropDown",
+                            "procedure": "defaultTypesOwlgred"
+                          }
+                        ],
                         "prefix": null,
                         "suffix": null,
                         "defaultValue": null,
                         "inputType": {
                           "type": "combobox"
                         },
-						"extensionPoints": [
-                          {
-                            "extensionPoint": "dynamicDropDown",
-                            "procedure": "defaultTypesOwlgred"
-                          }
-                        ],
                         "subCompartmentTypes": [],
                         "label": "Type"
                       },
-					  {
+                      {
                         "_id": "4myxmzuqpuoswyj4o6y1m0s4",
                         "index": 4,
                         "name": "Multiplicity",
@@ -10406,6 +10413,16 @@
               "elementTypeId": "dRDNsPiTrajpdPpef",
               "name": "Main",
               "index": 1
+            },
+            {
+              "_id": "QlfTI2p5fyvMlKWxA",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "name": "Qualifiers",
+              "elementTypeId": "dRDNsPiTrajpdPpef",
+              "index": 2
             }
           ]
         },
@@ -10418,10 +10435,10 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "6LpTjhDPTpafeYfct",
             "superTypeIds": [],
-			"subTypeIds": [
-			  "nT9Lq7pDSsKHEdKgu",
-			  "dRDNsPiTrajpdPpef"
-			],
+            "subTypeIds": [
+              "nT9Lq7pDSsKHEdKgu",
+              "dRDNsPiTrajpdPpef"
+            ],
             "type": "Box",
             "extensionPoints": [
               {
@@ -10628,7 +10645,7 @@
             "name": "ObjectPropertyAssertion",
             "isAbstract": false,
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
-			"exportAxioms": [
+            "exportAxioms": [
               ""
             ],
             "defaultFixedSize": {
@@ -10711,7 +10728,7 @@
                 "label": "Property"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqYwZAru3CfesDrfq",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -10729,7 +10746,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -10777,7 +10794,7 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            },      
+            },
             {
               "object": {
                 "_id": "uqFcBaw4AzF66Emk4",
@@ -10842,7 +10859,7 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setPropertyAssertionNegationOwlgred"
+                    "procedure": "setPropertyAssertionNegationOwlgred"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -10865,7 +10882,7 @@
                 "label": "isNegative"
               }
             },
-			{
+            {
               "object": {
                 "_id": "enjNo5KhuWMLwnokA",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -10876,8 +10893,8 @@
                 "elementId": "9jR7vPwu9BwXARYvQ",
                 "index": 4,
                 "noRepresentation": false,
-                "tabIndex": 5,
-                "dialogTabId": "RTgcsiezvDcBYEKpE",
+                "tabIndex": 1,
+                "dialogTabId": "QlfEuybI9Uases6iX",
                 "name": "Qualifiers",
                 "description": "",
                 "prefix": "\u2022 ",
@@ -10973,7 +10990,7 @@
                         "subCompartmentTypes": [],
                         "label": "Value"
                       },
-					  {
+                      {
                         "_id": "4myxmzuqpuoeoyj4o6y1m0s3",
                         "index": 3,
                         "name": "Type",
@@ -11011,6 +11028,16 @@
               "elementTypeId": "Rh7erKfchEsyywKa6",
               "name": "Main",
               "index": 1
+            },
+            {
+              "_id": "QlfEuybI9Uases6iX",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "name": "Qualifiers",
+              "elementTypeId": "Rh7erKfchEsyywKa6",
+              "index": 2
             }
           ]
         },
@@ -11196,7 +11223,7 @@
                 "label": "Property"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqYwZAqS3CfetDrfq",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -11214,7 +11241,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -11262,7 +11289,7 @@
                 "type": "horizontalLine",
                 "label": "HorizontalLine"
               }
-            },      
+            },
             {
               "object": {
                 "_id": "joY7fSZpSqL8qYERp",
@@ -11316,9 +11343,9 @@
                     "extensionPoint": "afterUpdate",
                     "procedure": "setHorizontalLineDataPropertyAssertion"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataPropertyAssertion"
+                    "procedure": "removeHorizontalLineDataPropertyAssertion"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -11393,9 +11420,9 @@
                     "extensionPoint": "afterUpdate",
                     "procedure": "setHorizontalLineDataPropertyAssertion"
                   },
-				  {
+                  {
                     "extensionPoint": "onDelete",
-					"procedure": "removeHorizontalLineDataPropertyAssertion"
+                    "procedure": "removeHorizontalLineDataPropertyAssertion"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -11418,7 +11445,7 @@
                 "label": "Type"
               }
             },
-			{
+            {
               "object": {
                 "_id": "xqViYAqS26SerDrfw",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -11436,7 +11463,7 @@
                 "inputType": {
                   "type": "horizontalLine"
                 },
-				"defaultValue": " ",
+                "defaultValue": " ",
                 "styles": [
                   {
                     "name": "Default",
@@ -11485,7 +11512,7 @@
                 "label": "HorizontalLine"
               }
             },
-			{
+            {
               "object": {
                 "_id": "Ps8oun7c85D7vdpqQ",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -11549,7 +11576,7 @@
                   },
                   {
                     "extensionPoint": "afterUpdate",
-					"procedure": "setPropertyAssertionNegationOwlgred"
+                    "procedure": "setPropertyAssertionNegationOwlgred"
                   },
                   {
                     "extensionPoint": "dynamicPrefix",
@@ -11572,7 +11599,7 @@
                 "label": "isNegative"
               }
             },
-			{
+            {
               "object": {
                 "_id": "enjNo5KhuWMLwnokA",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -11583,8 +11610,8 @@
                 "elementId": "DoDemw6XmZzP9AxQN",
                 "index": 90,
                 "noRepresentation": false,
-                "tabIndex": 110,
-                "dialogTabId": "ZHcgauL6RSmSgr5Nc",
+                "tabIndex": 1,
+                "dialogTabId": "QlfznhNuTq0xS2G80",
                 "name": "Qualifiers",
                 "description": "",
                 "prefix": "\u2022 ",
@@ -11680,7 +11707,7 @@
                         "subCompartmentTypes": [],
                         "label": "Value"
                       },
-					  {
+                      {
                         "_id": "4myxmzuqauoeoyj4o6y1m0s3",
                         "index": 3,
                         "name": "Type",
@@ -11718,6 +11745,16 @@
               "elementTypeId": "JHeLkaixx4Q33KyRR",
               "name": "Main",
               "index": 1
+            },
+            {
+              "_id": "QlfznhNuTq0xS2G80",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "name": "Qualifiers",
+              "elementTypeId": "JHeLkaixx4Q33KyRR",
+              "index": 2
             }
           ]
         },
@@ -11730,10 +11767,10 @@
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "3DLa5WWqBZzvBNpPA",
             "superTypeIds": [],
-			"subTypeIds": [
-			  "Rh7erKfchEsyywKa6",
-			  "JHeLkaixx4Q33KyRR"
-			],
+            "subTypeIds": [
+              "Rh7erKfchEsyywKa6",
+              "JHeLkaixx4Q33KyRR"
+            ],
             "type": "Box",
             "extensionPoints": [
               {
@@ -11820,7 +11857,6 @@
             ],
             "name": "PropertyObject",
             "isAbstract": true,
-            
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd"
           },
           "compartmentTypes": [],
@@ -11934,7 +11970,6 @@
             ],
             "name": "ObjectList",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
             "defaultFixedSize": {
               "defaultFixedWidth": ""
@@ -12288,20 +12323,19 @@
                     0
                   ],
                   "shape": "Rectangle",
-				  "imageSrc": "/icons/namespace.png"
+                  "imageSrc": "/icons/namespace.png"
                 }
               }
             ],
             "name": "Namespaces",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
             "defaultFixedSize": {
               "defaultFixedWidth": ""
             }
           },
           "compartmentTypes": [
-          {
+            {
               "object": {
                 "_id": "LLEseHCjff8xETfoe",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -12375,8 +12409,8 @@
                 "type": "text",
                 "label": "Default Namespace"
               }
-            }
-            ,{
+            },
+            {
               "object": {
                 "_id": "LLEseHCjff8xETYWx",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -12465,8 +12499,7 @@
                         "_id": "wv90nt5kj09f62ch0zz7pi8b",
                         "index": 1,
                         "name": "Prefix",
-                        "extensionPoints": [
-                        ],
+                        "extensionPoints": [],
                         "prefix": "PREFIX ",
                         "suffix": ": ",
                         "defaultValue": null,
@@ -12817,31 +12850,31 @@
             "exportAxioms": [
               "Declaration(ObjectProperty($getUri(/Name)))",
               "Declaration(ObjectProperty($getUri(/NameInv)))",
-			  "ObjectPropertyDomain($getUri(/Name) $getDomainOrRange(/start))",
-			  "ObjectPropertyDomain($getUri(/NameInv) $getDomainOrRange(/end))",
-			  "ObjectPropertyRange($getUri(/Name) $getDomainOrRange(/end))",
-			  "ObjectPropertyRange($getUri(/NameInv) $getDomainOrRange(/start))",
-			  "InverseObjectProperties($getUri(/Name) $getUri(/NameInv))",
-			  "SubObjectPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
-			  "SubObjectPropertyOf($getUri(/NameInv) /SuperPropertiesInv:$getExpression(/SuperProperty))",
-			  "DisjointObjectProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
-			  "DisjointObjectProperties($getUri(/NameInv) /DisjointPropertiesInv:$getExpression(/DisjointProperty))",
-			  "EquivalentObjectProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))",
-			  "EquivalentObjectProperties($getUri(/NameInv) /EquivalentPropertiesInv:$getExpression(/EquivalentProperty))",
-			  "FunctionalObjectProperty([/Functional == 'true'] $getUri(/Name))",
-			  "FunctionalObjectProperty([/FunctionalInv == 'true'] $getUri(/NameInv))",
-			  "InverseFunctionalObjectProperty([/InverseFunctional == 'true'] $getUri(/Name))",
-			  "InverseFunctionalObjectProperty([/InverseFunctionalInv == 'true'] $getUri(/NameInv))",
-			  "SymmetricObjectProperty([/Symmetric == 'true'] $getUri(/Name))",
-			  "SymmetricObjectProperty([/SymmetricInv == 'true'] $getUri(/NameInv))",
-			  "AsymmetricObjectProperty([/Asymmetric == 'true'] $getUri(/Name))",
-			  "AsymmetricObjectProperty([/AsymmetricInv == 'true'] $getUri(/NameInv))",
-			  "ReflexiveObjectProperty([/Reflexive == 'true'] $getUri(/Name))",
-			  "ReflexiveObjectProperty([/ReflexiveInv == 'true'] $getUri(/NameInv))",
-			  "IrreflexiveObjectProperty([/Irreflexive == 'true'] $getUri(/Name))",
-			  "IrreflexiveObjectProperty([/IrreflexiveInv == 'true'] $getUri(/NameInv))",
-			  "TransitiveObjectProperty([/Transitive == 'true'] $getUri(/Name))",
-			  "TransitiveObjectProperty([/TransitiveInv == 'true'] $getUri(/NameInv))"
+              "ObjectPropertyDomain($getUri(/Name) $getDomainOrRange(/start))",
+              "ObjectPropertyDomain($getUri(/NameInv) $getDomainOrRange(/end))",
+              "ObjectPropertyRange($getUri(/Name) $getDomainOrRange(/end))",
+              "ObjectPropertyRange($getUri(/NameInv) $getDomainOrRange(/start))",
+              "InverseObjectProperties($getUri(/Name) $getUri(/NameInv))",
+              "SubObjectPropertyOf($getUri(/Name) /SuperProperties:$getExpression(/SuperProperty))",
+              "SubObjectPropertyOf($getUri(/NameInv) /SuperPropertiesInv:$getExpression(/SuperProperty))",
+              "DisjointObjectProperties($getUri(/Name) /DisjointProperties:$getExpression(/DisjointProperty))",
+              "DisjointObjectProperties($getUri(/NameInv) /DisjointPropertiesInv:$getExpression(/DisjointProperty))",
+              "EquivalentObjectProperties($getUri(/Name) /EquivalentProperties:$getExpression(/EquivalentProperty))",
+              "EquivalentObjectProperties($getUri(/NameInv) /EquivalentPropertiesInv:$getExpression(/EquivalentProperty))",
+              "FunctionalObjectProperty([/Functional == 'true'] $getUri(/Name))",
+              "FunctionalObjectProperty([/FunctionalInv == 'true'] $getUri(/NameInv))",
+              "InverseFunctionalObjectProperty([/InverseFunctional == 'true'] $getUri(/Name))",
+              "InverseFunctionalObjectProperty([/InverseFunctionalInv == 'true'] $getUri(/NameInv))",
+              "SymmetricObjectProperty([/Symmetric == 'true'] $getUri(/Name))",
+              "SymmetricObjectProperty([/SymmetricInv == 'true'] $getUri(/NameInv))",
+              "AsymmetricObjectProperty([/Asymmetric == 'true'] $getUri(/Name))",
+              "AsymmetricObjectProperty([/AsymmetricInv == 'true'] $getUri(/NameInv))",
+              "ReflexiveObjectProperty([/Reflexive == 'true'] $getUri(/Name))",
+              "ReflexiveObjectProperty([/ReflexiveInv == 'true'] $getUri(/NameInv))",
+              "IrreflexiveObjectProperty([/Irreflexive == 'true'] $getUri(/Name))",
+              "IrreflexiveObjectProperty([/IrreflexiveInv == 'true'] $getUri(/NameInv))",
+              "TransitiveObjectProperty([/Transitive == 'true'] $getUri(/Name))",
+              "TransitiveObjectProperty([/TransitiveInv == 'true'] $getUri(/NameInv))"
             ]
           },
           "compartmentTypes": [
@@ -12992,8 +13025,8 @@
                 "inputType": {
                   "type": "combobox"
                 },
-				"prefix":"[",
-				"suffix":"]",
+                "prefix": "[",
+                "suffix": "]",
                 "styles": [
                   {
                     "name": "Default",
@@ -13057,8 +13090,8 @@
                 "inputType": {
                   "type": "combobox"
                 },
-				"prefix":"[",
-				"suffix":"]",
+                "prefix": "[",
+                "suffix": "]",
                 "styles": [
                   {
                     "name": "Default",
@@ -13308,7 +13341,7 @@
                 "label": "EquivalentProperties(=)"
               }
             },
-			{
+            {
               "object": {
                 "_id": "FxtNHrNWo7FmWSHGA",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -13495,7 +13528,7 @@
                 "suffix": null
               }
             },
-			{
+            {
               "object": {
                 "_id": "76tJAMbZ8oBW87BWY",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -13510,7 +13543,7 @@
                 "dialogTabId": "WAKzjAJbhjgmtcSvT",
                 "name": "DisjointProperties",
                 "description": "",
-                "prefix": "\u27C2 ",
+                "prefix": "\u27c2 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -13570,7 +13603,7 @@
                     "_id": "ce62d6ba3b333e62def7baf8",
                     "name": "DisjointProperties",
                     "extensionPoints": [],
-                    "prefix": "\u27C2 ",
+                    "prefix": "\u27c2 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -13590,11 +13623,11 @@
                         "label": "DisjointProperty"
                       }
                     ],
-                    "label": "DisjointProperties(\u27C2)"
+                    "label": "DisjointProperties(\u27c2)"
                   }
                 ],
                 "type": "text",
-                "label": "DisjointProperties(\u27C2)"
+                "label": "DisjointProperties(\u27c2)"
               }
             },
             {
@@ -13612,7 +13645,7 @@
                 "dialogTabId": "FPAAkjYTxawuKognq",
                 "name": "DisjointPropertiesInv",
                 "description": "",
-                "prefix": "\u27C2 ",
+                "prefix": "\u27c2 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -13672,7 +13705,7 @@
                     "_id": "7b49b8ff8f3c86f9ceff438e",
                     "name": "DisjointPropertiesInv",
                     "extensionPoints": [],
-                    "prefix": "\u27C2 ",
+                    "prefix": "\u27c2 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -13692,11 +13725,11 @@
                         "label": "DisjointProperty"
                       }
                     ],
-                    "label": "DisjointProperties(\u27C2)"
+                    "label": "DisjointProperties(\u27c2)"
                   }
                 ],
                 "type": "text",
-                "label": "DisjointProperties(\u27C2)"
+                "label": "DisjointProperties(\u27c2)"
               }
             },
             {
@@ -13855,7 +13888,7 @@
                 "suffix": "}"
               }
             },
-			{
+            {
               "object": {
                 "_id": "BPcw85s26zFAWnAA2",
                 "toolId": "cHSidEZPTvZRSFFtZ",
@@ -14914,7 +14947,7 @@
                 "dialogTabId": "WAKzjAJbhjgmtcSvT",
                 "name": "PropertyChains",
                 "description": "",
-                "prefix": "\u27A4 ",
+                "prefix": "\u27a4 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -14968,11 +15001,11 @@
                     "_id": "2eudnaty3ckgqymqhvkzyfrt",
                     "name": "PropertyChains",
                     "extensionPoints": [],
-                    "prefix": "\u27A4 ",
+                    "prefix": "\u27a4 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
-					  {
+                      {
                         "_id": "0xpqbmmakr95pha2e18yijyi",
                         "index": 1,
                         "name": "PropertyChain",
@@ -14984,47 +15017,47 @@
                           "type": "textarea"
                         },
                         "subCompartmentTypes": [
-						  {
-							"_id": "0xpqbmmakr95pha2e18yid4i",
-							"index": 1,
-							"name": "Property",
-							"extensionPoints": [],
-							"prefix": null,
-							"suffix": null,
-							"defaultValue": null,
-							"inputType": {
-							  "type": "textarea"
-							},
-							"subCompartmentTypes": [],
-							"label": "Property"
-						  },
-						  {
-							"_id": "0xpqbmmakr95pha2e18yif83",
-							"index": 2,
-							"name": "Inverse",
-							"extensionPoints": [],
-							"prefix": null,
-							"suffix": null,
-							"defaultValue": null,
-							"inputType": {
-							  "type": "checkbox"
-							},
-							"subCompartmentTypes": [],
-							"label": "Inverse"
-						  }
-						],
+                          {
+                            "_id": "0xpqbmmakr95pha2e18yid4i",
+                            "index": 1,
+                            "name": "Property",
+                            "extensionPoints": [],
+                            "prefix": null,
+                            "suffix": null,
+                            "defaultValue": null,
+                            "inputType": {
+                              "type": "textarea"
+                            },
+                            "subCompartmentTypes": [],
+                            "label": "Property"
+                          },
+                          {
+                            "_id": "0xpqbmmakr95pha2e18yif83",
+                            "index": 2,
+                            "name": "Inverse",
+                            "extensionPoints": [],
+                            "prefix": null,
+                            "suffix": null,
+                            "defaultValue": null,
+                            "inputType": {
+                              "type": "checkbox"
+                            },
+                            "subCompartmentTypes": [],
+                            "label": "Inverse"
+                          }
+                        ],
                         "label": "PropertyChain"
                       }
                     ],
                     "label": "PropertyChains"
                   }
                 ],
-                "label": "PropertyChains"				
+                "label": "PropertyChains"
               }
             },
             {
               "object": {
-                 "_id": "7s34CMeovbAnKJcAJ",
+                "_id": "7s34CMeovbAnKJcAJ",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -15037,7 +15070,7 @@
                 "dialogTabId": "FPAAkjYTxawuKognq",
                 "name": "PropertyChainsInv",
                 "description": "",
-                "prefix": "\u27A4 ",
+                "prefix": "\u27a4 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -15091,11 +15124,11 @@
                     "_id": "2eudnaty3ckgqymqhvkzy1g5",
                     "name": "PropertyChainsInv",
                     "extensionPoints": [],
-                    "prefix": "\u27A4 ",
+                    "prefix": "\u27a4 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
-					  {
+                      {
                         "_id": "girqbmmakr95pha2e18yijyi",
                         "index": 1,
                         "name": "PropertyChain",
@@ -15107,47 +15140,47 @@
                           "type": "textarea"
                         },
                         "subCompartmentTypes": [
-						  {
-							"_id": "7i4qbmmakr95pha2e18yid4i",
-							"index": 1,
-							"name": "Property",
-							"extensionPoints": [],
-							"prefix": null,
-							"suffix": null,
-							"defaultValue": null,
-							"inputType": {
-							  "type": "textarea"
-							},
-							"subCompartmentTypes": [],
-							"label": "Property"
-						  },
-						  {
-							"_id": "g06qbmmakr95pha2e18yif83",
-							"index": 2,
-							"name": "Inverse",
-							"extensionPoints": [],
-							"prefix": null,
-							"suffix": null,
-							"defaultValue": null,
-							"inputType": {
-							  "type": "checkbox"
-							},
-							"subCompartmentTypes": [],
-							"label": "Inverse"
-						  }
-						],
+                          {
+                            "_id": "7i4qbmmakr95pha2e18yid4i",
+                            "index": 1,
+                            "name": "Property",
+                            "extensionPoints": [],
+                            "prefix": null,
+                            "suffix": null,
+                            "defaultValue": null,
+                            "inputType": {
+                              "type": "textarea"
+                            },
+                            "subCompartmentTypes": [],
+                            "label": "Property"
+                          },
+                          {
+                            "_id": "g06qbmmakr95pha2e18yif83",
+                            "index": 2,
+                            "name": "Inverse",
+                            "extensionPoints": [],
+                            "prefix": null,
+                            "suffix": null,
+                            "defaultValue": null,
+                            "inputType": {
+                              "type": "checkbox"
+                            },
+                            "subCompartmentTypes": [],
+                            "label": "Inverse"
+                          }
+                        ],
                         "label": "PropertyChain"
                       }
                     ],
                     "label": "PropertyChains"
                   }
                 ],
-                "label": "PropertyChains"				
+                "label": "PropertyChains"
               }
             },
-			{
+            {
               "object": {
-                 "_id": "xqX2oAxrgvR4euLKu",
+                "_id": "xqX2oAxrgvR4euLKu",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -15276,7 +15309,7 @@
             },
             {
               "object": {
-                 "_id": "z7yZfNz5Z2XAcff39",
+                "_id": "z7yZfNz5Z2XAcff39",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -15514,7 +15547,7 @@
                 }
               }
             ],
-			"layoutSettings": {
+            "layoutSettings": {
               "isFlowEdge": true,
               "startSides": 1,
               "endSides": 4
@@ -15549,20 +15582,19 @@
             "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
             "diagramId": "YmsfLsQHNYsgFDJab",
             "elementId": "RZ4WfRAXp3MWsAeYb",
-			"dialogTabId": "dMaXTCowKmMexoaQy",
+            "dialogTabId": "dMaXTCowKmMexoaQy",
             "superTypeIds": [],
             "type": "Line",
             "extensionPoints": [
               {
                 "extensionPoint": "createElement",
-				"procedure": "MakeElement"
+                "procedure": "MakeElement"
               },
               {
                 "extensionPoint": "resizeElement",
                 "procedure": "ResizeElement"
               }
             ],
-                
             "keyStrokes": [
               {
                 "keyStroke": "Delete",
@@ -15631,14 +15663,13 @@
               }
             ],
             "direction": "ReverseDirectional",
-			"targetDiagramTypeId": "JR8kHJ9Mohz3FAgGC",
-			"layoutSettings": {
+            "targetDiagramTypeId": "JR8kHJ9Mohz3FAgGC",
+            "layoutSettings": {
               "isFlowEdge": true,
               "startSides": 1,
               "endSides": 4
             },
             "isAbstract": false,
-            "targetDiagramTypeId": "JR8kHJ9Mohz3FAgGC",
             "lineType": "Orthogonal"
           },
           "compartmentTypes": [
@@ -16302,7 +16333,7 @@
             "exportAxioms": [
               "SubClassOf($getClassExpr(/start) $getClassExpr(/end))"
             ],
-			"layoutSettings": {
+            "layoutSettings": {
               "isFlowEdge": true,
               "startSides": 1,
               "endSides": 4
@@ -16357,7 +16388,7 @@
               }
             ],
             "readModeContextMenu": [],
-            "name": "Restriction", 
+            "name": "Restriction",
             "startElementTypeId": "fCNoA6sqGLdTB2Dmg",
             "endElementTypeId": "fCNoA6sqGLdTB2Dmg",
             "styles": [
@@ -16413,7 +16444,7 @@
             "direction": "Directional",
             "isAbstract": false,
             "targetDiagramTypeId": "JR8kHJ9Mohz3FAgGC",
-			"exportAxioms": [
+            "exportAxioms": [
               ""
             ],
             "lineType": "Orthogonal"
@@ -17030,7 +17061,7 @@
             "direction": "Directional",
             "isAbstract": false,
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
-			"exportAxioms": [
+            "exportAxioms": [
               ""
             ],
             "lineType": "Orthogonal"
@@ -17474,9 +17505,8 @@
             ],
             "direction": "Directional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
-			"exportAxioms": [
+            "exportAxioms": [
               "DifferentIndividuals($getObjectExpr(/end) $getObjectExpr(/start))"
             ],
             "lineType": "Orthogonal"
@@ -17790,9 +17820,8 @@
             ],
             "direction": "Directional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
-			"exportAxioms": [
+            "exportAxioms": [
               "SameIndividual($getObjectExpr(/end) $getObjectExpr(/start))"
             ],
             "lineType": "Orthogonal"
@@ -18106,7 +18135,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "lineType": "Orthogonal"
           },
@@ -18216,7 +18244,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "lineType": "Orthogonal"
           },
@@ -18325,7 +18352,6 @@
             ],
             "direction": "Directional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "lineType": "Orthogonal",
             "header": ""
@@ -18512,7 +18538,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "exportAxioms": [
               "EquivalentClasses($getClassExpr(/start) $getClassExpr(/end))"
@@ -18828,7 +18853,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "exportAxioms": [
               "DisjointClasses($getClassExpr(/start) $getClassExpr(/end))"
@@ -19144,7 +19168,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "Gsw45wyRqobBLPAbj",
             "exportAxioms": [
               "EquivalentClasses($getClassExpr(/start) ObjectComplementOf($getClassExpr(/end)))"
@@ -19457,7 +19480,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "fyCtsNmdmRT78QgHZ",
             "lineType": "Orthogonal"
           },
@@ -19566,7 +19588,6 @@
             ],
             "direction": "BiDirectional",
             "isAbstract": false,
-            
             "targetDiagramTypeId": "fyCtsNmdmRT78QgHZ",
             "lineType": "Orthogonal"
           },
@@ -19579,7 +19600,7 @@
               "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
               "diagramId": "YmsfLsQHNYsgFDJab",
               "elementTypeId": "hZyaSJM6JWJdQsa7X",
-			  "name": "Main",
+              "name": "Main",
               "index": 1
             }
           ]
@@ -19621,7 +19642,7 @@
             "name": "GeneralizationProperty",
             "startElementTypeId": "u8gTRFauZEMNfDYJG",
             "endElementTypeId": "u8gTRFauZEMNfDYJG",
-			"styles": [
+            "styles": [
               {
                 "id": "e0c46a46867db80329473236",
                 "name": "Default",
@@ -19675,7 +19696,7 @@
             "isAbstract": false,
             "layoutSettings": {},
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
-			"exportAxioms": [
+            "exportAxioms": [
               "SubObjectPropertyOf($getClassExpr(/start) $getClassExpr(/end))"
             ],
             "lineType": "Orthogonal"
@@ -19717,14 +19738,14 @@
           "diagramId": "RZqspitY6nvRBmxnf",
           "elementTypeIds": [
             "iHs8T6AoQFiuoZySt",
-			"grfWxsysaaT8jyykL",
-			"Dp8gtAtp4iHJ6fX6t",
-			"tYr9LjDcwbJzfbDcK",
-			"wdKArJJ53DEQt58ht",
-			"hZyaSJM6JWJdQsa7X",
-			"ZA9FsFHYgotX3PoH6",
-			"WRd6zRsLqHhxbxCWk",
-			"HHkts5wEzHHbqdri3"
+            "grfWxsysaaT8jyykL",
+            "Dp8gtAtp4iHJ6fX6t",
+            "tYr9LjDcwbJzfbDcK",
+            "wdKArJJ53DEQt58ht",
+            "hZyaSJM6JWJdQsa7X",
+            "ZA9FsFHYgotX3PoH6",
+            "WRd6zRsLqHhxbxCWk",
+            "HHkts5wEzHHbqdri3"
           ],
           "name": "Association",
           "type": "Line",
@@ -19738,8 +19759,8 @@
           "diagramId": "RZqspitY6nvRBmxnf",
           "elementTypeIds": [
             "GTcNiygfwENhF3DFn",
-			"QeoDvzd5LX2NAZTd8",
-			"mNNxNLT8aRDkNbQXb"
+            "QeoDvzd5LX2NAZTd8",
+            "mNNxNLT8aRDkNbQXb"
           ],
           "name": "Generalization",
           "type": "Line",
@@ -19941,7 +19962,7 @@
           "index": 27
         },
         {
-		  "_id": "aiECRfRCMPJCZh8rT",
+          "_id": "aiECRfRCMPJCZh8rT",
           "toolId": "cHSidEZPTvZRSFFtZ",
           "versionId": "EtJZ6WzJNMpthfpC3",
           "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -20004,7 +20025,7 @@
           "name": "Namespaces",
           "type": "Box",
           "index": 45
-        }		
+        }
       ]
     }
   ],
@@ -24892,7 +24913,7 @@
           },
           "compartments": []
         },
-		{
+        {
           "object": {
             "_id": "rHTAgFFMb9X4i956f",
             "startElement": "6LpTjhDPTpafeYfct",
@@ -24902,49 +24923,49 @@
             "elementTypeId": "cX3iSodjpLP6Tin4s",
             "style": {
               "elementStyle": {
-                  "stroke": "#8000ff",
-                  "strokeWidth": 3,
-                  "shadowColor": "red",
-                  "shadowBlur": 0,
-                  "shadowOpacity": 1,
-                  "shadowOffsetX": 0,
-                  "shadowOffsetY": 0,
-                  "tension": 0,
-                  "opacity": 1,
-                  "dash": []
+                "stroke": "#8000ff",
+                "strokeWidth": 3,
+                "shadowColor": "red",
+                "shadowBlur": 0,
+                "shadowOpacity": 1,
+                "shadowOffsetX": 0,
+                "shadowOffsetY": 0,
+                "tension": 0,
+                "opacity": 1,
+                "dash": []
               },
               "startShapeStyle": {
-                  "fill": "rgb(128,0,255)",
-                  "fillPriority": "color",
-                  "stroke": "#8000ff",
-                  "strokeWidth": 1,
-                  "shadowColor": "red",
-                  "shadowBlur": 0,
-                  "shadowOpacity": 1,
-                  "shadowOffsetX": "0",
-                  "shadowOffsetY": 0,
-                  "tension": 0,
-                  "opacity": 1,
-                  "dash": [],
-                  "radius": 7,
-                  "shape": "None"
+                "fill": "rgb(128,0,255)",
+                "fillPriority": "color",
+                "stroke": "#8000ff",
+                "strokeWidth": 1,
+                "shadowColor": "red",
+                "shadowBlur": 0,
+                "shadowOpacity": 1,
+                "shadowOffsetX": "0",
+                "shadowOffsetY": 0,
+                "tension": 0,
+                "opacity": 1,
+                "dash": [],
+                "radius": 7,
+                "shape": "None"
               },
               "endShapeStyle": {
-                  "fill": "#ffffff",
-                  "fillPriority": "color",
-                  "stroke": "#8000ff",
-                  "strokeWidth": 1,
-                  "shadowColor": "red",
-                  "shadowBlur": 0,
-                  "shadowOpacity": 1,
-                  "shadowOffsetX": "0",
-                  "shadowOffsetY": 0,
-                  "tension": 0,
-                  "opacity": 1,
-                  "dash": [],
-                  "radius": 9,
-                  "shape": "Triangle"
-               },
+                "fill": "#ffffff",
+                "fillPriority": "color",
+                "stroke": "#8000ff",
+                "strokeWidth": 1,
+                "shadowColor": "red",
+                "shadowBlur": 0,
+                "shadowOpacity": 1,
+                "shadowOffsetX": "0",
+                "shadowOffsetY": 0,
+                "tension": 0,
+                "opacity": 1,
+                "dash": [],
+                "radius": 9,
+                "shape": "Triangle"
+              },
               "lineType": "Orthogonal"
             },
             "styleId": "a92e7aafb2e87aa00a37f410",
@@ -24978,4 +24999,3 @@
     }
   ]
 }
-
