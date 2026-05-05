@@ -857,13 +857,17 @@ function generateN3Syntax(onto, format, nsTable){
 		  writer.addQuad(quad(ax, namedNode(OWL + "annotatedTarget"), o));
 
 		  for (const a of ann) {
-			writer.addQuad(
-			  quad(
-				ax,
-				namedNode(a.axiomSymbol),
-				literal(a.value, namedNode(a.type))
-			  )
-			);
+			  const obj = a.type
+				? literal(a.value, namedNode(a.type))
+				: literal(a.value);
+
+			  writer.addQuad(
+				quad(
+				  ax,
+				  namedNode(a.axiomSymbol),
+				  obj
+				)
+			  );
 		  }
 		}
 	  } else if(axiomObject.type === "NegativeDataPropertyAssertion"){
@@ -921,7 +925,11 @@ function generateN3Syntax(onto, format, nsTable){
 
 			for (const a of annBlock) {
 			  const pred = namedNode(a.axiomSymbol);
-			  const obj  = literal(a.value, namedNode(a.type)); // typed literal
+
+			  const obj = a.type
+				? literal(a.value, namedNode(a.type))
+				: literal(a.value);
+
 			  writer.addQuad(quad(ax, pred, obj));
 			}
 		  }

@@ -707,18 +707,22 @@ Meteor.methods({
 			  // Optional axiom annotations: in your example it's ax.axiom[4].axiom
 			  const ann = ax.axiom[4] && ax.axiom[4].axiom;
 			  if (Array.isArray(ann) && ann.length) {
-				const axiomBNode = $rdf.blankNode();
+				  const axiomBNode = $rdf.blankNode();
 
-				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
-				store.add(axiomBNode, ns.owl("annotatedSource"), s);
-				store.add(axiomBNode, ns.owl("annotatedProperty"), p);
-				store.add(axiomBNode, ns.owl("annotatedTarget"), o);
+				  store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
+				  store.add(axiomBNode, ns.owl("annotatedSource"), s);
+				  store.add(axiomBNode, ns.owl("annotatedProperty"), p);
+				  store.add(axiomBNode, ns.owl("annotatedTarget"), o);
 
-				for (const a of ann) {
-				  const pred = $rdf.sym(a.axiomSymbol);
-				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type)); // typed literal as in your data
-				  store.add(axiomBNode, pred, obj);
-				}
+				  for (const a of ann) {
+					const pred = $rdf.sym(a.axiomSymbol);
+
+					const obj = a.type
+					  ? $rdf.literal(a.value, $rdf.sym(a.type))
+					  : $rdf.literal(a.value);
+
+					store.add(axiomBNode, pred, obj);
+				  }
 			  }
 		  } else if(ax.type === "NegativeDataPropertyAssertion"){
 			  const p = $rdf.sym(ax.axiom[0].IRI);
@@ -777,7 +781,11 @@ Meteor.methods({
 
 				for (const a of ann) {
 				  const pred = $rdf.sym(a.axiomSymbol);
-				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type)); // typed literal
+
+				  const obj = a.type
+					? $rdf.literal(a.value, $rdf.sym(a.type))
+					: $rdf.literal(a.value);
+
 				  store.add(axiomBNode, pred, obj);
 				}
 			  }

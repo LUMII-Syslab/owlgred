@@ -590,7 +590,7 @@ Meteor.methods({
 					}
 					// Annotation
 					for(let i = 0; i < item.annotations.length; i++){
-					   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
+						if(item.annotations[i][0]["value"] !== "ex:qualifier") await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
 					}
 					// PropertyChains
 					for(let i = 0; i < item.propertyChains.length; i++){
