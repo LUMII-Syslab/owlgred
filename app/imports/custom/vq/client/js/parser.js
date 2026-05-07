@@ -696,12 +696,25 @@ function getReferenceName(referenceName, symbolTable, classID){
 }
 
 function setVariableName(varName, alias, variableData, generateNewName, useAlias){
+	
 
-	var reserverNames = ["constructor", "length", "prototype"];
+	let reserverNames = ["constructor", "length", "prototype"];
 	if(reserverNames.indexOf(varName) != -1) varName = varName + " ";
 	if(reserverNames.indexOf(alias) != -1) alias = alias + " ";
-
-	// console.log("setVariableName", varName, alias, variableData, generateNewName);
+	
+	reservedNames = [
+						"slice",
+						"map",
+						"filter",
+						"length",
+						"constructor",
+						"toString",
+						"push",
+						"pop",
+						"find"
+					]
+	if(reservedNames.indexOf(varName) !== -1) varName = "_"+varName;
+	
 	if(useAlias && typeof alias !== "undefined" && alias != null) return alias;
 
 	if(variableData["kind"]!== null && variableData["kind"].indexOf("CLASS") !== -1) {
@@ -764,6 +777,7 @@ function setVariableName(varName, alias, variableData, generateNewName, useAlias
 					}
 				}
 				//if variableNamesTable has property with given field id, use it
+				
 				return variableNamesTable[classID][varName.replace(/-/g, '_').replace(/ /g, '')][fieldId]["name"];
 			} else {
 
@@ -846,7 +860,7 @@ function setVariableName(varName, alias, variableData, generateNewName, useAlias
 // alias - given variable alias
 function setVariableName2(varName, alias, variableData, generateNewName){
 
-	// console.log("variableNamesTable, variableNamesCounter", varName, alias, variableData, generateNewName, symbolTable, variableNamesTable, variableNamesCounter)
+	console.log("variableNamesTable, variableNamesCounter", varName, alias, variableData, generateNewName, symbolTable, variableNamesTable, variableNamesCounter)
 
 	var reserverNames = ["constructor", "length", "prototype"];
 	if(reserverNames.indexOf(varName) != -1) varName = varName + " ";
@@ -1546,12 +1560,11 @@ function generatePrefixedNameVariable(prefix, existsExpr, alias, pe){
 
 			}else if(typeof pe["var"] !== 'undefined') {
 				if(alias == null || alias == ""){
-					var textPart = pe["var"]['type']['display_name'].substring(1);
+					var textPart = pe["var"]['type']['display_name'];
 					if(textPart.indexOf("(") !== -1) textPart = textPart.substring(0, textPart.indexOf("("));
-					else textPart = textPart.substring(0, textPart.length - 1);
+					// else textPart = textPart.substring(0, textPart.length - 1);
 					textPart = textPart.trim();
 					let t = textPart.match(/([\s]+)/g);
-
 					if(t == null || t.length <3  || existsExpr == "NotExistsExpr" || existsExpr == "ExistsExpr"){
 						alias = textPart.replace(/([\s]+)/g, "_").replace(/([\s]+)/g, "_").replace(/[^0-9a-z_]/gi, '');
 					}
@@ -1566,6 +1579,7 @@ function generatePrefixedNameVariable(prefix, existsExpr, alias, pe){
 
 			} else if(typeof pe["iri"] !== 'undefined' && typeof pe["ArgList"] === 'undefined'){
 				variable = setVariableName(pe["iri"]["PrefixedName"]["Name"], alias, pe["iri"]["PrefixedName"]["var"], true);
+				delete variableNamesCounter[variable]
 				prefixedName = getPrefix(pe["iri"]["PrefixedName"]["Prefix"])+pe["iri"]["PrefixedName"]["Name"];
 				let namespace = pe["iri"]["PrefixedName"]["var"]["type"]["Namespace"];
 				if(typeof namespace !== 'undefined' && namespace.endsWith("/") == false && namespace.endsWith("#") == false) namespace = namespace + "#";
@@ -2263,9 +2277,6 @@ function generateExpression(expressionTable, SPARQLstring, className, classSchem
 
 		//REFERENCE
 		if(key == "PrimaryExpression" && typeof expressionTable[key]["Reference"] !== 'undefined'){
-
-
-
 			var underOptionalPlain = checkIfUnderOptionalPlain(expressionTable[key]["Reference"]["name"], classTable, false);
 			var underUnion = checkIfUnderUnion(expressionTable[key]["Reference"]["name"], classTable, false)
 			if(underOptionalPlain == false && underUnion == false){
