@@ -1545,26 +1545,7 @@ if (p.value === OWL + 'disjointWith') {
 	  }
 	  continue;
 	}
-
-	// Built-in annotation property IRIs (in addition to declared ones)
-	const builtInAnnProps = [
-	  RDFS + 'comment', RDFS + 'seeAlso', RDFS + 'isDefinedBy',
-	  OWL  + 'versionInfo', OWL + 'versionIRI', OWL + 'priorVersion',
-	  OWL  + 'backwardCompatibleWith', OWL + 'incompatibleWith', OWL + 'deprecated'
-	];
-
-	// Annotation assertion on a named subject.
-	// If predicate is built-in OR declared annotation property OR custom undeclared,
-	// treat it as an annotation property and keep the assertion.
-	if (s.termType === 'NamedNode') {
-	   if (ontologySubjects.has(termKey(s))) {
-		continue; // ontology annotation, do not create instance box
-	  }
-	  const isKnownAnn =
-		state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value);
-
-	  // Skip structural predicates here; they are handled elsewhere
-	  const structuralPreds = new Set([
+	const structuralPreds = new Set([
 		RDF  + 'type',
 		RDFS + 'subClassOf',
 		RDFS + 'subPropertyOf',
@@ -1585,7 +1566,114 @@ if (p.value === OWL + 'disjointWith') {
 		OWL  + 'oneOf'
 	  ]);
 
-	  if (isKnownAnn || !structuralPreds.has(p.value)) {
+	
+	// Positive individual property assertions:
+	// :Anna :studentName "Anna" .
+	// :Anna :takes :CS .
+	if (
+	  s.termType === 'NamedNode' &&
+	  state.individuals[s.value] &&
+	  !structuralPreds.has(p.value)
+	) {
+	  const ind = ensureIndividual(s.value);
+
+	  // Data property assertion
+	  if (o.termType === 'Literal') {
+		// If property was declared as owl:DatatypeProperty, use it.
+		// If it was not declared, infer it as a data property because object is Literal.
+		if (!state.dataProperties[p.value]) {
+		  state.dataProperties[p.value] = {
+			iri: p.value,
+			prefixed: iriToPrefixed(p.value, prefixes),
+			label: null,
+			annotations: [],
+			kind: 'DatatypeProperty',
+			domain: [],
+			range: [],
+			characteristics: {},
+			Qualifiers: []
+		  };
+		}
+
+		state.isDataProp.add(p.value);
+
+		ind.dataFacts ||= [];
+		ind.dataFacts.push({
+		  p: p.value,
+		  value: o.value,
+		  lang: o.language || null,
+		  dt: o.datatype?.value || null,
+		  negative: false
+		});
+
+		continue;
+	  }
+
+	  // Object property assertion
+	  if (o.termType === 'NamedNode') {
+		// If property was declared as owl:ObjectProperty, use it.
+		// If it was not declared, infer it as object property because object is NamedNode.
+		if (!state.objectProperties[p.value]) {
+		  state.objectProperties[p.value] = {
+			iri: p.value,
+			prefixed: iriToPrefixed(p.value, prefixes),
+			label: null,
+			annotations: [],
+			kind: 'ObjectProperty',
+			domain: [],
+			range: [],
+			characteristics: {},
+			superProperties: [],
+			equivalentProperties: [],
+			disjointProperties: [],
+			inverseOf: [],
+			propertyChains: [],
+			Qualifiers: []
+		  };
+		}
+
+		state.isObjectProp.add(p.value);
+
+		// Make sure target individual exists
+		ensureIndividual(o.value);
+
+		ind.objFacts ||= [];
+		ind.objFacts.push({
+		  p: p.value,
+		  object: o.value,
+		  negative: false
+		});
+
+		continue;
+	  }
+	}
+
+	// Built-in annotation property IRIs (in addition to declared ones)
+	const builtInAnnProps = [
+	  RDFS + 'comment', RDFS + 'seeAlso', RDFS + 'isDefinedBy',
+	  OWL  + 'versionInfo', OWL + 'versionIRI', OWL + 'priorVersion',
+	  OWL  + 'backwardCompatibleWith', OWL + 'incompatibleWith', OWL + 'deprecated'
+	];
+
+	// Annotation assertion on a named subject.
+	// If predicate is built-in OR declared annotation property OR custom undeclared,
+	// treat it as an annotation property and keep the assertion.
+	if (s.termType === 'NamedNode') {
+	   if (ontologySubjects.has(termKey(s))) {
+		continue; // ontology annotation, do not create instance box
+	  }
+	  const isKnownAnn =
+		state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value);
+
+	  // Skip structural predicates here; they are handled elsewhere
+	  
+	  const isKnownObjectOrDataProperty =
+	  state.isObjectProp.has(p.value) ||
+	  state.isDataProp.has(p.value) ||
+	  !!state.objectProperties[p.value] ||
+	  !!state.dataProperties[p.value];
+
+	  if ((isKnownAnn || !structuralPreds.has(p.value)) && !isKnownObjectOrDataProperty) {
 		if (!isKnownAnn) {
 		  ensureAnnotationProperty(p.value);
 		}
@@ -2987,6 +3075,7 @@ async function createOntologyStructure(ontology, importSettings){
 
 	restrictions = combineRestrictions(restrictions)
 	ontology.restrictions = restrictions;
+	ontology.individualList = {};
 	
 	if((importSettings?.showIndividuals ?? true) === true){
 		let individuals = ontology.individuals;
@@ -3104,6 +3193,31 @@ async function createOntologyStructure(ontology, importSettings){
 					"input": individ.prefixed
 				})
 				classInstances.push([{name:"Individual", input:individ.prefixed, value:JSON.stringify(classInstanceList)}])
+			}
+		  } else if(importSettings?.showSameIndividualsType_object_list  === true && typeof individ.types[0] !== "undefined"){
+			
+			let instanceList = []
+			
+			for(let c = 0; c < individ.types.length; c++){
+				
+				const classObject = ontology.classes[individ.types[c]];
+				let individClass = individ.types[c];
+				
+				if(!ontology.individualList[individClass]) ontology.individualList[individClass] = [];
+				 ontology.individualList[individClass].push(individ);
+				
+					
+				// ontology.individualList = {}
+				// if(!classObject.individuals)classObject.individuals = [];
+				// let classInstances = classObject.individuals;
+				// let classInstanceList = [];
+				// classInstanceList.push({
+					// "id": "IRI",
+					// "name": "IRI",
+					// "value": individ.prefixed,
+					// "input": individ.prefixed
+				// })
+				// classInstances.push([{name:"Individual", input:individ.prefixed, value:JSON.stringify(classInstanceList)}])
 			}
 		  }
 		}

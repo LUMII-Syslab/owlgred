@@ -17,6 +17,7 @@ import '/imports/custom/owlgred/client/templates/OWLGrEd_top_level_forms.js'
 import '/imports/custom/owlgred/client/templates/import_diagram_dialogs.html'
 
 import '/imports/custom/owlgred/client/templates/manage_class_individuals_form.js'
+import '/imports/custom/owlgred/client/templates/manage_individual_list_form.js'
 
 // import '/imports/custom/owlgred/client/templates/ajoo_bkus.html'
 // import '/imports/custom/owlgred/client/templates/loginBranding.html'

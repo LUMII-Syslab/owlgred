@@ -1006,6 +1006,73 @@ Meteor.methods({
 				await setHorizontalLine(listForCompartment, "HorizontalLine11")
 			}
 		}
+		
+		
+		// ontology.classes
+		//Individual List
+		elemType = await ElementTypes.findOneAsync({name: "ObjectList", diagramTypeId: diagram_type._id});
+		if (!elemType) {
+			console.error("No ObjectList type");
+			return;
+		}
+		console.log("ontology.individualList", ontology.individualList)
+		for (const key of Object.keys(ontology.individualList)) {
+			
+			//console.log("IIIIIIIII", key, ontology.classes[key], ontology.individualList[key])
+			let individClass = ontology.classes[key];
+			let individClassName = key;
+			if(individClass) {
+				individClassName = individClass.prefixed;
+				
+				const item = ontology.individualList[key];
+				let elemStyle = elemType["styles"][0];
+				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
+
+				let new_box_id = await Elements.insertAsync(object);
+				element_map[key] = new_box_id;
+
+				let listForCompartment = {
+					diagram_id: new_diagram_id,
+					diagram_type_id: diagram_type._id,
+					projectId: list.projectId,
+					versionId: list.versionId,
+					element_id: new_box_id,
+					element_type_id: elemType._id
+				}
+
+				//Class name
+				await add_one_compartment(listForCompartment, "ClassName", individClassName, "Individual list of " + individClassName);
+				
+				let classDataPropertyies = individClass.dataProperties;
+				let classObjectPropertyies = individClass.objectProperties;
+
+				classDataPropertyies = transformProperties(classDataPropertyies, ontology.prefixes);
+
+				const columns = buildColumns(
+					  classDataPropertyies,
+					  classObjectPropertyies,
+					  ontology
+				);
+
+				const rows = buildRows(item, columns);
+				
+				const visibleValuesByRowId = makeTextTable(columns, rows);
+
+				for(let r = 0; r < rows.length; r++){
+					let line = visibleValuesByRowId[r+2];
+					if(r==0) line = visibleValuesByRowId[0]+"\n"+visibleValuesByRowId[1]+"\n"+line;
+					await addCompartmentSubCompartments2(listForCompartment, "Individuals", [
+							{
+								name: "Individual",
+								input: line,
+								value: JSON.stringify(rows[r].cells)
+							}
+						]);
+				}
+				
+			}
+			
+		}
 
 
 		// objectPropertyAssertions
@@ -1056,6 +1123,7 @@ Meteor.methods({
 		}
 
 		for (const key of Object.keys(ontology.annotationProperties)) {
+		  if (!(key in ontology.dataProperties))  {
 			const item = ontology.annotationProperties[key];
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
@@ -1128,6 +1196,7 @@ Meteor.methods({
 						])
 				  }
 			}
+		  }
 		}
 
 
@@ -1856,4 +1925,172 @@ function containsSameArrayAndRemove(target, listOfArrays) {
   const newList = listOfArrays.slice();
   newList.splice(idx, 1); // remove matched array
   return { found: true, list: newList };
+}
+
+
+function getLocalName(iri) {
+  if (!iri) return "";
+  return iri.split("#").pop().split("/").pop();
+}
+
+
+function buildColumns(dataProperties = [], objectProperties = [], ontology = {}) {
+  const columns = [
+    {
+      id: "IRI",
+      name: "IRI",
+      kind: "iri",
+    },
+  ];
+
+  for (const propertyIri of dataProperties) {
+    const property = ontology.dataProperties?.[propertyIri];
+
+    if (!property) continue;
+
+    columns.push({
+      id: property.iri,
+      name: property.prefixed || property.label || getLocalName(property.iri),
+      kind: "data",
+    });
+  }
+
+  for (const propertyIri of objectProperties) {
+    const property = ontology.objectProperties?.[propertyIri];
+
+    if (!property) continue;
+
+    const firstRangeIri = property.range?.[0];
+
+    columns.push({
+      id: property.iri,
+      name: property.prefixed || property.label || getLocalName(property.iri),
+      kind: "object",
+      targetClassName: getLocalName(firstRangeIri),
+    });
+  }
+
+  return columns;
+}
+
+function buildRows(itemList = [], columns = []) {
+  return itemList.map(item => {
+    const cells = columns.map(column => {
+      if (column.kind === "iri") {
+        return {
+          id: column.id,
+          columnKind: column.kind,
+          value: item.prefixed || getLocalName(item.iri),
+		  name: column.name,
+        };
+      }
+
+      if (column.kind === "data") {
+        const fact = item.dataFacts?.find(f => f.p === column.id && !f.negative);
+
+        return {
+          id: column.id,
+          columnKind: column.kind,
+          value: fact?.value || "",
+		  name: column.name,
+        };
+      }
+
+      if (column.kind === "object") {
+        const fact = item.objFacts?.find(f => f.p === column.id && !f.negative);
+
+        return {
+          id: column.id,
+          columnKind: column.kind,
+          value: fact ? getLocalName(fact.object) : "",
+		  name: column.name,
+        };
+      }
+
+      return {
+        id: column.id,
+        columnKind: column.kind,
+        value: "",
+		name: column.name,
+      };
+    });
+
+    return { cells };
+  });
+}
+
+
+function makeTextTable(columns = [], rows = []) {
+  const VERTICAL = "\u2502";   // │
+  const HORIZONTAL = "\u2500"; // ─
+  const CROSS = "\u253C";      // ┼
+
+  const headerValues = columns.map(column => column.name);
+
+  const rowValues = rows.map(row => {
+    return columns.map(column => {
+      const cell = row.cells.find(c => c.id === column.id);
+      return cell?.value ?? "";
+    });
+  });
+
+  const allValues = [headerValues, ...rowValues];
+
+  const columnWidths = columns.map((_, columnIndex) => {
+    return Math.max(
+      ...allValues.map(row => String(row[columnIndex] ?? "").length)
+    );
+  });
+
+  function padValue(value, columnIndex) {
+    return String(value ?? "").padEnd(columnWidths[columnIndex], " ");
+  }
+
+  function makeLine(values) {
+    return values
+      .map((value, index) => padValue(value, index))
+      .join(` ${VERTICAL} `);
+  }
+
+  const headerLine = makeLine(headerValues);
+
+  const horizontalLine = columnWidths
+    .map(width => HORIZONTAL.repeat(width))
+    .join(`${HORIZONTAL}${CROSS}${HORIZONTAL}`);
+
+  const dataLines = rowValues.map(makeLine);
+
+  const lines = [
+    headerLine,
+    horizontalLine,
+    ...dataLines,
+  ];
+
+  return Object.fromEntries(
+    lines.map((line, index) => [index, line])
+  );
+}
+
+function transformProperties(data, prefixes) {
+  const defaultPrefix = prefixes[""] || "";
+
+  return data
+    .map(propertyFields => {
+      const nameField = propertyFields.find(field => field.name === "Name");
+
+      if (!nameField || !nameField.value) {
+        return null;
+      }
+
+      const name = nameField.value.trim();
+
+      // If name has prefix, use only the local part
+      // Example: ex:studentName -> studentName
+      const localName = name.includes(":")
+        ? name.split(":").slice(1).join(":")
+        : name;
+
+      return defaultPrefix + localName;
+    })
+    .filter(Boolean);
 }

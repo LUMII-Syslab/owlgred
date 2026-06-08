@@ -215,6 +215,9 @@ async function saveOntologyInFormatOwlgred(){
 				}else if(elem_type[elemType]["name"] === "DataType"){
 					const className = await elemOWLGrEd.getCompartmentValue("Name");
 					ontologyObject = createExportStructureElement(ontology, "DataType", className);
+				}else if(elem_type[elemType]["name"] === "ObjectList"){
+					const className = await elemOWLGrEd.getCompartmentValue("Name");
+					ontologyObject = createExportStructureElement(ontology, "NamedIndividual", className);
 				}else if(elem_type[elemType]["name"] === "Object"){
 					const className = await elemOWLGrEd.getCompartmentValue("Name");
 					ontologyObject = createExportStructureElement(ontology, "NamedIndividual", className);
@@ -646,6 +649,61 @@ async function saveOntologyInFormatOwlgred(){
 						ontologyObject.push(annotationObject);
 					}
 
+				} else if(elem_type[elemType]["name"] === "ObjectList"){
+					
+					const className = await elemOWLGrEd.getCompartmentValue("ClassName");
+					ontologyObject = createExportStructureElement(ontology, "NamedIndividual", className);
+					const individuals = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Individuals");
+					for(let axiom = 0; axiom < individuals.length; axiom++){
+						let individual =  JSON.parse(individuals[axiom].Individual);
+
+						for(let i = 0; i < individual.length; i++){
+							let ind = individual[i];
+							if(ind.id === "IRI"){
+							  let annotationObject = {
+								"type": "Declaration",
+								"axiom": {
+									"type": "NamedIndividual",
+									"axiom": {
+										"IRI": await getFullName(ind.value)
+									}
+								}
+							  }
+							  ontologyObject.push(annotationObject);
+							  
+							  
+							  annotationObject = {
+								"type": "ClassAssertion",
+								"axiom": [
+									{"IRI": await getFullName(className)},
+									{"IRI": await getFullName(ind.value)}
+								]
+							  }
+							  ontologyObject.push(annotationObject);
+							} else if(ind.id.endsWith("_out")){
+								let annotationObject = {
+									"type": "ObjectPropertyAssertion",
+									"axiom": [
+										{"IRI": await getFullName(ind.name)},
+										{"IRI": await getFullName(className)},
+										{"IRI": await getFullName(ind.value)}
+									]
+								}
+								ontologyObject.push(annotationObject);
+							} else {
+								let annotationObject = {
+									"type": "DataPropertyAssertion",
+									"axiom": [
+										{"IRI": await getFullName(ind.name)},
+										{"IRI":  await getFullName(className)},
+										{"value": ind.value}
+									]
+								}
+								ontologyObject.push(annotationObject);
+							}
+						}
+					}
+					
 				} else if(elem_type[elemType]["name"] === "Object"){
 
 					const className = await elemOWLGrEd.getCompartmentValue("Name");

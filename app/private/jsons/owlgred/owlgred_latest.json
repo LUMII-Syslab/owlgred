@@ -11909,6 +11909,10 @@
             ],
             "readModeKeyStrokes": [],
             "contextMenu": [
+			  {
+                "item": "Manage Individuals",
+                "procedure": "ManageIndividualList"
+              },
               {
                 "item": "Cut",
                 "procedure": "Cut"
@@ -11964,13 +11968,17 @@
                   "dash": [
                     0
                   ],
-                  "shape": "Rectangle"
+                  "shape": "Rectangle",
+				  "imageSrc": "/icons/objectList.png"
                 }
               }
             ],
             "name": "ObjectList",
             "isAbstract": false,
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
+			"exportAxioms": [
+              ""
+            ],
             "defaultFixedSize": {
               "defaultFixedWidth": ""
             }
@@ -12006,7 +12014,7 @@
                     "style": {
                       "align": "center",
                       "fill": "black",
-                      "padding": 0,
+                      "padding": 5,
                       "placement": "start-left",
                       "visible": true,
                       "fontSize": 14,
@@ -12041,9 +12049,9 @@
                     "extensionPoint": "dynamicDefaultValue",
                     "procedure": ""
                   },
-                  {
+				  {
                     "extensionPoint": "dynamicDropDown",
-                    "procedure": ""
+                    "procedure": "getClassNamesForObjectOwlgred"
                   }
                 ],
                 "type": "text",
@@ -12143,9 +12151,9 @@
                 "label": "AttributeList"
               }
             },
-            {
+			{
               "object": {
-                "_id": "nGRjFyviG39W7d8MX",
+               "_id": "nGRjFyviG39W7d8MX",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -12156,24 +12164,19 @@
                 "noRepresentation": false,
                 "tabIndex": 3,
                 "dialogTabId": "QKBEmKcuxZWwB2Gqd",
-                "name": "IndividualList",
-                "description": "",
-                "prefix": "",
-                "suffix": "",
-                "defaultValue": "",
+                "name": "Individuals",
                 "isObjectRepresentation": false,
                 "inputType": {
-                  "type": "textarea",
-                  "rows": 3
+                 
                 },
                 "styles": [
                   {
                     "name": "Default",
-                    "id": "9fe154ba94b24a85611e5d7b",
+                    "id": "5a056f8f20b07d71dccert8a",
                     "style": {
                       "align": "left",
-                      "fill": "black",
-                      "padding": "0",
+                      "fill": "#000000",
+                      "padding": 0,
                       "placement": "start-left",
                       "visible": true,
                       "fontSize": 12,
@@ -12185,36 +12188,61 @@
                 ],
                 "extensionPoints": [
                   {
-                    "extensionPoint": "beforeUpdate",
-                    "procedure": ""
+                    "extensionPoint": "beforeUpdate"
                   },
                   {
                     "extensionPoint": "update",
                     "procedure": "UpdateCompartment"
                   },
                   {
-                    "extensionPoint": "afterUpdate",
-                    "procedure": ""
+                    "extensionPoint": "afterUpdate"
                   },
                   {
-                    "extensionPoint": "dynamicPrefix",
-                    "procedure": ""
+                    "extensionPoint": "dynamicPrefix"
                   },
                   {
-                    "extensionPoint": "dynamicSuffix",
-                    "procedure": ""
+                    "extensionPoint": "dynamicSuffix"
                   },
                   {
-                    "extensionPoint": "dynamicDefaultValue",
-                    "procedure": ""
+                    "extensionPoint": "dynamicDefaultValue"
                   },
                   {
-                    "extensionPoint": "dynamicDropDown",
-                    "procedure": ""
+                    "extensionPoint": "dynamicDropDown"
                   }
                 ],
-                "type": "text",
-                "label": "IndividualList"
+                "subCompartmentTypes": [
+                  {
+                    "_id": "304eddff333se156378bsa45",
+                    "name": "Individuals",
+                    "extensionPoints": [
+                      {
+                        "extensionPoint": "procDecompose",
+                        "procedure": ""
+                      }
+                    ],
+                    "prefix": null,
+                    "suffix": null,
+                    "defaultValue": null,
+                    "subCompartmentTypes": [
+                      {
+                        "_id": "su465uhs7s8gf52uadmk585g",
+                        "index": 1,
+                        "name": "Individual",
+                        "label": "Individual",
+                        "extensionPoints": [],
+                        "prefix": null,
+                        "suffix": null,
+                        "defaultValue": null,
+                        "inputType": {
+                          "type": "input"
+                        },
+                        "subCompartmentTypes": []
+                      }
+                    ],
+                    "label": "Individuals"
+                  }
+                ],
+                "label": "Individuals"
               }
             }
           ],
@@ -19908,6 +19936,19 @@
           "name": "Object",
           "type": "Box",
           "index": 20
+        },
+		{
+          "_id": "A9BDQSH3SCLJboFvZ",
+          "toolId": "cHSidEZPTvZRSFFtZ",
+          "versionId": "EtJZ6WzJNMpthfpC3",
+          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+          "diagramId": "YmsfLsQHNYsgFDJab",
+          "elementTypeIds": [
+            "jByaKr79KeWffZSjb"
+          ],
+          "name": "ObjectList",
+          "type": "Box",
+          "index": 21
         },
         {
           "_id": "utDzonSiE7iWoaNp4",

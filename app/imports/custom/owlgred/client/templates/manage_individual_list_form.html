@@ -1,4 +1,4 @@
-<template name="ManageIndividuals">
+<template name="ManageIndividualList">
 <style>
     div.modal-body {
         overflow-y: auto;
@@ -71,7 +71,7 @@
 		background: #f7f7f7;
 	}
 	
-	.individuals-oneof-label {
+	.individual-list-oneof-label {
 		padding-left: 0 !important;
 		font-size: 15px;
 		line-height: 20px;
@@ -79,7 +79,7 @@
 		align-items: center;
 	}
 
-	#individuals-oneof-checkbox {
+	#individual-list-oneof-checkbox {
 		opacity: 1 !important;
 		position: static !important;
 		width: 20px !important;
@@ -92,46 +92,46 @@
 	
 </style>
 
-    <div id="manage-individuals-form" class="modal fade" data-backdrop="static" data-keyboard="false">
+    <div id="manage-individual-list-form" class="modal fade" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" style="width: 900px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Manage Individuals</h4>
+                    <h4 class="modal-title">Manage Individual list</h4>
                 </div>
 
                 <div class="modal-body">
                     <form autocomplete="off" onsubmit="return false;">
 						<div class="checkbox" style="margin-top:0; margin-bottom:12px;">
-							<label class="individuals-oneof-label">
+							<label class="individual-list-oneof-label">
 								<input
-									id="individuals-oneof-checkbox"
+									id="individual-list-oneof-checkbox"
 									type="checkbox"
 									checked="{{isOneOfChecked}}"
 								>
 								Only these declared individuals belong to the class (owl:oneOf)
 							</label>
 						</div>
-						<div class="form-group" style="margin-bottom:12px;">
-							<label for="individuals-display-attribute" style="margin-right:8px;">
-								Display individuals in diagram as
-							</label>
-							<select id="individuals-display-attribute" class="form-control" style="display:inline-block; width:auto;">
-								<option value="" selected="{{isDisplayAttributeEmpty}}">IRI</option>
-								{{#each displayColumns}}
-									<option value="{{id}}" selected="{{isSelectedDisplayColumn id}}">
-										{{name}}(IRI)
-									</option>
-								{{/each}}
-							</select>
-						</div>
+						<!-- <div class="form-group" style="margin-bottom:12px;"> -->
+							<!-- <label for="individual-list-display-attribute" style="margin-right:8px;"> -->
+								<!-- Display individuals in diagram as -->
+							<!-- </label> -->
+							<!-- <select id="individual-list-display-attribute" class="form-control" style="display:inline-block; width:auto;"> -->
+								<!-- <option value="" selected="{{isDisplayAttributeEmpty}}">IRI</option> -->
+								<!-- {{#each displayColumns}} -->
+									<!-- <option value="{{id}}" selected="{{isSelectedDisplayColumn id}}"> -->
+										<!-- {{name}}(IRI) -->
+									<!-- </option> -->
+								<!-- {{/each}} -->
+							<!-- </select> -->
+						<!-- </div> -->
                         <div class="individuals-toolbar">
                             <button id="add-individual-row" type="button" class="btn btn-default">
                                 Add
                             </button>
                         </div>
 
-                        <div id="manage-individuals-field" class="form-group" style="margin-bottom:10px;">
+                        <div id="manage-individual-list-field" class="form-group" style="margin-bottom:10px;">
                             <div class="individuals-table-wrapper">
                                 <table class="individuals-table">
                                     <thead>
@@ -177,8 +177,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button id="cancel-manage-individuals" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button id="ok-manage-individuals" type="button" class="btn btn-primary">Save</button>
+                    <button id="cancel-manage-individual-list" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="ok-manage-individual-list" type="button" class="btn btn-primary">Save</button>
                 </div>
             </div>
         </div>

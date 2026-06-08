@@ -1493,7 +1493,108 @@ if (p.value === OWL + 'disjointWith') {
 	  OWL  + 'backwardCompatibleWith', OWL + 'incompatibleWith', OWL + 'deprecated'
 	];
 	
-	
+	// Positive individual property assertions:
+	// :Anna :studentName "Anna" .
+	// :Anna :takes :CS .
+	if (
+	  s.termType === 'NamedNode' &&
+	  state.individuals[s.value]
+	) {
+	  if (ontologySubjects.has(termKey(s))) {
+		continue;
+	  }
+
+	  const structuralPredsForFacts = new Set([
+		RDF  + 'type',
+		RDFS + 'subClassOf',
+		RDFS + 'subPropertyOf',
+		RDFS + 'domain',
+		RDFS + 'range',
+		OWL  + 'equivalentClass',
+		OWL  + 'equivalentProperty',
+		OWL  + 'disjointWith',
+		OWL  + 'propertyDisjointWith',
+		OWL  + 'inverseOf',
+		OWL  + 'propertyChainAxiom',
+		OWL  + 'hasKey',
+		OWL  + 'unionOf',
+		OWL  + 'intersectionOf',
+		OWL  + 'complementOf',
+		OWL  + 'oneOf'
+	  ]);
+
+	  const isKnownAnn =
+		state.isAnnotationProp.has(p.value) || builtInAnnProps.includes(p.value);
+
+	  if (!isKnownAnn && !structuralPredsForFacts.has(p.value)) {
+		const ind = ensureIndividual(s.value);
+
+		// Data property assertion
+		if (o.termType === 'Literal') {
+		  if (!state.dataProperties[p.value]) {
+			state.dataProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'DatatypeProperty',
+			  domain: [],
+			  range: [],
+			  characteristics: {},
+			  Qualifiers: []
+			};
+		  }
+
+		  state.isDataProp.add(p.value);
+
+		  ind.dataFacts ||= [];
+		  ind.dataFacts.push({
+			p: p.value,
+			value: o.value,
+			lang: o.language || null,
+			dt: o.datatype?.value || null,
+			negative: false
+		  });
+
+		  continue;
+		}
+
+		// Object property assertion
+		if (o.termType === 'NamedNode') {
+		  if (!state.objectProperties[p.value]) {
+			state.objectProperties[p.value] = {
+			  iri: p.value,
+			  prefixed: iriToPrefixed(p.value, prefixes),
+			  label: null,
+			  annotations: [],
+			  kind: 'ObjectProperty',
+			  domain: [],
+			  range: [],
+			  characteristics: {},
+			  superProperties: [],
+			  equivalentProperties: [],
+			  disjointProperties: [],
+			  inverseOf: [],
+			  propertyChains: [],
+			  Qualifiers: []
+			};
+		  }
+
+		  state.isObjectProp.add(p.value);
+
+		  ensureIndividual(o.value);
+
+		  ind.objFacts ||= [];
+		  ind.objFacts.push({
+			p: p.value,
+			object: o.value,
+			negative: false
+		  });
+
+		  continue;
+		}
+	  }
+	}
 	
 	// Annotation assertion on a named subject.
 	// If predicate is built-in OR declared annotation property OR custom undeclared,
@@ -1527,7 +1628,13 @@ if (p.value === OWL + 'disjointWith') {
 		OWL  + 'oneOf'
 	  ]);
 
-	  if (isKnownAnn || !structuralPreds.has(p.value)) {
+	  const isKnownObjectOrDataProperty =
+	  state.isObjectProp.has(p.value) ||
+	  state.isDataProp.has(p.value) ||
+	  !!state.objectProperties[p.value] ||
+	  !!state.dataProperties[p.value];
+
+	if ((isKnownAnn || !structuralPreds.has(p.value)) && !isKnownObjectOrDataProperty) {
 		if (!isKnownAnn) {
 		  ensureAnnotationProperty(p.value);
 		}
@@ -1552,14 +1659,14 @@ if (p.value === OWL + 'disjointWith') {
 	}
 
     // Individual facts
-    if (state.individuals[s.value]) {
-      if (o.termType === 'Literal') {
-        state.individuals[s.value].dataFacts.push({ p: p.value, value: o.value, lang: o.language, dt: o.datatype?.value });
-      } else if (o.termType === 'NamedNode') {
-        state.individuals[s.value].objFacts.push({ p: p.value, object: o.value });
-      }
-      continue;
-    }
+    // if (state.individuals[s.value]) {
+      // if (o.termType === 'Literal') {
+        // state.individuals[s.value].dataFacts.push({ p: p.value, value: o.value, lang: o.language, dt: o.datatype?.value });
+      // } else if (o.termType === 'NamedNode') {
+        // state.individuals[s.value].objFacts.push({ p: p.value, object: o.value });
+      // }
+      // continue;
+    // }
   }
   
   // Default missing domains/ranges to owl:Thing only when needed

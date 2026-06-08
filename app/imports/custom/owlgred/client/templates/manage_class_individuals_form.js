@@ -144,7 +144,7 @@ Interpreter.customMethods({
 		let individuals = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Individuals");
 		let attributes = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Attributes");
 		
-		let links = await elemOWLGrEd.getLinks("Association");
+		// let links = await elemOWLGrEd.getLinks("Association");
 		
 		const objectProperties = await buildObjectPropertyColumns(elemOWLGrEd);
 
@@ -294,7 +294,7 @@ Template.ManageIndividuals.events({
 			elementTypeId: actEl.elementTypeId
 		});
 		
-		await owlgredObj.setCompartmentValueAuto("OneOf", isOneOf.toString());
+		if(isOneOf) await owlgredObj.setCompartmentValueAuto("OneOf", isOneOf.toString());
 		await owlgredObj.setCompartmentValue("IndividualLabel", displayAttributeId, "")
 
 		// delete removed existing rows
