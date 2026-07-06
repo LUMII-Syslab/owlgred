@@ -1236,30 +1236,35 @@ if (p.value === OWL + 'disjointWith') {
         }
       }
 
-      // DatatypeProperty range can be:
-      // 1) named datatype
-      // 2) named class  <-- add this case
-      // 3) complex datatype expression bnode
-      if (state.dataProperties[s.value]) {
-        if (o.termType === 'NamedNode') {
-          if (isDatatype(o.value)) {
-            state.dataProperties[s.value].range.push(o.value);
-          } else {
-            // treat non-builtin named node in data property range as class
-            state.dataProperties[s.value].range.push(o.value);
-            const cls = ensureClass(o.value);
-            cls.dataProperties.push(s.value);
-          }
-        } else if (o.termType === 'BlankNode') {
-          const man = serializeDataRangeForUI_RDFlib(
-            store, o, prefixes,
-            $rdf, RDF, OWL, XSD,
-            getDatatypeLocalName,
-            iriToPrefixed
-          );
-          if (man) state.dataProperties[s.value].rangeExpression = man;
-        }
-      }
+	  
+	  // DatatypeProperty range can be:
+		// 1) built-in datatype
+		// 2) imported/custom datatype, e.g. n0:Gender a rdfs:Datatype
+		// 3) complex datatype expression bnode
+		if (state.dataProperties[s.value]) {
+		  if (o.termType === 'NamedNode') {
+			state.dataProperties[s.value].range.push(o.value);
+
+			if (isDatatype(o.value) || state.dataTypes?.[o.value]) {
+			  // this is a datatype, do NOT create a class
+			  ensureDatatype(o.value);
+			} else {
+			  // Fallback only for non-declared unknown ranges
+			  // You may keep this if OWLGrEd allows class-like values here,
+			  // but for normal OWL datatype properties this should rarely happen.
+			  const cls = ensureClass(o.value);
+			  cls.dataProperties.push(s.value);
+			}
+		  } else if (o.termType === 'BlankNode') {
+			const man = serializeDataRangeForUI_RDFlib(
+			  store, o, prefixes,
+			  $rdf, RDF, OWL, XSD,
+			  getDatatypeLocalName,
+			  iriToPrefixed
+			);
+			if (man) state.dataProperties[s.value].rangeExpression = man;
+		  }
+		}
 
       // For annotation properties, range can be Class/IRI/Literal
       if (state.annotationProperties[s.value] && o.termType === 'NamedNode') {

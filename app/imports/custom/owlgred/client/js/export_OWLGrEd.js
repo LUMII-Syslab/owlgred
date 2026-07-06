@@ -63,6 +63,7 @@ async function saveOntologyInFormatOwlgred(){
 	let ontology = {
 			"Ontology": {},
 			"Class": {},
+			"Classifier": {},
 			"ObjectProperty": {},
 			"DataProperty": [],
 			"DatatypeProperty": {},
@@ -104,7 +105,37 @@ async function saveOntologyInFormatOwlgred(){
 		.map(function(e) {
 		  return {name: e.name, id: e["_id"], exportAxioms : e["exportAxioms"]}
 	});
+	
+	let elemTypeClass = ElementTypes.findOne({name:"Class", diagramTypeId:active_diagram_type_id});
+	//find classes
+	let elemsClasses = Elements.find({diagramId:diagramId, elementTypeId:elemTypeClass["_id"]}).map(function(e) {
+		return e["_id"]
+	});
 
+	for(let elem = 0; elem < elemsClasses.length; elem++){
+		const elemOWLGrEd = await Create_OWLGrEd_Element(elemsClasses[elem]);
+		let className = await elemOWLGrEd.getCompartmentValue("Name");
+		if(!className){
+			const equivalentClasses = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("EquivalentClasses");
+			if(equivalentClasses.length> 0) className = equivalentClasses[0].EquivalentClass;
+		}
+		ontology.Class[className] = [];
+	}
+	
+	elemTypeClass = ElementTypes.findOne({name:"Classifier", diagramTypeId:active_diagram_type_id});
+	//find classes
+	elemsClasses = Elements.find({diagramId:diagramId, elementTypeId:elemTypeClass["_id"]}).map(function(e) {
+		return e["_id"]
+	});
+
+	for(let elem = 0; elem < elemsClasses.length; elem++){
+		const elemOWLGrEd = await Create_OWLGrEd_Element(elemsClasses[elem]);
+		let className = await elemOWLGrEd.getCompartmentValue("Name");
+		const exportMode = await elemOWLGrEd.getCompartmentValue("ExportMode");
+		
+		if(className) ontology.Classifier[className] = exportMode;
+	}
+	
 	for(let elemType = 0; elemType < elem_type.length; elemType++){
 
 		if(typeof elem_type[elemType]["exportAxioms"] !== "undefined"){
@@ -235,6 +266,23 @@ async function saveOntologyInFormatOwlgred(){
 						if(!className)className = "Thing";
 					}
 					ontologyObject = createExportStructureElement(ontology, "Class", className);
+				}else if(elem_type[elemType]["name"] === "Classifier"){
+					const exportMode = await elemOWLGrEd.getCompartmentValue("ExportMode");
+					if(exportMode === "Datatype_enumeration"){
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "DataType", className);
+					} else if(exportMode === "Individual_enumeration"){
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "Class", className);
+					} else if(exportMode === "Individual_enumeration_SKOS"){
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "Class", className);
+					} else if(exportMode === "SKOS_vocabulary"){
+						// const className = await elemOWLGrEd.getCompartmentValue("Name");
+						// ontologyObject = createExportStructureElement(ontology, "Class", className);
+					}
+
+					// ontologyObject = createExportStructureElement(ontology, "NamedIndividual", className);
 				}
 
 				for(let axiom = 0; axiom < parsedExportAxioms.length; axiom++){
@@ -243,8 +291,399 @@ async function saveOntologyInFormatOwlgred(){
 					let axiomString = await concatAxiom(parsedExportAxioms[axiom], "", {}, elemOWLGrEd);
 					ontologyObject.push(axiomString)
 				}
+				
+				if(elem_type[elemType]["name"] === "Classifier"){
 
-				if(elem_type[elemType]["name"] === "Class"){
+					const exportMode = await elemOWLGrEd.getCompartmentValue("ExportMode");
+					if(exportMode === "Datatype enumeration (DataOneOf)"){
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "DataType", className);
+						let annotationObject = {
+								"type": "Declaration",
+								"axiom": {
+									"type": "Datatype",
+									"axiom": {"IRI": await getFullName(className)}
+						}}
+						ontologyObject.push(annotationObject);
+						const dataTypeDefinition = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Values", [{title:"Name",name:"Name"}, {title:"Notation",name:"Notation"}]);
+
+						let literalList = [];
+						for(let axiom = 0; axiom < dataTypeDefinition.length; axiom++){
+							literalList.push({
+								"type": "stringNoLang",
+								"value": dataTypeDefinition[axiom]["Name"]
+							})
+						}
+						
+						annotationObject = {
+							"type": "DataTypeDefinition",
+							"axiom": [
+								{"IRI": await getFullName(className)},
+								{"type": {
+									"grammarProduction": "dataDisjunction",
+									"items": [{
+										"grammarProduction": "dataConjunction",
+										"items": [{
+											"negation": "false",
+											"dataPrimaryType": "literalList",
+											"literalList": literalList
+								}]}]}}]
+						}
+						ontologyObject.push(annotationObject);
+						
+						
+						
+
+					} else if(exportMode === "Individual enumeration"){
+						namespaceTable["ex"]="http://lumii.lv/2011/1.0/extended#";
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "Class", className);
+						
+						// const different = await elemOWLGrEd.getCompartmentValue("DifferentIndividuals");
+						const different = true;
+						
+						let annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": await getFullName(className)}}
+						}
+						ontologyObject.push(annotationObject);
+						
+						const dataTypeDefinition = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Values", [{title:"Name",name:"Name"}, {title:"Notation",name:"Notation"}]);
+						let individList = [];
+						let differentIndividList = [];
+						for(let axiom = 0; axiom < dataTypeDefinition.length; axiom++){
+							const individName = dataTypeDefinition[axiom]["Name"];
+							let ontologyObjectI = createExportStructureElement(ontology, "NamedIndividual", individName);
+							
+							let annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "NamedIndividual",
+										"axiom": {"IRI": await getFullName(individName)}}
+							}
+							ontologyObjectI.push(annotationObject);
+							annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": await getFullName(className)},
+										{"IRI": await getFullName(individName)}
+									]}
+							ontologyObjectI.push(annotationObject);
+							individList.push({
+												"individualType": "IRI",
+												"individual": {
+													"IRItype": "simpleIRI",
+													"value": individName
+												}})
+							annotationObject = {
+								"type": "AnnotationAssertion",
+								"axiom": [
+									{"axiomSymbol": "http://lumii.lv/2011/1.0/extended#notation"},
+									{"IRI": await getFullName(individName)},
+									{"value": dataTypeDefinition[axiom]["Notation"]}]
+							}
+							ontologyObjectI.push(annotationObject);
+							
+							differentIndividList.push({"IRI": await getFullName(individName)})
+							if((different === true || different === "true") && axiom === dataTypeDefinition.length-1){
+							  let annotationObject = {
+								"type": "DifferentIndividuals",
+								"axiom": differentIndividList
+							  }
+							  ontologyObjectI.push(annotationObject);
+							}
+							
+						}
+						// const oneOf = await elemOWLGrEd.getCompartmentValue("ClosedClassifier");
+						const oneOf = true;
+						if(oneOf === true || oneOf === "true"){
+						  let annotationObject = {
+							"type": "EquivalentClasses",
+							"axiom": [
+								{"IRI": await getFullName(className)},
+								[{
+										"Expression": {
+											"grammarProduction": "disjunction",
+											"items": [
+												{
+													"grammarProduction": "conjunctionNoRestrictions",
+													"items": [
+														{
+															"negation": "false",
+															"primaryType": "atomic",
+															"primary": {
+																"atomType": "individualList",
+																"list": individList
+															}}]}]}}]]}
+							ontologyObject.push(annotationObject);
+						}
+
+						let ontologyObjectAP = createExportStructureElement(ontology, "AnnotationProperty", "ex:notation");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "AnnotationProperty",
+								"axiom": {"IRI": "http://lumii.lv/2011/1.0/extended#notation"}}
+						}
+						ontologyObjectAP.push(annotationObject);						
+					} else if(exportMode === "Individual enumeration + SKOS"){
+						namespaceTable["skos"] = "http://www.w3.org/2004/02/skos/core#";
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						ontologyObject = createExportStructureElement(ontology, "Class", className);
+						
+						const different = true;
+						// const different = await elemOWLGrEd.getCompartmentValue("DifferentIndividuals");
+						
+						let annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": await getFullName(className)}}
+						}
+						ontologyObject.push(annotationObject);
+						
+						
+						
+						namespaceTable["skos"] = "http://www.w3.org/2004/02/skos/core#";
+						ontologyObject = createExportStructureElement(ontology, "Class", "skos:ConceptScheme");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#ConceptScheme"}}
+						}
+						ontologyObject.push(annotationObject);
+						let ontologyObjectConcept = createExportStructureElement(ontology, "Class", "skos:Concept");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#Concept"}}
+						}
+						ontologyObjectConcept.push(annotationObject);
+						
+						let ontologyObjectI = createExportStructureElement(ontology, "NamedIndividual", className+"ConceptScheme");
+							
+						annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "NamedIndividual",
+										"axiom": {"IRI": await getFullName(className+"ConceptScheme")}}
+						}
+						ontologyObjectI.push(annotationObject);
+						annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": "http://www.w3.org/2004/02/skos/core#ConceptScheme"},
+										{"IRI": await getFullName(className+"ConceptScheme")}
+									]}
+						ontologyObjectI.push(annotationObject);
+						
+						let ontologyObjectP = createExportStructureElement(ontology, "ObjectProperty", "skos:inScheme");
+						annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "OjectProperty",
+										"axiom": {"IRI":"http://www.w3.org/2004/02/skos/core#inScheme"}}
+						}
+						ontologyObjectP.push(annotationObject);
+						
+						const dataTypeDefinition = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Values", [{title:"Name",name:"Name"}, {title:"Notation",name:"Notation"}]);
+						let individList = [];
+						let differentIndividList = [];
+						for(let axiom = 0; axiom < dataTypeDefinition.length; axiom++){
+							const individName = dataTypeDefinition[axiom]["Name"];
+							let ontologyObjectI = createExportStructureElement(ontology, "NamedIndividual", individName);
+							
+							let annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "NamedIndividual",
+										"axiom": {"IRI": await getFullName(individName)}}
+							}
+							ontologyObjectI.push(annotationObject);
+							annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": await getFullName(className)},
+										{"IRI": await getFullName(individName)}
+									]}
+							ontologyObjectI.push(annotationObject);
+							individList.push({
+												"individualType": "IRI",
+												"individual": {
+													"IRItype": "simpleIRI",
+													"value": individName
+												}})
+							differentIndividList.push({"IRI": await getFullName(individName)})
+							if((different === true || different === "true") && axiom === dataTypeDefinition.length-1){
+							  let annotationObject = {
+								"type": "DifferentIndividuals",
+								"axiom": differentIndividList
+							  }
+							  ontologyObjectI.push(annotationObject);
+							}
+							
+						
+							annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": "http://www.w3.org/2004/02/skos/core#Concept"},
+										{"IRI": await getFullName(individName)}
+									]}
+							ontologyObjectI.push(annotationObject);
+							
+							annotationObject =  {
+								"type": "ObjectPropertyAssertion",
+								"axiom": [
+									{"IRI": "http://www.w3.org/2004/02/skos/core#inScheme"},
+									{"IRI": await getFullName(individName)},
+									{"IRI": await getFullName(className+"ConceptScheme")}
+								]
+							}
+							ontologyObjectI.push(annotationObject);
+							
+							annotationObject = {
+								"type": "AnnotationAssertion",
+								"axiom": [
+									{"axiomSymbol": "http://www.w3.org/2004/02/skos/core#notation"},
+									{"IRI": await getFullName(individName)},
+									{"value": dataTypeDefinition[axiom]["Notation"]}]
+							}
+							ontologyObjectI.push(annotationObject);
+						}
+						// const oneOf = await elemOWLGrEd.getCompartmentValue("ClosedClassifier");
+						const oneOf = true;
+						if(oneOf === true || oneOf === "true"){
+						  let annotationObject = {
+							"type": "EquivalentClasses",
+							"axiom": [
+								{"IRI": await getFullName(className)},
+								[{
+										"Expression": {
+											"grammarProduction": "disjunction",
+											"items": [
+												{
+													"grammarProduction": "conjunctionNoRestrictions",
+													"items": [
+														{
+															"negation": "false",
+															"primaryType": "atomic",
+															"primary": {
+																"atomType": "individualList",
+																"list": individList
+															}}]}]}}]]}
+							ontologyObject.push(annotationObject);
+						}
+						
+						let ontologyObjectAP = createExportStructureElement(ontology, "AnnotationProperty", "skos:notation");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "AnnotationProperty",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#notation"}}
+						}
+						ontologyObjectAP.push(annotationObject);
+					} else if(exportMode === "SKOS vocabulary"){
+						namespaceTable["skos"] = "http://www.w3.org/2004/02/skos/core#";
+						let ontologyObject = createExportStructureElement(ontology, "Class", "skos:ConceptScheme");
+						let annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#ConceptScheme"}}
+						}
+						ontologyObject.push(annotationObject);
+						let ontologyObjectConcept = createExportStructureElement(ontology, "Class", "skos:Concept");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "Class",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#Concept"}}
+						}
+						ontologyObjectConcept.push(annotationObject);
+						
+						const className = await elemOWLGrEd.getCompartmentValue("Name");
+						let ontologyObjectI = createExportStructureElement(ontology, "NamedIndividual", className);
+							
+						annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "NamedIndividual",
+										"axiom": {"IRI": await getFullName(className)}}
+						}
+						ontologyObjectI.push(annotationObject);
+						annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": "http://www.w3.org/2004/02/skos/core#ConceptScheme"},
+										{"IRI": await getFullName(className)}
+									]}
+						ontologyObjectI.push(annotationObject);
+						
+						let ontologyObjectP = createExportStructureElement(ontology, "ObjectProperty", "skos:inScheme");
+						annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "OjectProperty",
+										"axiom": {"IRI":"http://www.w3.org/2004/02/skos/core#inScheme"}}
+						}
+						ontologyObjectP.push(annotationObject);
+						
+						
+						let ontologyObjectAP = createExportStructureElement(ontology, "AnnotationProperty", "skos:notation");
+						annotationObject = {
+							"type": "Declaration",
+							"axiom": {
+								"type": "AnnotationProperty",
+								"axiom": {"IRI": "http://www.w3.org/2004/02/skos/core#notation"}}
+						}
+						ontologyObjectAP.push(annotationObject);
+						
+						const dataTypeDefinition = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Values", [{title:"Name",name:"Name"}, {title:"Notation",name:"Notation"}]);
+						
+						for(let axiom = 0; axiom < dataTypeDefinition.length; axiom++){
+							const individName = dataTypeDefinition[axiom]["Name"];
+							let ontologyObjectV = createExportStructureElement(ontology, "NamedIndividual", individName);
+							
+							annotationObject = {
+									"type": "Declaration",
+									"axiom": {
+										"type": "NamedIndividual",
+										"axiom": {"IRI": await getFullName(individName)}}
+							}
+							ontologyObjectV.push(annotationObject);
+							annotationObject = {
+									"type": "ClassAssertion",
+									"axiom": [
+										{"IRI": "http://www.w3.org/2004/02/skos/core#Concept"},
+										{"IRI": await getFullName(individName)}
+									]}
+							ontologyObjectV.push(annotationObject);
+							
+							annotationObject =  {
+								"type": "ObjectPropertyAssertion",
+								"axiom": [
+									{"IRI": "http://www.w3.org/2004/02/skos/core#inScheme"},
+									{"IRI": await getFullName(individName)},
+									{"IRI": await getFullName(className)}
+								]
+							}
+							ontologyObjectV.push(annotationObject);
+							
+							annotationObject = {
+								"type": "AnnotationAssertion",
+								"axiom": [
+									{"axiomSymbol": "http://www.w3.org/2004/02/skos/core#notation"},
+									{"IRI": await getFullName(individName)},
+									{"value": dataTypeDefinition[axiom]["Notation"]}]
+							}
+							ontologyObjectV.push(annotationObject);
+						}
+					}
+				} else if(elem_type[elemType]["name"] === "Class"){
 					let className = await elemOWLGrEd.getCompartmentValue("Name");
 					const equivalentClasses = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("EquivalentClasses", [{title:"EquivalentClass",name:"EquivalentClass"}]);
 					if(!className){
@@ -344,7 +783,9 @@ async function saveOntologyInFormatOwlgred(){
 						const attribute = attributes[axiom];
 						const attribuyeType = attribute.Type;
 						let propertyType = "Data";
-						if(typeof ontology.Class[attribuyeType] !== "undefined") propertyType = "Object";
+						if(typeof ontology.Class[attribuyeType] !== "undefined" || 
+						(typeof ontology.Classifier[attribuyeType] !== "undefined" && ontology.Classifier[attribuyeType] !== "Datatype enumeration (DataOneOf)")) propertyType = "Object";
+						
 						const attrName = await getFullName(attribute.Name);
 						ontology.DataProperty.push(attrName);
 						//Name
@@ -372,7 +813,9 @@ async function saveOntologyInFormatOwlgred(){
 							attributeObject.type = propertyType+"PropertyRange";
 							attributeObject.axiom = [];
 							attributeObject.axiom.push({IRI: attrName});
-							attributeObject.axiom.push({IRI: await getTypeExpression(attribute.Type, ontology)});
+							if(typeof ontology.Classifier[attribuyeType] !== "undefined" && ontology.Classifier[attribuyeType] === "SKOS vocabulary"){
+								attributeObject.axiom.push({IRI: "http://www.w3.org/2004/02/skos/core#Concept"});
+							}else attributeObject.axiom.push({IRI: await getTypeExpression(attribute.Type, ontology)});
 							ontologyObject.push(attributeObject);
 						}
 						// Multiplicity
@@ -522,7 +965,7 @@ async function saveOntologyInFormatOwlgred(){
 						}
 					}
 					
-				} else if(elem_type[elemType]["name"] === "Restriction"){
+				}  else if(elem_type[elemType]["name"] === "Restriction"){
 					const Role = await elemOWLGrEd.getCompartmentValue("Role");
 					const IsInverse = await elemOWLGrEd.getCompartmentValue("IsInverse");
 					const Only = await elemOWLGrEd.getCompartmentValue("Only");

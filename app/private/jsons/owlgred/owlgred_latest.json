@@ -735,7 +735,7 @@
                     "_id": "xber0cjcm8tfq7yzavuh3rag",
                     "name": "EquivalentClasses",
                     "extensionPoints": [],
-                    "prefix": "\u2261 ",
+                    "prefix": "≡ ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -2080,6 +2080,789 @@
               "name": "Individuals",
               "elementTypeId": "fCNoA6sqGLdTB2Dmg",
               "index": 3
+            }
+          ]
+        },
+        {
+          "object": {
+            "_id": "WQ4XM57FZq4zjTPnQ",
+            "toolId": "cHSidEZPTvZRSFFtZ",
+            "versionId": "EtJZ6WzJNMpthfpC3",
+            "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+            "diagramId": "YmsfLsQHNYsgFDJab",
+            "elementId": "JdWopjOm1imlzSgtQ",
+            "superTypeIds": [
+              "aoQGghJQhzuMJfmjk"
+            ],
+            "type": "Box",
+            "extensionPoints": [
+              {
+                "extensionPoint": "createElement",
+                "procedure": "MakeElement"
+              },
+              {
+                "extensionPoint": "resizeElement",
+                "procedure": "ResizeElement"
+              }
+            ],
+            "keyStrokes": [
+              {
+                "keyStroke": "Ctrl C",
+                "procedure": "Copy"
+              },
+              {
+                "keyStroke": "Ctrl X",
+                "procedure": "Cut"
+              },
+              {
+                "keyStroke": "Delete",
+                "procedure": "Delete"
+              }
+            ],
+            "readModeKeyStrokes": [],
+            "contextMenu": [
+              {
+                "item": "Manage Individuals",
+                "procedure": "ManageIndividuals"
+              },
+              {
+                "item": "Cut",
+                "procedure": "Cut"
+              },
+              {
+                "item": "Copy",
+                "procedure": "Copy"
+              },
+              {
+                "item": "Delete",
+                "procedure": "Delete"
+              }
+            ],
+            "readModeContextMenu": [],
+            "styles": [
+              {
+                "id": "ac1iwnuf1eutikvvt6ywzoenswtvzv3a",
+                "name": "Default",
+                "elementStyle": {
+                  "fill": "rgb(255,230,160)",
+                  "fillPriority": "color",
+                  "fillLinearGradientStartPointX": 0.5,
+                  "fillLinearGradientStartPointY": 0,
+                  "fillLinearGradientEndPointX": 0.5,
+                  "fillLinearGradientEndPointY": 1,
+                  "fillLinearGradientColorStops": [
+                    0,
+                    "white",
+                    1,
+                    "black"
+                  ],
+                  "fillRadialGradientStartPointX": 0.5,
+                  "fillRadialGradientStartPointY": 0.5,
+                  "fillRadialGradientEndPointX": 0.5,
+                  "fillRadialGradientEndPointY": 0.5,
+                  "fillRadialGradientStartRadius": 0,
+                  "fillRadialGradientEndRadius": 1,
+                  "fillRadialGradientColorStops": [
+                    0,
+                    "white",
+                    1,
+                    "black"
+                  ],
+                  "imageSrc": "/icons/classifier.png",
+                  "stroke": "#000000",
+                  "strokeWidth": 1,
+                  "shadowColor": "#ff0000",
+                  "shadowBlur": 0,
+                  "shadowOpacity": 1,
+                  "shadowOffsetX": "0",
+                  "shadowOffsetY": 0,
+                  "tension": 0,
+                  "opacity": 1,
+                  "dash": [],
+                  "shape": "Rectangle"
+                }
+              }
+            ],
+            "name": "Classifier",
+            "isAbstract": false,
+            "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
+            "exportAxioms": [
+              ""
+            ]
+          },
+          "compartmentTypes": [
+            {
+              "object": {
+                "_id": "s7WT6uLJaSTtp60IS",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 0,
+                "noRepresentation": false,
+                "tabIndex": 1,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "Label",
+                "isObjectRepresentation": false,
+                "defaultValue": "<<Classifier>>",
+                "inputType": {
+                  "type": "no input"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "t0m7bicdw9ckptjyqxm6swlnoidjsmrv",
+                    "style": {
+                      "align": "center",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 14,
+                      "fontStyle": "bold",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Label",
+				"type": "text",
+                "prefix": null,
+				"suffix": null
+              }
+            },
+			{
+              "object": {
+                "_id": "s7WT6uLJaSTtoa0IS",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 0,
+                "noRepresentation": false,
+                "tabIndex": 1,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "Name",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "input",
+                  "inputType": "text"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "t0m7bicdw9ckptjyqxm6swlnoidjsmrv",
+                    "style": {
+                      "align": "center",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 16,
+                      "fontStyle": "bold",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Name",
+                "prefix": null
+              }
+            },
+            {
+              "object": {
+                "_id": "9koAfnBttKo0d39OB",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 10,
+                "noRepresentation": false,
+                "tabIndex": 2,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "HorizontalLine1",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "horizontalLine"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "m2zufgzgp83zfaz0uzq89hsqvz6jueqd",
+                    "style": {
+                      "align": "center",
+                      "fill": "white",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 16,
+                      "fontStyle": "bold",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal",
+                      "stroke": "black",
+                      "strokeWidth": 2
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "HorizontalLine",
+                "defaultValue": " ",
+                "type": "horizontalLine"
+              }
+            },
+			{
+              "object": {
+                "_id": "7T1tUmVn3c1rURstT",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 15,
+                "noRepresentation": false,
+                "tabIndex": 8,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "Values",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "custom",
+                  "templateName": "multiField"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "yakody2hgrgkceoov1zchbpc8al8kqhi",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 14,
+                      "fontStyle": "normal",
+                      "fontFamily": "Courier New",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [
+                  {
+                    "_id": "p4Hoprhqg3WXLstNIs2mYbKZ",
+                    "name": "Values",
+                    "extensionPoints": [],
+                    "prefix": null,
+                    "suffix": null,
+                    "defaultValue": null,
+                    "label": "Values",
+                    "subCompartmentTypes": [
+                      {
+                        "_id": "94qeJJu0HE8XDnPIQFIGhHJM",
+                        "index": 1,
+                        "name": "Name",
+                        "label": "Name",
+                        "extensionPoints": [],
+                        "prefix": null,
+                        "suffix": null,
+                        "defaultValue": null,
+                        "inputType": {
+                          "type": "input",
+                          "inputType": "text"
+                        },
+                        "subCompartmentTypes": []
+                      },
+                      {
+                        "_id": "4fzOUFcDpABx8sdQuVsREtM9",
+                        "index": 3,
+                        "name": "Notation",
+                        "label": "Notation",
+                        "extensionPoints": [],
+                        "prefix": " {notation=",
+                        "suffix": "}",
+                        "defaultValue": null,
+                        "inputType": {
+                          "type": "input",
+                          "inputType": "text"
+                        },
+                        "subCompartmentTypes": []
+                      }
+                    ]
+                  }
+                ],
+                "label": "Values"
+              }
+            },
+			{
+              "object": {
+                "_id": "HKexIdH19AquMOyVX",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 200,
+                "noRepresentation": false,
+                "tabIndex": 7,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "HorizontalLine2",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "horizontalLine"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "s6nf8cbkxswvnvtkkltlo7pzbdhwiez8",
+                    "style": {
+                      "align": "center",
+                      "fill": "white",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 16,
+                      "fontStyle": "bold",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal",
+                      "stroke": "black",
+                      "strokeWidth": 1
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "HorizontalLine",
+                "defaultValue": " ",
+                "type": "horizontalLine"
+              }
+            },
+            {
+              "object": {
+                "_id": "lgJkgNkQ34NaUYm08",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 2000,
+                "noRepresentation": false,
+                "tabIndex": 3,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "Comment",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  "type": "textarea",
+                  "rows": 3
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "sxgduednn267bds1nfsaiyxgpkeoehmv",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": true,
+                      "fontSize": 12,
+                      "fontStyle": "italic",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Comment",
+                "prefix": "\"",
+                "suffix": "\""
+              }
+            },
+            {
+              "object": {
+                "_id": "RJNG70VrFk5IlC9bQ",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 300,
+                "noRepresentation": true,
+                "tabIndex": 4,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "ExportMode",
+                "isObjectRepresentation": false,
+				"inputType": {
+                  "type": "radio",
+                  "inputType": "text",
+                  "values": [
+                    {
+                      "input": "Individual enumeration",
+                      "value": "Individual_enumeration",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    },
+                    {
+                      "input": "SKOS vocabulary",
+                      "value": "SKOS_vocabulary",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    },
+                    {
+                      "input": "Individual enumeration + SKOS",
+                      "value": "Individual_enumeration_SKOS",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    },
+                    {
+                      "input": "Datatype enumeration (DataOneOf)",
+                      "value": "Datatype_enumeration",
+                      "elementStyle": "NoStyle",
+                      "compartmentStyle": "NoStyle"
+                    }
+                  ]
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "oo3yfh8yrcje5wozc7tfjyxnkz76r3yr",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": false,
+                      "fontSize": 12,
+                      "fontStyle": "normal",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate",
+					"procedure": "setClassifierTypeOwlgred"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Export mode",
+				"defaultValue": "Individual enumeration",
+                "prefix": null,
+                "suffix": null
+              }
+            },
+            {
+              "object": {
+                "_id": "S5YbIZApLPBftOc1N",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 400,
+                "noRepresentation": true,
+                "tabIndex": 5,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "ClosedClassifier",
+                "isObjectRepresentation": false,
+                "inputType": {
+                  
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "ksrdwdt6cyk4dmn1i3plepwmhbvmgxhb",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": false,
+                      "fontSize": 12,
+                      "fontStyle": "normal",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Closed individual enumeration (ObjectOneOf)",
+                "prefix": "{",
+                "suffix": "}"
+              }
+            },
+            {
+              "object": {
+                "_id": "4BWN999otW4jMnoVW",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "index": 500,
+                "noRepresentation": true,
+                "tabIndex": 6,
+                "dialogTabId": "9nl7Nby64lCCKv6Cu",
+                "name": "DifferentIndividuals",
+                "isObjectRepresentation": false,
+                "inputType": {
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "clyhuas57rxbmgrffp5bpjmphbm29vd2",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": false,
+                      "fontSize": 12,
+                      "fontStyle": "normal",
+                      "fontFamily": "Arial",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Different Individuals",
+                "prefix": "{",
+                "suffix": "}"
+              }
+            }    
+            ],
+          "dialog": [
+            {
+              "_id": "9nl7Nby64lCCKv6Cu",
+              "toolId": "cHSidEZPTvZRSFFtZ",
+              "versionId": "EtJZ6WzJNMpthfpC3",
+              "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+              "diagramId": "YmsfLsQHNYsgFDJab",
+              "elementTypeId": "WQ4XM57FZq4zjTPnQ",
+              "name": "Main",
+              "index": 1
             }
           ]
         },
@@ -11909,7 +12692,7 @@
             ],
             "readModeKeyStrokes": [],
             "contextMenu": [
-			  {
+              {
                 "item": "Manage Individuals",
                 "procedure": "ManageIndividualList"
               },
@@ -11969,14 +12752,14 @@
                     0
                   ],
                   "shape": "Rectangle",
-				  "imageSrc": "/icons/objectList.png"
+                  "imageSrc": "/icons/objectList.png"
                 }
               }
             ],
             "name": "ObjectList",
             "isAbstract": false,
             "targetDiagramTypeId": "Ca5nHdCHmkBgxxSgd",
-			"exportAxioms": [
+            "exportAxioms": [
               ""
             ],
             "defaultFixedSize": {
@@ -12049,7 +12832,7 @@
                     "extensionPoint": "dynamicDefaultValue",
                     "procedure": ""
                   },
-				  {
+                  {
                     "extensionPoint": "dynamicDropDown",
                     "procedure": "getClassNamesForObjectOwlgred"
                   }
@@ -12151,9 +12934,9 @@
                 "label": "AttributeList"
               }
             },
-			{
+            {
               "object": {
-               "_id": "nGRjFyviG39W7d8MX",
+                "_id": "nGRjFyviG39W7d8MX",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -12166,9 +12949,7 @@
                 "dialogTabId": "QKBEmKcuxZWwB2Gqd",
                 "name": "Individuals",
                 "isObjectRepresentation": false,
-                "inputType": {
-                 
-                },
+                "inputType": {},
                 "styles": [
                   {
                     "name": "Default",
@@ -19759,6 +20540,19 @@
           "index": 1
         },
         {
+          "_id": "cr2FV7jh9zw3NSCHwpQCTjmE",
+          "toolId": "cHSidEZPTvZRSFFtZ",
+          "versionId": "EtJZ6WzJNMpthfpC3",
+          "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+          "diagramId": "RZqspitY6nvRBmxnf",
+          "elementTypeIds": [
+            "WQ4XM57FZq4zjTPnQ"
+          ],
+          "name": "Classifier",
+          "type": "Box",
+          "index": 2
+        },
+        {
           "_id": "zwC55K3Hztqt5A2yX",
           "toolId": "cHSidEZPTvZRSFFtZ",
           "versionId": "EtJZ6WzJNMpthfpC3",
@@ -19777,7 +20571,7 @@
           ],
           "name": "Association",
           "type": "Line",
-          "index": 2
+          "index": 3
         },
         {
           "_id": "op5MDMAKr9CgBTuE5",
@@ -19792,7 +20586,7 @@
           ],
           "name": "Generalization",
           "type": "Line",
-          "index": 3
+          "index": 4
         },
         {
           "_id": "ZD6m6XSH57XgWkLu5",
@@ -19805,7 +20599,7 @@
           ],
           "name": "HorizontalFork",
           "type": "Box",
-          "index": 4
+          "index": 5
         },
         {
           "_id": "dpjzgEdoHetuFbAtk",
@@ -19818,7 +20612,7 @@
           ],
           "name": "EquivalentClasses",
           "type": "Box",
-          "index": 7
+          "index": 8
         },
         {
           "_id": "74sdQ3soFLYziA8Qu",
@@ -19831,7 +20625,7 @@
           ],
           "name": "DisjointClasses",
           "type": "Box",
-          "index": 8
+          "index": 9
         },
         {
           "_id": "zwS3dJ29mpz9op83S",
@@ -19844,7 +20638,7 @@
           ],
           "name": "EquivalentClass",
           "type": "Line",
-          "index": 10
+          "index": 11
         },
         {
           "_id": "7gucCPBWcToQeKiuu",
@@ -19857,7 +20651,7 @@
           ],
           "name": "Disjoint",
           "type": "Line",
-          "index": 11
+          "index": 12
         },
         {
           "_id": "TpufukPWohicuqkh7",
@@ -19870,7 +20664,7 @@
           ],
           "name": "ComplementOf",
           "type": "Line",
-          "index": 12
+          "index": 13
         },
         {
           "_id": "eW39ZFNt7z52p9Dia",
@@ -19883,7 +20677,7 @@
           ],
           "name": "AnnotationProperty",
           "type": "Box",
-          "index": 13
+          "index": 14
         },
         {
           "_id": "LskXnWqvSmvohuqPy",
@@ -19896,7 +20690,7 @@
           ],
           "name": "DataType",
           "type": "Box",
-          "index": 14
+          "index": 15
         },
         {
           "_id": "YuZsJR8AkgRuvE234",
@@ -19909,7 +20703,7 @@
           ],
           "name": "Annotation",
           "type": "Box",
-          "index": 16
+          "index": 17
         },
         {
           "_id": "a5TZ7jdFmgTy8hbsn",
@@ -19922,7 +20716,7 @@
           ],
           "name": "Restriction",
           "type": "Line",
-          "index": 18
+          "index": 19
         },
         {
           "_id": "BK5oyXpE7TqzDXsP8",
@@ -19935,9 +20729,9 @@
           ],
           "name": "Object",
           "type": "Box",
-          "index": 20
+          "index": 21
         },
-		{
+        {
           "_id": "A9BDQSH3SCLJboFvZ",
           "toolId": "cHSidEZPTvZRSFFtZ",
           "versionId": "EtJZ6WzJNMpthfpC3",
@@ -19948,7 +20742,7 @@
           ],
           "name": "ObjectList",
           "type": "Box",
-          "index": 21
+          "index": 22
         },
         {
           "_id": "utDzonSiE7iWoaNp4",
@@ -19961,7 +20755,7 @@
           ],
           "name": "DifferentIndivids",
           "type": "Box",
-          "index": 23
+          "index": 24
         },
         {
           "_id": "97bj4uYgpaKX4Jkka",
@@ -19974,7 +20768,7 @@
           ],
           "name": "SameAsIndivids",
           "type": "Box",
-          "index": 24
+          "index": 25
         },
         {
           "_id": "2LPwt6pGb988wBYge",
@@ -19987,7 +20781,7 @@
           ],
           "name": "DifferentIndivid",
           "type": "Line",
-          "index": 26
+          "index": 27
         },
         {
           "_id": "QJto5NQh9ESLy7EHk",
@@ -20000,7 +20794,7 @@
           ],
           "name": "SameAsIndivid",
           "type": "Line",
-          "index": 27
+          "index": 28
         },
         {
           "_id": "aiECRfRCMPJCZh8rT",
@@ -20013,7 +20807,7 @@
           ],
           "name": "ObjectProperty",
           "type": "Box",
-          "index": 36
+          "index": 37
         },
         {
           "_id": "bYnnzC9Fy5FZ5w29t",
@@ -20026,7 +20820,7 @@
           ],
           "name": "DataProperty",
           "type": "Box",
-          "index": 37
+          "index": 38
         },
         {
           "_id": "8dZn3yqZrRh9LysXS",
@@ -20039,7 +20833,7 @@
           ],
           "name": "ObjectPropertyAssertion",
           "type": "Box",
-          "index": 40
+          "index": 41
         },
         {
           "_id": "LsoK8ePdei4Wnesk9",
@@ -20052,7 +20846,7 @@
           ],
           "name": "DataPropertyAssertion",
           "type": "Box",
-          "index": 41
+          "index": 42
         },
         {
           "_id": "c36KBosHZHEFzfEZv",
@@ -22228,6 +23022,103 @@
                 },
                 "isObjectRepresentation": true,
                 "value": "Namespaces",
+                "valueLC": "box",
+                "toolId": "cHSidEZPTvZRSFFtZ"
+              }
+            }
+          ]
+        },
+        {
+          "object": {
+            "_id": "JdWopjOm1imlzSgtQ",
+            "diagramId": "YmsfLsQHNYsgFDJab",
+            "diagramTypeId": "HZTskdZm2GZqsq5Xx",
+            "elementTypeId": "CsYFMknhr2tSeeXJd",
+            "style": {
+              "elementStyle": {
+                "fill": "rgb(255,230,160)",
+                "fillPriority": "color",
+                "fillLinearGradientStartPointX": 0.5,
+                "fillLinearGradientStartPointY": 0,
+                "fillLinearGradientEndPointX": 0.5,
+                "fillLinearGradientEndPointY": 1,
+                "fillLinearGradientColorStops": [
+                  0,
+                  "white",
+                  1,
+                  "black"
+                ],
+                "fillRadialGradientStartPointX": 0.5,
+                "fillRadialGradientStartPointY": 0.5,
+                "fillRadialGradientEndPointX": 0.5,
+                "fillRadialGradientEndPointY": 0.5,
+                "fillRadialGradientStartRadius": 0,
+                "fillRadialGradientEndRadius": 1,
+                "fillRadialGradientColorStops": [
+                  0,
+                  "white",
+                  1,
+                  "black"
+                ],
+                "stroke": "#000000",
+                "strokeWidth": 1,
+                "shadowColor": "#ff0000",
+                "shadowBlur": 0,
+                "shadowOpacity": 1,
+                "shadowOffsetX": "0",
+                "shadowOffsetY": 0,
+                "tension": 0,
+                "opacity": 1,
+                "dash": [],
+                "shape": "Rectangle"
+              }
+            },
+            "styleId": "acc9bd3bb164de24f8f28dbf",
+            "type": "Box",
+            "location": {
+              "x": 187,
+              "y": 245,
+              "width": 210,
+              "height": 95
+            },
+            "toolId": "cHSidEZPTvZRSFFtZ",
+            "versionId": "EtJZ6WzJNMpthfpC3",
+            "data": {
+              "type": "NewBox",
+              "editorType": "ajooEditor",
+              "index": 6,
+              "data": {
+                "diagramTypeId": "JR8kHJ9Mohz3FAgGC",
+                "index": 7
+              }
+            }
+          },
+          "compartments": [
+            {
+              "object": {
+                "_id": "bXRwD2YfVpu8OjZkBDT3Y5ic",
+                "elementId": "JdWopjOm1imlzSgtQ",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "diagramTypeId": "HZTskdZm2GZqsq5Xx",
+                "elementTypeId": "HApagudesx4u64GWg",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "compartmentTypeId": "tnZhEeK42rDiP6Xo2",
+                "input": "Classifier",
+                "index": 1,
+                "styleId": "a7a2fe86c3c8c166e8f638f3",
+                "style": {
+                  "align": "center",
+                  "fill": "white",
+                  "padding": 0,
+                  "placement": "start-left",
+                  "visible": true,
+                  "fontSize": 15,
+                  "fontStyle": "normal",
+                  "fontFamily": "Arial",
+                  "fontVariant": "normal"
+                },
+                "isObjectRepresentation": true,
+                "value": "Classifier",
                 "valueLC": "box",
                 "toolId": "cHSidEZPTvZRSFFtZ"
               }

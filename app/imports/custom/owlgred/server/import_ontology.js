@@ -120,9 +120,126 @@ Meteor.methods({
 			console.error("No Class type");
 			return;
 		}
-
+		let classifiersList = {};
+		if(importSettings?.showAsClassifiers === true && (importSettings?.showAsClassifiersSKOS === true || importSettings?.showAsClassifiersSKOSIndividualEnumeration === true)){
+			if(ontology.classes["http://www.w3.org/2004/02/skos/core#Concept"] && ontology.classes["http://www.w3.org/2004/02/skos/core#ConceptScheme"]){
+				
+				let elemTypeC = await ElementTypes.findOneAsync({name: "Classifier", diagramTypeId: diagram_type._id});
+				if (!elemTypeC) {
+					console.error("No Classifier type");
+					return;
+				}
+				let elemStyle = elemTypeC["styles"][0];
+				let skosConceptScheme = ontology.classes["http://www.w3.org/2004/02/skos/core#ConceptScheme"];
+				let skosConceptSchemeInstances = skosConceptScheme["instances"];
+				
+				let instancesToBeRemoved = [];
+				
+				
+				for(let i = 0; i < skosConceptSchemeInstances.length; i++){
+					let object = await Create_New_OWLGrEd_Element(list, elemTypeC, diagram_type, new_diagram_id, elemStyle, false)
+					classifiersList[skosConceptSchemeInstances[i]] = object;
+					
+					let new_box_id = await Elements.insertAsync(object);
+					element_map[new_box_id] = new_box_id;
+					classifiersList[skosConceptSchemeInstances[i]]._id = new_box_id;
+					let listForCompartment = {
+						diagram_id: new_diagram_id,
+						diagram_type_id: diagram_type._id,
+						projectId: list.projectId,
+						versionId: list.versionId,
+						element_id: new_box_id,
+						element_type_id: elemTypeC._id
+					}
+					instancesToBeRemoved.push(skosConceptSchemeInstances[i]);
+					const item = ontology.classes[skosConceptSchemeInstances[i]] || ontology.classes[skosConceptSchemeInstances[i].substring(0, skosConceptSchemeInstances[i].length-13)];
+					
+					if(importSettings?.showAsClassifiersSKOSIndividualEnumeration === true && item.definitionExpression !== null && item.equivalentClasses.length === 1 && parseUnquotedListExpression(item.equivalentClasses[0][0]["value"]).length >0){
+						await add_one_compartment(listForCompartment, "Label", "<<Individual enumeration + SKOS>>", "<<Individual enumeration + SKOS>>")
+					} else await add_one_compartment(listForCompartment, "Label", "<<SKOS vocabulary>>", "<<SKOS vocabulary>>")
+					//Name
+					let clName = iriToLocalName(skosConceptSchemeInstances[i])
+					if (clName.endsWith("ConceptScheme")) {
+						clName =  clName.substring(0, clName.length-13);
+					}
+					await add_one_compartment(listForCompartment, "Name", clName, clName)
+					await setHorizontalLine(listForCompartment, "HorizontalLine1")
+					await add_one_compartment(listForCompartment, "ExportMode", "SKOS vocabulary", "SKOS vocabulary")
+					
+					let opa = ontology.objectPropertyAssertions
+					for(let o = 0; o < opa.length; o++){
+						if(opa[o]["iri"] === "http://www.w3.org/2004/02/skos/core#inScheme" && opa[o]["target"] === skosConceptSchemeInstances[i]){
+							instancesToBeRemoved.push(opa[o]["source"]);
+							await addCompartmentSubCompartments2(listForCompartment, "Values",[
+								{name:"Name",value:iriToLocalName(opa[o]["source"])},
+							])
+							
+							delete opa[o];
+						}
+						
+					}
+					
+					// removeIndividualsByInstances(ontology.individuals, item.instances);
+					// ontology = moveObjectPropertiesWithClassRangeToDataProperties(ontology);
+				}
+				removeIndividualsByInstances(ontology.individuals, instancesToBeRemoved);
+				
+			}
+			delete ontology.classes["http://www.w3.org/2004/02/skos/core#Concept"];
+			delete ontology.classes["http://www.w3.org/2004/02/skos/core#ConceptScheme"];
+			delete ontology.objectProperties["http://www.w3.org/2004/02/skos/core#inScheme"];
+		}
+	  let createClasses = true;
+	  if(createClasses){
 		for (const key of Object.keys(ontology.classes)) {
-			const item = ontology.classes[key];
+		  const item = ontology.classes[key];
+		  if(importSettings?.showAsClassifiers === true && (importSettings?.showAsClassifiersIndividualEnumeration === true || importSettings?.showAsClassifiersSKOSIndividualEnumeration === true) && item.definitionExpression !== null && item.equivalentClasses.length === 1 && parseUnquotedListExpression(item.equivalentClasses[0][0]["value"]).length >0){
+				if(item.superClasses.length === 0 && item.disjointWith.length === 0 && item.dataProperties.length === 0 && item.restrictions.length === 0 && item.keys.length === 0 && item.complementOf.length === 0){
+					
+					if(importSettings?.showAsClassifiersSKOSIndividualEnumeration === true && (classifiersList[item.iri] || classifiersList[item.iri+"ConceptScheme"])) {
+						let cl = classifiersList[item.iri] || classifiersList[item.iri+"ConceptScheme"];
+						
+						
+					} else{
+					
+						let classifValues = parseUnquotedListExpression(item.equivalentClasses[0][0]["value"]);
+						let elemTypeC = await ElementTypes.findOneAsync({name: "Classifier", diagramTypeId: diagram_type._id});
+						if (!elemTypeC) {
+							console.error("No Classifier type");
+							return;
+						}
+						let elemStyle = elemTypeC["styles"][0];
+						let object = await Create_New_OWLGrEd_Element(list, elemTypeC, diagram_type, new_diagram_id, elemStyle, false)
+						let new_box_id = await Elements.insertAsync(object);
+						element_map[new_box_id] = new_box_id;
+
+						let listForCompartment = {
+							diagram_id: new_diagram_id,
+							diagram_type_id: diagram_type._id,
+							projectId: list.projectId,
+							versionId: list.versionId,
+							element_id: new_box_id,
+							element_type_id: elemTypeC._id
+						}
+						await add_one_compartment(listForCompartment, "Label", "<<Classifier>>", "<<Classifier>>")
+						//Name
+						if(item.prefixed) await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+						await setHorizontalLine(listForCompartment, "HorizontalLine1")
+						await add_one_compartment(listForCompartment, "ExportMode", "Individual enumeration", "Individual enumeration")
+						for(let v = 0; v < classifValues.length; v++){
+							await addCompartmentSubCompartments2(listForCompartment, "Values",[
+								{name:"Name",value:classifValues[v]},
+							])
+						}
+						await setHorizontalLine(listForCompartment, "HorizontalLine2")
+						await add_one_compartment(listForCompartment, "ClosedClassifier", "true", "{closed}")
+					}
+					removeIndividualsByInstances(ontology.individuals, item.instances);
+					ontology = moveObjectPropertiesWithClassRangeToDataProperties(ontology);
+				}
+		  } else{
+			
+			
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
 				continue;
@@ -295,7 +412,9 @@ Meteor.methods({
 			    await addCompartmentSubCompartments2(listForCompartment, "Individuals", item.individuals[i])
 			  }
 			}
+		  }
 		}
+	  }
 
 		//Super Classes as boxes
 		let superClasses = ontology.superClasses;
@@ -1015,7 +1134,7 @@ Meteor.methods({
 			console.error("No ObjectList type");
 			return;
 		}
-		console.log("ontology.individualList", ontology.individualList)
+
 		for (const key of Object.keys(ontology.individualList)) {
 			
 			//console.log("IIIIIIIII", key, ontology.classes[key], ontology.individualList[key])
@@ -1209,45 +1328,80 @@ Meteor.methods({
 
 		for (const key of Object.keys(ontology.dataTypes)) {
 			const item = ontology.dataTypes[key];
+			
 			if (element_map[key]) {
 				console.error("Key already exists", key, element_map);
 				continue;
 			}
+			let classifValues = parseQuotedListExpression(item.definitionExpression);
+			if(importSettings?.showAsClassifiers === true && importSettings?.showAsClassifiersDataTypes === true && item.definitionExpression !== null && classifValues.length> 0) {
+				elemType = await ElementTypes.findOneAsync({name: "Classifier", diagramTypeId: diagram_type._id});
+				if (!elemType) {
+					console.error("No Classifier type");
+					return;
+				}
+				let elemStyle = elemType["styles"][0];
+				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
+				let new_box_id = await Elements.insertAsync(object);
+				element_map[new_box_id] = new_box_id;
 
-            let elemStyle = elemType["styles"][0];
-			let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
+				let listForCompartment = {
+					diagram_id: new_diagram_id,
+					diagram_type_id: diagram_type._id,
+					projectId: list.projectId,
+					versionId: list.versionId,
+					element_id: new_box_id,
+					element_type_id: elemType._id
+				}
+				await add_one_compartment(listForCompartment, "Label", "<<Datatype classifier>>", "<<Datatype classifier>>")
+				//Name
+				if(item.prefixed) await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+				await setHorizontalLine(listForCompartment, "HorizontalLine1")
+				await add_one_compartment(listForCompartment, "ExportMode", "Datatype enumeration (DataOneOf)", "Datatype enumeration (DataOneOf)")
+				for(let v = 0; v < classifValues.length; v++){
+					await addCompartmentSubCompartments2(listForCompartment, "Values",[
+						{name:"Name",value:classifValues[v]},
+					])
+				}
+				// await setHorizontalLine(listForCompartment, "HorizontalLine2")
+			} else{
 
-			let new_box_id = await Elements.insertAsync(object);
-			element_map[new_box_id] = new_box_id;
+				let elemStyle = elemType["styles"][0];
+				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
 
-			let listForCompartment = {
-				diagram_id: new_diagram_id,
-				diagram_type_id: diagram_type._id,
-				projectId: list.projectId,
-				versionId: list.versionId,
-				element_id: new_box_id,
-				element_type_id: elemType._id
-			}
-			await add_one_compartment(listForCompartment, "Label", "<<DataType>>", "<<DataType>>")
-			//Name
-			if(item.prefixed) await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
-			
-			// DataTypeDefinition
-			if(item.base !== null) await add_one_compartment(listForCompartment, "DataTypeDefinition", getDatatypeLocalName(item.base), getDatatypeLocalName(item.base))
+				let new_box_id = await Elements.insertAsync(object);
+				element_map[new_box_id] = new_box_id;
 
-			// Annotation
-			for(let an = 0; an < item.annotations.length; an++){
-				  let annotation = item.annotations[an];
-				  let annotationType = getBuiltInAnnotationShortName(annotation.p, ontology.annotationProperties);
-				  let value = annotation.v;
-				  let language = annotation.lang || "";
-				  if(value !== null && annotationType !== null){
-					await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
-						  {name:"AnnotationType",value:annotationType},
-						  {name:"Value",value:value},
-						  {name:"Language",value:language},
-						])
-				  }
+				let listForCompartment = {
+					diagram_id: new_diagram_id,
+					diagram_type_id: diagram_type._id,
+					projectId: list.projectId,
+					versionId: list.versionId,
+					element_id: new_box_id,
+					element_type_id: elemType._id
+				}
+				await add_one_compartment(listForCompartment, "Label", "<<DataType>>", "<<DataType>>")
+				//Name
+				if(item.prefixed) await add_one_compartment(listForCompartment, "Name", item.prefixed, item.prefixed)
+				
+				// DataTypeDefinition
+				if(item.base !== null) await add_one_compartment(listForCompartment, "DataTypeDefinition", getDatatypeLocalName(item.base), getDatatypeLocalName(item.base))
+				if(item.definitionExpression !== null) await add_one_compartment(listForCompartment, "DataTypeDefinition", item.definitionExpression, item.definitionExpression)
+
+				// Annotation
+				for(let an = 0; an < item.annotations.length; an++){
+					  let annotation = item.annotations[an];
+					  let annotationType = getBuiltInAnnotationShortName(annotation.p, ontology.annotationProperties);
+					  let value = annotation.v;
+					  let language = annotation.lang || "";
+					  if(value !== null && annotationType !== null){
+						await addCompartmentSubCompartments2(listForCompartment, "Annotation",[
+							  {name:"AnnotationType",value:annotationType},
+							  {name:"Value",value:value},
+							  {name:"Language",value:language},
+							])
+					  }
+				}
 			}
 		}
 
@@ -2093,4 +2247,153 @@ function transformProperties(data, prefixes) {
       return defaultPrefix + localName;
     })
     .filter(Boolean);
+}
+
+function parseQuotedListExpression(expr) {
+  if (typeof expr !== "string") return [];
+
+  const result = [];
+  const re = /"((?:\\.|[^"\\])*)"/g;
+
+  let match;
+  while ((match = re.exec(expr)) !== null) {
+    result.push(
+      match[1]
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, "\\")
+    );
+  }
+
+  return result;
+}
+
+// For strings like:
+// ( Male, Female )
+// ({ Male, Female })
+// { Male, Female }
+// ( Male Female )
+function parseUnquotedListExpression(expr) {
+  if (typeof expr !== "string") return [];
+
+  let text = expr.trim();
+
+  // Remove surrounding ({ ... }) form
+  if (text.startsWith("({") && text.endsWith("})")) {
+    text = text.slice(2, -2).trim();
+  }
+  // Remove surrounding { ... } form
+  else if (text.startsWith("{") && text.endsWith("}")) {
+    text = text.slice(1, -1).trim();
+  }
+  // Remove surrounding ( ... ) form
+  else if (text.startsWith("(") && text.endsWith(")")) {
+    text = text.slice(1, -1).trim();
+  }
+
+  return text
+    .split(/[,\s]+/)
+    .map(x => x.trim())
+    .filter(Boolean);
+}
+
+function removeIndividualsByInstances(individuals, instances) {
+  if (!individuals || typeof individuals !== "object") return individuals;
+  if (!Array.isArray(instances)) return individuals;
+
+  for (const iri of instances) {
+    delete individuals[iri];
+  }
+
+  return individuals;
+}
+
+function moveObjectPropertiesWithClassRangeToDataProperties(ontology) {
+  if (!ontology?.classes || !ontology?.objectProperties) return ontology;
+
+  for (const [propIri, prop] of Object.entries(ontology.objectProperties)) {
+    const domainIri = prop.domain?.[0];
+    const rangeIri = prop.range?.[0];
+
+    if (!domainIri || !rangeIri) continue;
+
+    const rangeClass = ontology.classes[rangeIri];
+    const domainClass = ontology.classes[domainIri];
+
+    // Move only if the object property range is a class in ontology.classes
+    if (!rangeClass || !domainClass) continue;
+
+    const dataPropertyRow = [
+      {
+        name: "Name",
+        value: prop.prefixed || iriToLocalName(prop.iri)
+      },
+      {
+        name: "Type",
+        value: rangeClass.prefixed || iriToLocalName(rangeIri)
+      },
+      {
+        name: "Multiplicity",
+        value: ""
+      },
+      {
+        name: "Annotation",
+        input: "",
+        value: JSON.stringify(prop.annotations || [])
+      },
+      {
+        name: "IsFunctional",
+        value: String(!!prop.characteristics?.FunctionalProperty)
+      },
+      {
+        name: "EquivalentProperties",
+        input: "",
+        value: JSON.stringify(prop.equivalentProperties || [])
+      },
+      {
+        name: "SuperProperties",
+        input: "",
+        value: JSON.stringify(prop.superProperties || [])
+      },
+      {
+        name: "DisjointProperties",
+        input: "",
+        value: JSON.stringify(prop.disjointProperties || [])
+      }
+    ];
+
+    domainClass.dataProperties ||= [];
+
+    const alreadyExists = domainClass.dataProperties.some(row =>
+      Array.isArray(row) &&
+      row.some(c => c.name === "Name" && c.value === dataPropertyRow[0].value)
+    );
+
+    if (!alreadyExists) {
+      domainClass.dataProperties.push(dataPropertyRow);
+    }
+
+    // Remove the property from domain class objectProperties
+    domainClass.objectProperties = (domainClass.objectProperties || [])
+      .filter(x => x !== propIri);
+
+    // Remove the property from range class objectProperties
+    rangeClass.objectProperties = (rangeClass.objectProperties || [])
+      .filter(x => x !== propIri);
+
+    // Remove from ontology.objectProperties
+    delete ontology.objectProperties[propIri];
+  }
+
+  return ontology;
+}
+
+function iriToLocalName(iri) {
+  if (!iri || typeof iri !== "string") return iri;
+  const hashIndex = iri.lastIndexOf("#");
+  if (hashIndex !== -1) return iri.slice(hashIndex + 1);
+
+  const slashIndex = iri.lastIndexOf("/");
+  if (slashIndex !== -1) return iri.slice(slashIndex + 1);
+
+  return iri;
 }

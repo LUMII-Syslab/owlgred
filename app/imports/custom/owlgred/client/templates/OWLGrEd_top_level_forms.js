@@ -180,7 +180,12 @@ Template.OWLGRED_createProjectModal.events({
 				"showIndividualsObjectPropertyAssertions": true,
 				"showIndividualsDataPropertyAssertions": true,
 				"showIndividualsNegativeObjectPropertyAssertions": true,
-				"showIndividualsNegativeDataPropertyAssertions": true
+				"showIndividualsNegativeDataPropertyAssertions": true,
+				"showAsClassifiers": false,
+				"showAsClassifiersDataTypes": false,
+				"showAsClassifiersIndividualEnumeration": false,
+				"showAsClassifiersSKOS": false,
+				"showAsClassifiersSKOSIndividualEnumeration": false
 			}
 			list.OWLGrEdimportParameters = JSON.stringify(OWLGrEdimportParameters, null, 2);
 			await Utilities.callMeteorMethodAsync("insertProject", list);
