@@ -64,6 +64,7 @@ import "/imports/custom/owlgred/server/OWLGrEdontologyParams";
 import "/imports/custom/owlgred/server/OWLGrEdImportOntologyRDFlib";
 import "/imports/custom/owlgred/server/parseOwl";
 import "/imports/custom/owlgred/server/parseOwlImportOwlgred";
+import "/imports/custom/owlgred/server/parseShacl";
 
 // libs custom
 import "/imports/db/custom/vq/collections";
