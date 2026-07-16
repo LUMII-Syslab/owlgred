@@ -90,6 +90,18 @@
 		cursor: pointer;
 	}
 	
+	.individuals-visible-count {
+	    padding-left: 0 !important;
+		font-size: 15px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	#individuals-visible-count-input {
+		width: 30px;
+	}
+	
 </style>
 
     <div id="manage-individuals-form" class="modal fade" data-backdrop="static" data-keyboard="false">
@@ -110,6 +122,16 @@
 									checked="{{isOneOfChecked}}"
 								>
 								Only these declared individuals belong to the class (owl:oneOf)
+							</label>
+						</div>
+						<div class="checkbox" style="margin-top:0; margin-bottom:12px;">
+							<label class="individuals-visible-count">
+								<input
+									id="individuals-visible-count-input"
+									type="input"
+									value= {{intanceCount}}
+								>
+								Visible individual count in the element node
 							</label>
 						</div>
 						<div class="form-group" style="margin-bottom:12px;">

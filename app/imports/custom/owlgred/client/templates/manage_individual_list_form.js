@@ -13,6 +13,7 @@ Template.ManageIndividualList.tableRows = new ReactiveVar([]);
 Template.ManageIndividualList.deletedRowIds = new ReactiveVar([]);
 Template.ManageIndividualList.isOneOf = new ReactiveVar(false);
 Template.ManageIndividualList.displayAttributeId = new ReactiveVar("");
+Template.ManageIndividuals.individualCount = new ReactiveVar("");
 
 function getCellValue2(col, valueById, valueByName) {
 	// 1. Normal case: column id and individual item id are equal
@@ -406,10 +407,6 @@ Interpreter.customMethods({
 
 		const { columns, rows } = buildIndividualsTable(individuals, attributes, objectProperties);
 		
-		console.log("IIII", individuals)
-		console.log("CCCC", columns)
-		console.log("RRRR", rows)
-
 		Template.ManageIndividualList.tableColumns.set(columns);
 		Template.ManageIndividualList.tableRows.set(rows);
 		Template.ManageIndividualList.deletedRowIds.set([]);
@@ -417,6 +414,9 @@ Interpreter.customMethods({
 		Template.ManageIndividualList.isOneOf.set(isOneOf);
 		const displayAttributeId = await elemOWLGrEd.getCompartmentValue("IndividualLabel");
 		Template.ManageIndividualList.displayAttributeId.set(displayAttributeId);
+		
+		const individualCount = await elemOWLGrEd.getCompartmentValue("VisibleIndividualCount");
+		Template.ManageIndividuals.individualCount.set(individualCount);
 
 		$("#manage-individual-list-form").modal("show");
 	}
@@ -431,6 +431,9 @@ Template.ManageIndividualList.helpers({
 	},
 	isOneOfChecked() {
 		return Template.ManageIndividualList.isOneOf.get();
+	},
+	intanceCount() {
+		return Template.ManageIndividuals.individualCount.get();
 	},
 	displayColumns() {
 		const columns = Template.ManageIndividualList.tableColumns.get() || [];
@@ -469,6 +472,10 @@ Template.ManageIndividualList.events({
 	
 	"change #individual-list-display-attribute"(e) {
 		Template.ManageIndividualList.displayAttributeId.set(e.currentTarget.value || "");
+	},
+	
+	"input #individual-list-visible-count-input"(e) {
+		Template.ManageIndividuals.individualCount.set(e.currentTarget.value || "");
 	},
 	
 	"input .individual-cell"(e) {
@@ -527,7 +534,7 @@ Template.ManageIndividualList.events({
 		const deletedRowIds = Template.ManageIndividualList.deletedRowIds.get() || [];
 		const isOneOf = Template.ManageIndividualList.isOneOf.get();
 		const displayAttributeId = Template.ManageIndividualList.displayAttributeId.get() || "";
-		
+		const individualCount = Template.ManageIndividuals.individualCount.get() || null;
 
 		const selectedElemId = Session.get("activeElement");
 		const actEl = await Elements.findOneAsync({ _id: selectedElemId });
@@ -540,6 +547,7 @@ Template.ManageIndividualList.events({
 		});
 		
 		if(isOneOf) await owlgredObj.setCompartmentValueAuto("OneOf", isOneOf.toString());
+		if(individualCount) await owlgredObj.setCompartmentValueAuto("VisibleIndividualCount", individualCount);
 		await owlgredObj.setCompartmentValue("IndividualLabel", displayAttributeId, "")
 
 		// delete removed existing rows
@@ -557,17 +565,26 @@ Template.ManageIndividualList.events({
 		// const visibleValuesByRowId = buildIndividualDisplayTable(rows, columns, displayAttributeId);
 		
 		const visibleValuesByRowId = buildIndividualDisplayTableValues(rows, columns);
-		console.log("RRRRRRRRRR", rows, columns, visibleValuesByRowId)
+		
+		
+		const count = Number(individualCount);
+		const visibleRowCount =
+			Number.isFinite(count) && count > 0
+				? Math.min(Math.floor(count), rows.length)
+				: rows.length;
+		
 		// add/update current rows
-		for (const row of rows) {
+		for (const [index, row] of rows.entries()) {
 			const attributeValues = buildAssertionValuesFromRow(row, columns);
 			const iriObj = attributeValues.find(x => x.id === "IRI");
 			const iri = iriObj ? iriObj.value : "";
-			console.log("attributeValues", attributeValues)
+
 			if (!iri) continue;
 			
-			
-			const visibleValue = visibleValuesByRowId[row.rowId];
+			const visibleValue =
+				index < visibleRowCount
+					? visibleValuesByRowId[row.rowId]
+					: "";
 
 			if (row.isNew) {	
 				await owlgredObj.addCompartmentSubCompartments2("Individuals", [

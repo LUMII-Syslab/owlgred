@@ -166,6 +166,7 @@ Template.OWLGRED_createProjectModal.events({
 				"showSameIndividualsType_text": false,
 				"showSameIndividualsType_graph": true,
 				"showSameIndividualsGraphicsGroupAsBoxes": true,
+				"individualCountInList": 20,
 				"showDifferentIndividuals": true,
 				"showDifferentIndividualsType_text": false,
 				"showDifferentIndividualsType_graph": true,

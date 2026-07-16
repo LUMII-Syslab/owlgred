@@ -13,6 +13,7 @@ Template.ManageIndividuals.tableRows = new ReactiveVar([]);
 Template.ManageIndividuals.deletedRowIds = new ReactiveVar([]);
 Template.ManageIndividuals.isOneOf = new ReactiveVar(false);
 Template.ManageIndividuals.displayAttributeId = new ReactiveVar("");
+Template.ManageIndividuals.individualCount = new ReactiveVar("");
 
 function buildIndividualsTable(individuals, attributes, objectProperties = []) {
 	const columns = [
@@ -172,6 +173,9 @@ Interpreter.customMethods({
 		Template.ManageIndividuals.isOneOf.set(isOneOf);
 		const displayAttributeId = await elemOWLGrEd.getCompartmentValue("IndividualLabel");
 		Template.ManageIndividuals.displayAttributeId.set(displayAttributeId);
+		
+		const individualCount = await elemOWLGrEd.getCompartmentValue("VisibleIndividualCount");
+		Template.ManageIndividuals.individualCount.set(individualCount);
 
 		$("#manage-individuals-form").modal("show");
 	}
@@ -186,6 +190,9 @@ Template.ManageIndividuals.helpers({
 	},
 	isOneOfChecked() {
 		return Template.ManageIndividuals.isOneOf.get();
+	},
+	intanceCount() {
+		return Template.ManageIndividuals.individualCount.get();
 	},
 	displayColumns() {
 		const columns = Template.ManageIndividuals.tableColumns.get() || [];
@@ -224,6 +231,10 @@ Template.ManageIndividuals.events({
 	
 	"change #individuals-display-attribute"(e) {
 		Template.ManageIndividuals.displayAttributeId.set(e.currentTarget.value || "");
+	},
+	
+	"input #individuals-visible-count-input"(e) {
+		Template.ManageIndividuals.individualCount.set(e.currentTarget.value || "");
 	},
 	
 	"input .individual-cell"(e) {
@@ -282,8 +293,8 @@ Template.ManageIndividuals.events({
 		const deletedRowIds = Template.ManageIndividuals.deletedRowIds.get() || [];
 		const isOneOf = Template.ManageIndividuals.isOneOf.get();
 		const displayAttributeId = Template.ManageIndividuals.displayAttributeId.get() || "";
+		const individualCount = Template.ManageIndividuals.individualCount.get() || null;
 		
-
 		const selectedElemId = Session.get("activeElement");
 		const actEl = await Elements.findOneAsync({ _id: selectedElemId });
 		if (!actEl) return;
@@ -295,6 +306,7 @@ Template.ManageIndividuals.events({
 		});
 		
 		if(isOneOf) await owlgredObj.setCompartmentValueAuto("OneOf", isOneOf.toString());
+		if(individualCount) await owlgredObj.setCompartmentValueAuto("VisibleIndividualCount", individualCount);
 		await owlgredObj.setCompartmentValue("IndividualLabel", displayAttributeId, "")
 
 		// delete removed existing rows
@@ -308,20 +320,31 @@ Template.ManageIndividuals.events({
 		   await Utilities.callMeteorMethodAsync("removeCompartment", list);
 			
 		}
-
+		
 		// add/update current rows
-		for (const row of rows) {
+		const count = Number(individualCount);
+		const visibleRowCount =
+			Number.isFinite(count) && count > 0
+				? Math.min(Math.floor(count), rows.length)
+				: rows.length;
+
+		for (const [index, row] of rows.entries()) {
 			const attributeValues = buildAssertionValuesFromRow(row, columns);
 			const iriObj = attributeValues.find(x => x.id === "IRI");
 			const iri = iriObj ? iriObj.value : "";
-			
+
 			if (!iri) continue;
-			
-			
-			const visibleValue = buildIndividualDisplayValue(row, columns, displayAttributeId);
+
+			const visibleValue =
+				index < visibleRowCount
+					? buildIndividualDisplayValue(
+						row,
+						columns,
+						displayAttributeId
+					)
+					: "";
 
 			if (row.isNew) {
-				
 				await owlgredObj.addCompartmentSubCompartments2("Individuals", [
 					{
 						name: "Individual",
@@ -329,11 +352,7 @@ Template.ManageIndividuals.events({
 						value: JSON.stringify(attributeValues)
 					}
 				]);
-				
-				
-				
-			}
-			else {
+			} else {
 				const compart = await Compartments.findOneAsync({
 					_id: row.rowId,
 					compartmentTypeId: compartType._id,
@@ -341,7 +360,7 @@ Template.ManageIndividuals.events({
 				});
 
 				if (typeof compart !== "undefined") {
-					let subCompartments = compart.subCompartments || {};
+					const subCompartments = compart.subCompartments || {};
 
 					if (
 						subCompartments.Individuals &&
@@ -349,10 +368,19 @@ Template.ManageIndividuals.events({
 						subCompartments.Individuals.Individuals.Individual
 					) {
 						subCompartments.Individuals.Individuals.Individual.input = JSON.stringify(attributeValues);
-						subCompartments.Individuals.Individuals.Individual.value = iri;
+
+						subCompartments
+							.Individuals
+							.Individuals
+							.Individual
+							.value = iri;
 					}
 
-					let value = Dialog.buildCompartmentValue(compartType, iri, "\u25C7 " + visibleValue);
+					const value = Dialog.buildCompartmentValue(
+						compartType,
+						iri,
+					visibleValue ? `\u25C7 ${visibleValue}` : ""
+					);
 
 					Dialog.updateCompartmentValue(
 						compartType,
@@ -367,6 +395,9 @@ Template.ManageIndividuals.events({
 				}
 			}
 		}
+		
+		
+		
 		
 		const oneOfIndividualIris = rows
 			.map(row => {

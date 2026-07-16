@@ -1810,6 +1810,70 @@
                 "label": "IndividualLabel"
               }
             },
+			{
+              "object": {
+                "_id": "5ThCQE7U6rEZxjr5Y",
+                "toolId": "cHSidEZPTvZRSFFtZ",
+                "versionId": "EtJZ6WzJNMpthfpC3",
+                "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
+                "diagramId": "YmsfLsQHNYsgFDJab",
+                "elementTypeId": "fCNoA6sqGLdTB2Dmg",
+                "elementId": "xQtWJgZ7CDTazoQjt",
+                "index": 2098,
+                "noRepresentation": false,
+                "tabIndex": 2198,
+                "dialogTabId": "eLy7pfE4GnHAPeeFq",
+                "name": "VisibleIndividualCount",
+                "isObjectRepresentation": false,
+                "inputType": {
+                    "type": "input",
+                    "inputType": "text"
+                },
+                "styles": [
+                  {
+                    "name": "Default",
+                    "id": "5a056f8f20b07d71dcce3de5",
+                    "style": {
+                      "align": "left",
+                      "fill": "#000000",
+                      "padding": 0,
+                      "placement": "start-left",
+                      "visible": false,
+                      "fontSize": 12,
+                      "fontStyle": "bold",
+                      "fontFamily": "Courier New",
+                      "fontVariant": "normal"
+                    }
+                  }
+                ],
+                "extensionPoints": [
+                  {
+                    "extensionPoint": "beforeUpdate"
+                  },
+                  {
+                    "extensionPoint": "update",
+                    "procedure": "UpdateCompartment"
+                  },
+                  {
+                    "extensionPoint": "afterUpdate"
+                  },
+                  {
+                    "extensionPoint": "dynamicPrefix"
+                  },
+                  {
+                    "extensionPoint": "dynamicSuffix"
+                  },
+                  {
+                    "extensionPoint": "dynamicDefaultValue"
+                  },
+                  {
+                    "extensionPoint": "dynamicDropDown"
+                  }
+                ],
+                "subCompartmentTypes": [],
+                "label": "Visible individual count"
+              }
+            },
             {
               "object": {
                 "_id": "5ThCQE7U6rEZxjDwR",
@@ -12841,9 +12905,9 @@
                 "label": "Class"
               }
             },
-            {
+			{
               "object": {
-                "_id": "MeMTtaBxZsKgjAbWZ",
+                "_id": "5ThCQE7U6rEZxgO3a",
                 "toolId": "cHSidEZPTvZRSFFtZ",
                 "versionId": "EtJZ6WzJNMpthfpC3",
                 "diagramTypeId": "Ca5nHdCHmkBgxxSgd",
@@ -12854,86 +12918,57 @@
                 "noRepresentation": false,
                 "tabIndex": 2,
                 "dialogTabId": "QKBEmKcuxZWwB2Gqd",
-                "name": "AttributeList",
-                "description": "",
-                "prefix": "",
-                "suffix": "",
-                "defaultValue": "",
+                "name": "VisibleIndividualCount",
                 "isObjectRepresentation": false,
                 "inputType": {
-                  "type": "selection",
-                  "values": [
-                    {
-                      "input": "attr1attr1",
-                      "value": "attr1",
-                      "elementStyle": "NoStyle",
-                      "compartmentStyle": "NoStyle"
-                    },
-                    {
-                      "input": "attr2",
-                      "value": "attr2",
-                      "elementStyle": "NoStyle",
-                      "compartmentStyle": "NoStyle"
-                    },
-                    {
-                      "input": "attr3attr3",
-                      "value": "attr3",
-                      "elementStyle": "NoStyle",
-                      "compartmentStyle": "NoStyle"
-                    }
-                  ]
+                    "type": "input",
+                    "inputType": "text"
                 },
                 "styles": [
                   {
                     "name": "Default",
-                    "id": "16387cf28ed4e67a9c7b43b2",
+                    "id": "5a056f8f20b07d71dcce3d85",
                     "style": {
                       "align": "left",
-                      "fill": "black",
+                      "fill": "#000000",
                       "padding": 0,
                       "placement": "start-left",
-                      "visible": true,
-                      "fontSize": 14,
-                      "fontStyle": "normal",
-                      "fontFamily": "Arial",
+                      "visible": false,
+                      "fontSize": 12,
+                      "fontStyle": "bold",
+                      "fontFamily": "Courier New",
                       "fontVariant": "normal"
                     }
                   }
                 ],
                 "extensionPoints": [
                   {
-                    "extensionPoint": "beforeUpdate",
-                    "procedure": ""
+                    "extensionPoint": "beforeUpdate"
                   },
                   {
                     "extensionPoint": "update",
                     "procedure": "UpdateCompartment"
                   },
                   {
-                    "extensionPoint": "afterUpdate",
-                    "procedure": ""
+                    "extensionPoint": "afterUpdate"
                   },
                   {
-                    "extensionPoint": "dynamicPrefix",
-                    "procedure": ""
+                    "extensionPoint": "dynamicPrefix"
                   },
                   {
-                    "extensionPoint": "dynamicSuffix",
-                    "procedure": ""
+                    "extensionPoint": "dynamicSuffix"
                   },
                   {
-                    "extensionPoint": "dynamicDefaultValue",
-                    "procedure": ""
+                    "extensionPoint": "dynamicDefaultValue"
                   },
                   {
-                    "extensionPoint": "dynamicDropDown",
-                    "procedure": ""
+                    "extensionPoint": "dynamicDropDown"
                   }
                 ],
-                "type": "text",
-                "label": "AttributeList"
+                "subCompartmentTypes": [],
+                "label": "Visible individual count"
               }
-            },
+            },  
             {
               "object": {
                 "_id": "nGRjFyviG39W7d8MX",
@@ -15756,7 +15791,7 @@
                 "dialogTabId": "WAKzjAJbhjgmtcSvT",
                 "name": "PropertyChains",
                 "description": "",
-                "prefix": "\u27a4 ",
+                "prefix": "\u2287 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -15810,7 +15845,7 @@
                     "_id": "2eudnaty3ckgqymqhvkzyfrt",
                     "name": "PropertyChains",
                     "extensionPoints": [],
-                    "prefix": "\u27a4 ",
+                    "prefix": "\u2287 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [
@@ -15879,7 +15914,7 @@
                 "dialogTabId": "FPAAkjYTxawuKognq",
                 "name": "PropertyChainsInv",
                 "description": "",
-                "prefix": "\u27a4 ",
+                "prefix": "\u2287 ",
                 "suffix": null,
                 "defaultValue": "",
                 "isObjectRepresentation": false,
@@ -15933,7 +15968,7 @@
                     "_id": "2eudnaty3ckgqymqhvkzy1g5",
                     "name": "PropertyChainsInv",
                     "extensionPoints": [],
-                    "prefix": "\u27a4 ",
+                    "prefix": "\u2287 ",
                     "suffix": null,
                     "defaultValue": null,
                     "subCompartmentTypes": [

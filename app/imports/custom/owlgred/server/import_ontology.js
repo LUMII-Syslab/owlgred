@@ -408,8 +408,24 @@ Meteor.methods({
 			
 			// Individuals
 			if(item.individuals){
+			  let individualCount = importSettings?.individualCountInList || 100000;
 			  for(let i = 0; i < item.individuals.length; i++){
-			    await addCompartmentSubCompartments2(listForCompartment, "Individuals", item.individuals[i])
+				  
+				let line =
+						i < individualCount
+						? item.individuals[i][0].input
+						: "";
+					
+				await addCompartmentSubCompartments2(listForCompartment, "Individuals", [
+							{
+								name: "Individual",
+								input: line,
+								value: item.individuals[i][0].value
+							}
+						]);  
+				  
+				  
+			    // await addCompartmentSubCompartments2(listForCompartment, "Individuals", item.individuals[i])
 			  }
 			}
 		  }
@@ -1134,6 +1150,8 @@ Meteor.methods({
 			console.error("No ObjectList type");
 			return;
 		}
+		
+		let individualCount = importSettings?.individualCountInList || 100000;
 
 		for (const key of Object.keys(ontology.individualList)) {
 			
@@ -1178,7 +1196,12 @@ Meteor.methods({
 				const visibleValuesByRowId = makeTextTable(columns, rows);
 
 				for(let r = 0; r < rows.length; r++){
-					let line = visibleValuesByRowId[r+2];
+
+					let line =
+					r < individualCount
+					? visibleValuesByRowId[r+2]
+					: "";
+					
 					if(r==0) line = visibleValuesByRowId[0]+"\n"+visibleValuesByRowId[1]+"\n"+line;
 					await addCompartmentSubCompartments2(listForCompartment, "Individuals", [
 							{
