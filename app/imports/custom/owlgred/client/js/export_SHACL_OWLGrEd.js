@@ -699,7 +699,73 @@ async function saveOntologyInSHACLFormatOwlgred(){
 					
 				} else if(elem_type[elemType]["name"] === "Object"){
 					
-					const className = await elemOWLGrEd.getCompartmentValue("Name");
+					const instanceName = await elemOWLGrEd.getCompartmentValue("Name");
+					const className = await elemOWLGrEd.getCompartmentValue("ClassName");
+					
+					let instanceShapeName = instanceName+"_shape";
+					let instanceShapeNameFull = "http://www.w3.org/ns/shacl_local#"+instanceShapeName;
+						
+						
+					ontology.SHACL.NodeShape[instanceShapeNameFull] = {
+							name: instanceName,
+							IRI: instanceShapeNameFull,
+							Instance: {
+								IRI : await getFullName(instanceName)
+							},
+					};
+						
+					if(className && className !== ""){
+						ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["onClass"] = await getFullName(className);
+					}
+						
+					const DataPropertyAssertion = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("DataPropertyAssertion");
+					if(DataPropertyAssertion){
+					  ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"] = [];
+					  for(let axiom = 0; axiom < DataPropertyAssertion.length; axiom++){
+						
+						ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"].push(
+						{
+							path: await getFullName(DataPropertyAssertion[axiom]["Property"]),
+							hasValue: DataPropertyAssertion[axiom]["Value"],
+							type: await getTypeExpression((DataPropertyAssertion[axiom]["Type"] || ""), ontology)
+						})
+					  }
+					}
+					
+					
+
+					//Annotations
+					const annotations = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Annotation",  [{title:"AnnotationType",name:"AnnotationType"},
+					{title:"Value",name:"Value"},
+					{title:"Language",name:"Language"}]);
+
+					if(annotations){
+						ontology.SHACL.NodeShape[instanceShapeNameFull].annotations = [];
+						for(let axiom = 0; axiom < annotations.length; axiom++){
+							const annotationType = await getAnnotationPropertyNameSHACL(annotations[axiom]["AnnotationType"]);
+							ontology.SHACL.NodeShape[instanceShapeNameFull].annotations.push({
+									"annotationType": annotationType,
+									"value": annotations[axiom]["Value"],
+									"language":annotations[axiom]["Language"]
+							})
+						}
+						
+					}	
+					
+					//Comment
+					let comment = await elemOWLGrEd.getCompartmentValue("Comment");
+					if(comment && comment !==""){
+						if(!ontology.SHACL.NodeShape[instanceShapeNameFull].annotations) ontology.SHACL.NodeShape[instanceShapeNameFull].annotations = [];
+						const annotationType = await getAnnotationPropertyNameSHACL("comment");
+						ontology.SHACL.NodeShape[instanceShapeNameFull].annotations.push({
+							"annotationType": annotationType,
+							"value": comment,
+							"language":""
+						})
+					}
+
+					/*
+					
 					ontologyObject = createExportStructureElement(ontology, "NamedIndividual", className);
 					// DataPropertyAssertion
 					const DataPropertyAssertion = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("DataPropertyAssertion");
@@ -747,7 +813,7 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						annotationObject.axiom.push({value: annotations[axiom]["Value"]})
 						annotationObject.axiom.push({language: annotations[axiom]["Language"]})
 						ontologyObject.push(annotationObject);
-					}
+					}*/
 				} else if(elem_type[elemType]["name"] === "ObjectPropertyAssertion"){
 					let clazzS = await getElementsFromPath(["end", "start"], elemOWLGrEd);
 					let clazzO = await getElementsFromPath(["start", "end"], elemOWLGrEd);
@@ -1273,6 +1339,7 @@ async function saveOntologyInSHACLFormatOwlgred(){
 
 					const supClass = await getElementsFromPath(["start", "end"], elemOWLGrEd);
 					let className = await supClass.getCompartmentValue("Name");
+					
 					subClasses = subClasses.filter(item => item.obj._id !== supClass.obj._id);
 					
 					if(!className){
@@ -1282,7 +1349,6 @@ async function saveOntologyInSHACLFormatOwlgred(){
 
 					if(disjoint || complete){
 
-						ontologyObject = createExportStructureElement(ontology, "Class", className);
 						if(subClasses.length > 1){
 							if(disjoint === "true"){
 								
@@ -1304,7 +1370,17 @@ async function saveOntologyInSHACLFormatOwlgred(){
 
 							}
 							if(complete === "true"){
-								
+								let shape = await supClass.getCompartmentValue("Shape");
+								let superShapeName = shape || className+"_shape";
+								let superShapeNameFull = "http://www.w3.org/ns/shacl_local#"+superShapeName;
+								ontology.SHACL.NodeShape[superShapeNameFull].or = []
+								for(let d = 0; d < subClasses.length; d++){
+									let disName = await subClasses[d].getCompartmentValue("Name");
+									let shape = await subClasses[d].getCompartmentValue("Shape");
+									let shapeName = shape || disName+"_shape";
+									let shapeNameFull = "http://www.w3.org/ns/shacl_local#"+shapeName;
+									ontology.SHACL.NodeShape[superShapeNameFull].or.push(await getFullName(disName))
+								}
 							}
 						}
 					}
@@ -1497,7 +1573,7 @@ async function saveOntologyInSHACLFormatOwlgred(){
 		}
 	}
 
-	// console.log("OOOOOOOOOOOOOOO", ontology);
+	console.log("OOOOOOOOOOOOOOO", ontology);
 	return ontology;
  }
 

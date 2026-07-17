@@ -120,7 +120,52 @@ Meteor.methods({
 			// OWL class declaration
 			addTriple(owlClass.IRI, ns.rdf('type').uri, ns.owl('Class').uri);
 			//sh:targetClass
-			addTriple(shape.IRI, ns.sh('targetClass').uri, owlClass.IRI)
+			addTriple(shape.IRI, ns.sh('targetClass').uri, owlClass.IRI);
+		}
+		if(shape.Instance) {
+			let instance = shape.Instance;
+			// Instance declaration
+			addTriple(instance.IRI, ns.rdf('type').uri, ns.owl('NamedIndividual').uri);
+			//targerNode
+			addTriple(shape.IRI, ns.sh('targetNode').uri, instance.IRI);
+			if(instance.onClass) addTriple(shape.IRI, ns.sh('class').uri, instance.onClass);
+			let properties = instance.Properties;
+			if(properties){
+				for (let p = 0; p < properties.length; p++){
+
+					const propertyIRI = $rdf.sym(properties[p]["path"]);   // e.g. "http://example.org/personName"
+					const datatypeIRI = $rdf.sym(properties[p]["type"]);        // e.g. "http://www.w3.org/2001/XMLSchema#string"
+					const value = properties[p].hasValue;
+
+					// blank node for:
+					// [ sh:path :personName ; sh:hasValue "Anna"^^xsd:string ]
+					const propertyShape = $rdf.blankNode();
+
+
+					// sh_local:Anna_shape sh:property _:propertyShape .
+					store.add(
+					  shape.IRI,
+					  $rdf.sym(ns.sh('property')),
+					  propertyShape
+					);
+
+					// _:propertyShape sh:path :personName .
+					store.add(
+					  propertyShape,
+					  $rdf.sym(ns.sh('path')),
+					  propertyIRI
+					);
+
+					// _:propertyShape sh:hasValue "Anna"^^xsd:string .
+					store.add(
+					  propertyShape,
+					  $rdf.sym(ns.sh('hasValue')),
+					  $rdf.literal(value, undefined, datatypeIRI)
+					);
+					
+					
+				}
+			}
 		}
 		let disjoint = shape.disjoint;
 		if(disjoint){
@@ -147,6 +192,36 @@ Meteor.methods({
 			for (let s = 0; s < subClass.length; s++){
 				addTriple(shape.IRI, ns.sh('class').uri, subClass[s])
 		    }			
+		}
+		
+		let or = shape.or;
+		if(or){
+			// Create blank node shapes:
+			// [ sh:class :Student ]
+			// [ sh:class :Teacher ]
+			const alternativeShapes = or.map(classIRI => {
+			  const shape = $rdf.blankNode();
+
+			  store.add(
+				shape,
+				$rdf.sym(ns.sh('class').uri),
+				$rdf.sym(classIRI)
+			  );
+
+			  return shape;
+			});
+
+			// Create RDF list:
+			// ( [ sh:class :Student ] [ sh:class :Teacher ] )
+			const orList = createRdfList(store, alternativeShapes);
+
+			// sh_local:Person_shape sh:or ( ... ) .
+			store.add(
+			  shape.IRI,
+			  $rdf.sym(ns.sh('or').uri),
+			  orList
+			);
+
 		}
 		
 		let annotations = shape.annotations;
@@ -2189,4 +2264,43 @@ function getLocalName(iri) {
   );
 
   return index >= 0 ? iri.slice(index + 1) : iri;
+}
+
+function createRdfList(store, items) {
+  const RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+
+  if (!items || items.length === 0) {
+    return $rdf.sym(RDF + "nil");
+  }
+
+  const head = $rdf.blankNode();
+  let current = head;
+
+  for (let i = 0; i < items.length; i++) {
+    store.add(
+      current,
+      $rdf.sym(RDF + "first"),
+      items[i]
+    );
+
+    if (i === items.length - 1) {
+      store.add(
+        current,
+        $rdf.sym(RDF + "rest"),
+        $rdf.sym(RDF + "nil")
+      );
+    } else {
+      const next = $rdf.blankNode();
+
+      store.add(
+        current,
+        $rdf.sym(RDF + "rest"),
+        next
+      );
+
+      current = next;
+    }
+  }
+
+  return head;
 }
