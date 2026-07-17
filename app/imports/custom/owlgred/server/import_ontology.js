@@ -112,6 +112,8 @@ Meteor.methods({
 			await add_one_compartment(listForCompartment, "Value", item[1].value, 'Value: "'+item[1].value + '"');
 			// Language
 			if(item[2].value !== "")await add_one_compartment(listForCompartment, "Language", item[2].value, 'Language: '+item[2].value);
+			
+			console.log("AAAAAAAAAAAAAA 3")
 		}
 
 		// Class
@@ -301,6 +303,8 @@ Meteor.methods({
 						element_id: new_box_id_An,
 						element_type_id: elemTypeAn._id
 					}
+					
+					console.log("AAAAAAAAAAAAAA 1", item.annotations, importSettings?.showClassAnnotationsType_graph)
 					
 					//Type
 					await add_one_compartment(listForCompartmentAn, "AnnotationType", "Label", "<<Label>>");
@@ -792,6 +796,7 @@ Meteor.methods({
 					}
 					// Annotation
 					for(let i = 0; i < item.annotations.length; i++){
+						console.log("aAAAAAAAAAA", item.annotations[i])
 					   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
 					}
 					// PropertyChains
@@ -1048,6 +1053,8 @@ Meteor.methods({
 						element_id: new_box_id_An,
 						element_type_id: elemTypeAn._id
 					}
+					
+					console.log("AAAAAAAAAAAAAA 2")
 					
 					//Type
 					await add_one_compartment(listForCompartmentAn, "AnnotationType", "Label", "<<Label>>");

@@ -2143,6 +2143,9 @@ function getBuiltInAnnotationShortName(iri, annotationProperties) {
 
 
 async function createOntologyStructure(ontology, importSettings){
+	
+	console.log("iiiiiiiiii", ontology)
+	
 	let prefixes = ontology.prefixes;
 	let ontologyPrefixes = ontology.prefixes;
 	let classes = ontology.classes;
@@ -2261,7 +2264,7 @@ async function createOntologyStructure(ontology, importSettings){
 			}
 		  }
 	    }
-	  } else {cls.annotations = []}
+	  } else {cls.annotations = [], cls.label = null}
 	  
 	  if((importSettings?.showPropertyRestrictions ?? true) === true){
 	    for(let r = 0; r < cls.restrictions.length; r++){
@@ -2511,6 +2514,9 @@ async function createOntologyStructure(ontology, importSettings){
 				});
 			  }
 			}
+		} else {
+			dataProperty.annotations = [];
+			dataProperty.label = null;
 		}
 
 		let annotationsInput = annotationsResult.map(item => {
@@ -2950,7 +2956,7 @@ async function createOntologyStructure(ontology, importSettings){
 	   ]
 	  }
 
-	  if((importSettings?.showObjectPropertiesAnnotations ?? true) === true){
+	  if((importSettings?.showObjectPropertyAnnotations ?? true) === true){
 	    for(let an = 0; an < ob.annotations.length; an++){
 		  let annotation = ob.annotations[an];
 		  let annotationType = getBuiltInAnnotationShortName(annotation.p, ontology.annotationProperties);
@@ -2964,7 +2970,15 @@ async function createOntologyStructure(ontology, importSettings){
 			]
 		  }
 	    }
-	  }
+		if(ob.label){
+			let annotationType = getBuiltInAnnotationShortName("label", ontology.annotationProperties);
+			ob.annotations.push([
+				  {name:"AnnotationType",value:annotationType},
+				  {name:"Value",value:ob.label},
+				  {name:"Language",value:""},
+			])
+		}
+	  } else {ob.label = null; ob.annotations = [];};
 	  if((importSettings?.showObjectPropertiesPropertyChains ?? true) === true){
 	    for(let pc = 0; pc < ob.propertyChains.length; pc++){
 		  let propertyChain = ob.propertyChains[pc];
@@ -3037,7 +3051,7 @@ async function createOntologyStructure(ontology, importSettings){
 		  }
 		}
 		ob.annotationsInv = [];
-		if((importSettings?.showObjectPropertiesAnnotations ?? true) === true){
+		if((importSettings?.showObjectPropertyAnnotations ?? true) === true){
 		  if(inv.label){
 		    ob.labelInv = [
 				  {name:"AnnotationType",value:"Label"},
@@ -3052,14 +3066,22 @@ async function createOntologyStructure(ontology, importSettings){
 		    let value = annotation.v;
 		    let language = annotation.lang || "";
 		    if(value !== null && annotationType !== null){
-			  ob.annotationsInv[an] = [
+			  ob.annotationsInv.push([
 				  {name:"AnnotationType",value:annotationType},
 				  {name:"Value",value:value},
 				  {name:"Language",value:language},
-				]
+				])
 		    }
 	      }
-		}
+		  if(ob.label){
+			let annotationType = getBuiltInAnnotationShortName("label", ontology.annotationProperties);
+			ob.annotations[an] = [
+				  {name:"AnnotationType",value:annotationType},
+				  {name:"Value",value:ob.label},
+				  {name:"Language",value:""},
+			]
+		  }
+		}  else {ob.label = null; ob.annotations = [];}
 		ob.propertyChainsInv = [];
 		if((importSettings?.showObjectPropertiesPropertyChains ?? true) === true){
 			for(let pc = 0; pc < inv.propertyChains.length; pc++){
@@ -3138,7 +3160,7 @@ async function createOntologyStructure(ontology, importSettings){
 						]
 				  }
 				}
-			 }
+			 } else {individ.label = null; individ.annotations = []}
 			 let dataFacts = individ.dataFacts;
 			 individ.dataPropertyAssertions = [];
 			 individ.negativeDataPropertyAssertions = [];
