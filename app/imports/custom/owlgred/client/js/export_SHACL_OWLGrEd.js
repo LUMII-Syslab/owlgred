@@ -592,8 +592,24 @@ async function saveOntologyInSHACLFormatOwlgred(){
 					ontology.SHACL.NodeShape[shapeNameFull].superClass.push(await getFullName(superClassName))
 					
 				} else if(elem_type[elemType]["name"] === "AnnotationProperty"){
-					const className = await elemOWLGrEd.getCompartmentValue("Name");
-					ontologyObject = createExportStructureElement(ontology, "AnnotationProperty", className);
+					const propertyName = await elemOWLGrEd.getCompartmentValue("Name");
+					const domainName = await elemOWLGrEd.getCompartmentValue("Domain");
+					const rangeName = await elemOWLGrEd.getCompartmentValue("Range");
+					
+					
+					if(domainName){
+						ontology.SHACL.NodeShape["http://www.w3.org/ns/shacl_local#"+propertyName+"_domain"]= {
+							IRI:"http://www.w3.org/ns/shacl_local#"+propertyName+"_domain",
+							targetSubjectsOf:await getFullName(propertyName || ""),
+							class: {
+								kind: "class",
+								name: domainName,
+								IRI: (await getFullName(domainName || "")) || null
+							},
+						}
+					}					
+					
+					ontologyObject = createExportStructureElement(ontology, "AnnotationProperty", propertyName);
 					const annotations = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Annotation",  [{title:"AnnotationType",name:"AnnotationType"},
 					{title:"Value",name:"Value"},
 					{title:"Language",name:"Language"}]);
@@ -605,7 +621,7 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						const annotationType = await getAnnotationPropertyName(annotations[axiom]["AnnotationType"]);
 						annotationObject.axiom.push({axiomSymbol: annotationType})
 
-						annotationObject.axiom.push({IRI: await getFullName(className)})
+						annotationObject.axiom.push({IRI: await getFullName(propertyName)})
 						annotationObject.axiom.push({value: annotations[axiom]["Value"]})
 						annotationObject.axiom.push({language: annotations[axiom]["Language"]})
 						ontologyObject.push(annotationObject);
@@ -815,8 +831,10 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						ontologyObject.push(annotationObject);
 					}*/
 				} else if(elem_type[elemType]["name"] === "ObjectPropertyAssertion"){
+					
 					let clazzS = await getElementsFromPath(["end", "start"], elemOWLGrEd);
 					let clazzO = await getElementsFromPath(["start", "end"], elemOWLGrEd);
+					
 					if(clazzS && clazzO){
 						let objectName = await clazzS.getCompartmentValue("Name");
 						const domain = await getFullName(objectName);
@@ -828,6 +846,19 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						let IsNegativeAssertion = await elemOWLGrEd.getCompartmentValue("isNegative");
 
 						if(Property){
+							let instanceShapeName = objectName+"_shape";
+							let instanceShapeNameFull = "http://www.w3.org/ns/shacl_local#"+instanceShapeName;
+							
+							if(!ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"])ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"] = [];
+							ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"].push(
+							{
+								path: await getFullName(Property),
+								hasValue: range,
+							})
+							
+							
+							
+							
 							ontologyObject = createExportStructureElement(ontology, "NamedIndividual", objectName);
 							let annotationObject = {};
 							if(IsNegativeAssertion === "true")annotationObject.type = "NegativeObjectPropertyAssertion";
@@ -926,6 +957,20 @@ async function saveOntologyInSHACLFormatOwlgred(){
 					let InvIsNegativeAssertion = await elemOWLGrEd.getCompartmentValue("InvIsNegativeAssertion");
 
 					if(Property){
+						
+						let instanceShapeName = objectName+"_shape";
+						let instanceShapeNameFull = "http://www.w3.org/ns/shacl_local#"+instanceShapeName;
+							
+						if(!ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"])ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"] = [];
+						ontology.SHACL.NodeShape[instanceShapeNameFull]["Instance"]["Properties"].push(
+						{
+							path: await getFullName(Property),
+							hasValue: range,
+						})
+						
+						
+						
+						
 						ontologyObject = createExportStructureElement(ontology, "NamedIndividual", objectName);
 						let annotationObject = {};
 						if(IsNegativeAssertion === "true")annotationObject.type = "NegativeObjectPropertyAssertion";
@@ -1347,7 +1392,20 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						if(equivalentClasses.length> 0) className = equivalentClasses[0].EquivalentClass;
 					}
 
-					if(disjoint || complete){
+					if(disjoint && complete){
+						let shape = await supClass.getCompartmentValue("Shape");
+								let superShapeName = shape || className+"_shape";
+								let superShapeNameFull = "http://www.w3.org/ns/shacl_local#"+superShapeName;
+								ontology.SHACL.NodeShape[superShapeNameFull].xone = []
+								for(let d = 0; d < subClasses.length; d++){
+									let disName = await subClasses[d].getCompartmentValue("Name");
+									let shape = await subClasses[d].getCompartmentValue("Shape");
+									let shapeName = shape || disName+"_shape";
+									let shapeNameFull = "http://www.w3.org/ns/shacl_local#"+shapeName;
+									ontology.SHACL.NodeShape[superShapeNameFull].xone.push(await getFullName(disName))
+						}
+					}
+					else if(disjoint || complete){
 
 						if(subClasses.length > 1){
 							if(disjoint === "true"){
@@ -1573,7 +1631,7 @@ async function saveOntologyInSHACLFormatOwlgred(){
 		}
 	}
 
-	console.log("OOOOOOOOOOOOOOO", ontology);
+	// console.log("OOOOOOOOOOOOOOO", ontology);
 	return ontology;
  }
 
@@ -2161,9 +2219,16 @@ async function getAnnotationPropertyName(name, namespace) {
 }
 async function getAnnotationPropertyNameSHACL(name, namespace) {
     let ns_uri_table_annot = [];
-	ns_uri_table_annot["comment"] = "http://www.w3.org/ns/shacl#description";
-	ns_uri_table_annot["label"] = "http://www.w3.org/ns/shacl#name";
-	ns_uri_table_annot["Label"] = "http://www.w3.org/ns/shacl#name";
+	ns_uri_table_annot["backwardcompatiblewith"] = "http://www.w3.org/2002/07/owl#backwardCompatibleWith"
+	ns_uri_table_annot["deprecated"] = "http://www.w3.org/2002/07/owl#deprecated"
+	ns_uri_table_annot["comment"] = "http://www.w3.org/2000/01/rdf-schema#comment"
+	ns_uri_table_annot["incompatiblewith"] = "http://www.w3.org/2002/07/owl#incompatibleWith"
+	ns_uri_table_annot["isdefinedby"] = "http://www.w3.org/2000/01/rdf-schema#isDefinedBy"
+	ns_uri_table_annot["label"] = "http://www.w3.org/2000/01/rdf-schema#label"
+	ns_uri_table_annot["Label"] = "http://www.w3.org/2000/01/rdf-schema#label"
+	ns_uri_table_annot["priorversion"] = "http://www.w3.org/2002/07/owl#priorVersion"
+	ns_uri_table_annot["seealso"] = "http://www.w3.org/2000/01/rdf-schema#seeAlso"
+	ns_uri_table_annot["versioninfo"] = "http://www.w3.org/2002/07/owl#versionInfo"
 
 	// get annotation properties
 	// for k, v in pairs(getAnnotationPropertyNS(diagram, ns_uri_table)) do

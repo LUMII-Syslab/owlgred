@@ -134,7 +134,7 @@ Meteor.methods({
 				for (let p = 0; p < properties.length; p++){
 
 					const propertyIRI = $rdf.sym(properties[p]["path"]);   // e.g. "http://example.org/personName"
-					const datatypeIRI = $rdf.sym(properties[p]["type"]);        // e.g. "http://www.w3.org/2001/XMLSchema#string"
+					const datatypeIRI = properties[p]["type"];        // e.g. "http://www.w3.org/2001/XMLSchema#string"
 					const value = properties[p].hasValue;
 
 					// blank node for:
@@ -157,12 +157,19 @@ Meteor.methods({
 					);
 
 					// _:propertyShape sh:hasValue "Anna"^^xsd:string .
-					store.add(
-					  propertyShape,
-					  $rdf.sym(ns.sh('hasValue')),
-					  $rdf.literal(value, undefined, datatypeIRI)
-					);
-					
+					if(datatypeIRI){
+						store.add(
+						  propertyShape,
+						  $rdf.sym(ns.sh('hasValue')),
+						  $rdf.literal(value, undefined, $rdf.sym(datatypeIRI))
+						);
+					} else {
+						store.add(
+						  propertyShape,
+						  $rdf.sym(ns.sh('hasValue')),
+						  $rdf.sym(value)
+						);
+					}
 					
 				}
 			}
@@ -219,6 +226,35 @@ Meteor.methods({
 			store.add(
 			  shape.IRI,
 			  $rdf.sym(ns.sh('or').uri),
+			  orList
+			);
+
+		}
+		
+		let xone = shape.xone;
+		if(xone){
+			// Create blank node shapes:
+			// [ sh:class :Student ]
+			// [ sh:class :Teacher ]
+			const alternativeShapes = xone.map(classIRI => {
+			  const shape = $rdf.blankNode();
+
+			  store.add(
+				shape,
+				$rdf.sym(ns.sh('class').uri),
+				$rdf.sym(classIRI)
+			  );
+
+			  return shape;
+			});
+
+			// Create RDF list:
+			// ( [ sh:class :Student ] [ sh:class :Teacher ] )
+			const orList = createRdfList(store, alternativeShapes);
+
+			store.add(
+			  shape.IRI,
+			  $rdf.sym(ns.sh('xone').uri),
 			  orList
 			);
 
@@ -372,8 +408,8 @@ Meteor.methods({
 	  
 	  
 	  Class = {};
-	  DataType= {};
-	  AnnotationProperty= {};
+	  // DataType= {};
+	  // AnnotationProperty= {};
 	  ObjectProperty= {};
 	  NamedIndividual= {};
 	  for (const key of Object.keys(Class)) {
@@ -769,7 +805,7 @@ Meteor.methods({
 			  }
 			}
 		  } else if (ax.type === "HasKey") {
-
+			/*
 			  const RDF = $rdf.Namespace('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 			  const OWL = $rdf.Namespace('http://www.w3.org/2002/07/owl#');
 			  const cls = ax.axiom[0];
@@ -812,7 +848,7 @@ Meteor.methods({
 
 			  // :Class owl:hasKey ( ... )
 			  store.add(classNode, OWL('hasKey'), keyList);
-
+			*/
 		  }
 		}
 	  }
@@ -856,7 +892,8 @@ Meteor.methods({
 		for (const p of Object.keys(AnnotationProperty[key])) {
 		  const ax = AnnotationProperty[key][p];
 		  if (ax.type === "Declaration" && ax.axiom.type === "AnnotationProperty") {
-        addTriple(ax.axiom.axiom.IRI, ns.rdf('type').uri, ns.owl('AnnotationProperty').uri);
+			addTriple(ax.axiom.axiom.IRI, ns.rdf('type').uri, ns.owl('AnnotationProperty').uri);
+			addTriple(ax.axiom.axiom.IRI, ns.rdf('type').uri, ns.rdf('Property').uri);
 		  } else if(ax.type === "AnnotationPropertyDomain" || ax.type === "AnnotationPropertyRange"){
 		  if(typeof ax.axiom[1].IRI !== "undefined"){
 			const typeMap = {
