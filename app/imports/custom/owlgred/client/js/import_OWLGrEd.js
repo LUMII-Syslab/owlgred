@@ -1374,8 +1374,8 @@ if (p.value === OWL + 'disjointWith') {
 	  state.isObjectProp.add(o.value);
 
 	  // Store symmetric inverse links
-	  state.objectProperties[s.value].inverseOf.push(o.value);
-	  state.objectProperties[o.value].inverseOf.push(s.value);
+	  if(s.value && state.objectProperties[s.value])state.objectProperties[s.value].inverseOf.push(o.value);
+	  if(o.value && state.objectProperties[o.value])state.objectProperties[o.value].inverseOf.push(s.value);
 	  continue;
 	}
 
