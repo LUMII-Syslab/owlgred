@@ -296,6 +296,10 @@ Meteor.methods({
 		if(clazz){
 			addTriple(shape.IRI, ns.sh('class').uri, clazz.IRI)
 		}
+		let node = shape.node;
+		if(node){
+			addTriple(shape.IRI, ns.sh('node').uri, node.IRI)
+		}
 	  } 
 	  
 	  //PropertyShapes

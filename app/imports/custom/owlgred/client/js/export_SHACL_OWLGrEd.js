@@ -1045,6 +1045,16 @@ async function saveOntologyInSHACLFormatOwlgred(){
 									IRI: (await getFullName(className || "")) || null
 								},
 							}
+						}else if(shapeName){
+							ontology.SHACL.NodeShape["http://www.w3.org/ns/shacl_local#"+property+"_domain"]= {
+								IRI:"http://www.w3.org/ns/shacl_local#"+property+"_domain",
+								targetSubjectsOf:await getFullName(property || ""),
+								node: {
+									kind: "node",
+									name: shapeName,
+									IRI: shapeNameFull
+								},
+							}
 						}	
 						
 						let Multiplicity = await elemOWLGrEd.getCompartmentValue("Multiplicity");
@@ -1145,13 +1155,13 @@ async function saveOntologyInSHACLFormatOwlgred(){
 						rangeName = await elemOWLGrEd.getCompartmentValue("Range");
 					}
 					
-					rangeShape = rangeShape || rangeName+"_shape";
+					rangeShape = (rangeShape || rangeName)+"_shape";
 					let rangeShapeFull = "http://www.w3.org/ns/shacl_local#"+rangeShape;
 					
 					domainShape = domainShape || domainName+"_shape";
 					let domainShapeFull = "http://www.w3.org/ns/shacl_local#"+domainShape;
 					
-					let propertyShapeName = domainName+"_"+propertyName
+					let propertyShapeName = (domainName || domainShape)+"_"+propertyName
 					let propertyShapeNameFull = "http://www.w3.org/ns/shacl_local#"+propertyShapeName;
 					ontology.SHACL.PropertyShape[propertyShapeNameFull] = {
 						name: propertyShapeName,
@@ -1184,6 +1194,16 @@ async function saveOntologyInSHACLFormatOwlgred(){
 									IRI: (await getFullName(domainName || "")) || null
 								},
 							}
+						} else if(domainShape){
+							ontology.SHACL.NodeShape["http://www.w3.org/ns/shacl_local#"+propertyName+"_domain"]= {
+								IRI:"http://www.w3.org/ns/shacl_local#"+propertyName+"_domain",
+								targetSubjectsOf:await getFullName(propertyName || ""),
+								node: {
+									kind: "node",
+									name: domainShape,
+									IRI: domainShapeFull
+								},
+							}
 						}
 						if(rangeName){
 							ontology.SHACL.NodeShape["http://www.w3.org/ns/shacl_local#"+propertyName+"_range"]= {
@@ -1195,7 +1215,17 @@ async function saveOntologyInSHACLFormatOwlgred(){
 									IRI: (await getFullName(rangeName || "")) || null
 								},
 							}
-						}	
+						} else if(rangeShape){
+							ontology.SHACL.NodeShape["http://www.w3.org/ns/shacl_local#"+propertyName+"_range"]= {
+								IRI:"http://www.w3.org/ns/shacl_local#"+propertyName+"_range",
+								targetObjectOf:await getFullName(propertyName || ""),
+								node: {
+									kind: "node",
+									name: rangeShape,
+									IRI: rangeShapeFull
+								},
+							}
+						}
 					}
 						
 						// Multiplicity
