@@ -815,6 +815,20 @@ async function saveOntologyInFormatOwlgred(){
 							attributeObject.axiom.push({IRI: attrName});
 							if(typeof ontology.Classifier[attribuyeType] !== "undefined" && ontology.Classifier[attribuyeType] === "SKOS vocabulary"){
 								attributeObject.axiom.push({IRI: "http://www.w3.org/2004/02/skos/core#Concept"});
+								let parsed_exp_data = class_expression_grammar_parser_OWLGrEd.parse(attribute.Name+" only (skos:Concept and skos:inScheme value "+attribute.Type+")", {});				
+								let subClassObject = {
+									"type": "SubClassOf",
+									"axiom": [
+										{
+											"IRI": await getFullName(className)
+										},
+										[
+											{"Expression": parsed_exp_data}
+										]
+									]
+								}
+								// ontologyObject.push(subClassObject);
+								
 							}else attributeObject.axiom.push({IRI: await getTypeExpression(attribute.Type, ontology)});
 							ontologyObject.push(attributeObject);
 						}
