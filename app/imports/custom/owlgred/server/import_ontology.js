@@ -1173,7 +1173,7 @@ Meteor.methods({
 				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
 
 				let new_box_id = await Elements.insertAsync(object);
-				element_map[key] = new_box_id;
+				element_map[new_box_id] = new_box_id;
 
 				let listForCompartment = {
 					diagram_id: new_diagram_id,
