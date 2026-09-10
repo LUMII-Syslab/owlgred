@@ -1185,6 +1185,10 @@
                     "procedure": "GenerateSPARQL_from_selection"
                   }
                 ]
+              },
+              {
+                "item": "Generate complex table query",
+                "procedure": "GenerateComplexTableQuery"
               }
             ],
             "readModeContextMenu": [
@@ -5906,16 +5910,20 @@
                 "procedure": "Delete"
               },
               {
-                "item": "Show Data",
-                "procedure": "ExecuteSPARQL_form_class_DSS"
-              },
-              {
                 "item": "Generate SPARQL",
                 "procedure": "GenereteSPARQL_form_class_DSS"
               },
               {
                 "item": "Custom Data",
                 "procedure": "GenereteSPARQL_form_class_costumise_DSS"
+              },
+              {
+                "item": "Show Data",
+                "procedure": "GenerateComplexTableQueryDSSAuto"
+              },
+              {
+                "item": "Show Data (New Form)",
+                "procedure": "GenerateComplexTableQueryDSS"
               },
               {
                 "item": "Explore ...",
@@ -7205,6 +7213,14 @@
               {
                 "item": "Generate SPARQL",
                 "procedure": "GenereteSPARQL_form_object_property_DSS"
+              },
+              {
+                "item": "Show Data (New Form)",
+                "procedure": "GenerateComplexTableQueryLinkNormal"
+              },
+              {
+                "item": "Show Data (Auto)",
+                "procedure": "GenerateComplexTableQueryLinkNormalAuto"
               }
             ],
             "readModeContextMenu": [],

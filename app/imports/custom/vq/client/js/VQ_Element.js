@@ -283,10 +283,13 @@ async function Create_VQ_Element_Async(location, isLink, source, target) {
 
 };
 
-async function Create_VQ_Element_Declaration(func, location) {
-  var active_diagram_type_id = await Diagrams.findOneAsync({_id:Session.get("activeDiagram")})["diagramTypeId"];
+async function Create_VQ_Element_Declaration(location) {
+	let diagram = await Diagrams.findOneAsync({_id:Session.get("activeDiagram")})
+    let active_diagram_type_id = diagram["diagramTypeId"];
 
     let elem_type = await ElementTypes.findOneAsync({name:"Declaration", diagramTypeId:active_diagram_type_id});
+    let class_type = await ElementTypes.findOneAsync({name:"Class", diagramTypeId:active_diagram_type_id});
+	
     let elem_style = _.find(elem_type.styles, function(style) {
                 return style.name === "Default";
     });
@@ -2055,7 +2058,7 @@ class VQ_Element_Async{
 	async isSubQueryRoot() {
 		const links = await this.getLinks();
 		for (const l of links) {
-			const dir = l.link.getRootDirection();
+			const dir =  await l.link.getRootDirection();
 			if (
 				l.link.isSubQuery() &&
 				((l.start && dir === "start") || (!l.start && dir === "end"))
@@ -2070,7 +2073,7 @@ class VQ_Element_Async{
 	async isGlobalSubQueryRoot() {
 		const links = await this.getLinks();
 		for (const l of links) {
-			const dir = l.link.getRootDirection();
+			const dir =  await l.link.getRootDirection();
 			if (
 				l.link.isGlobalSubQuery() &&
 				((l.start && dir === "start") || (!l.start && dir === "end"))
@@ -2761,7 +2764,7 @@ class VQ_Element_Async{
             visited_elems[link.link._id()] = true;
 
             let next_el = null;
-            const UP_direction = link.link.getRootDirection();
+            const UP_direction =  await link.link.getRootDirection();
 
             if (link.start) {
               if (
@@ -2891,7 +2894,7 @@ class VQ_Element_Async{
 																]);
 						if (await this.isSubQuery() ) {
 						//	 this.setLinkQueryType("PLAIN");
-						   let root_dir =this.getRootDirection();
+						   let root_dir = await this.getRootDirection();
                if (root_dir=="start") {
 								 await this.setCustomStyle([
 																	{attrName:"startShapeStyle.fill",attrValue:"#ff0000"},
@@ -2902,7 +2905,7 @@ class VQ_Element_Async{
 																 ]);
 							 };
 						} else if (await this.isGlobalSubQuery()) {
-							let root_dir =this.getRootDirection();
+							let root_dir = await this.getRootDirection();
 							if (root_dir=="start") {
 								await this.setCustomStyle([
 																 {attrName:"startShapeStyle.fill",attrValue:"#ffffff"},
@@ -2929,7 +2932,7 @@ class VQ_Element_Async{
 
 						} else if (await this.isSubQuery() ) {
 						//	 this.setLinkQueryType("PLAIN");
-						   let root_dir =this.getRootDirection();
+						   let root_dir = await this.getRootDirection();
                if (root_dir=="start") {
 								 await this.setCustomStyle([
 																	{attrName:"startShapeStyle.fill",attrValue:"#18b6d1"},
@@ -2958,7 +2961,7 @@ class VQ_Element_Async{
 
 						} else if (await this.isSubQuery() ) {
 						//	 this.setLinkQueryType("PLAIN");
-						   let root_dir =this.getRootDirection();
+						   let root_dir = await this.getRootDirection();
                if (root_dir=="start") {
 								 await this.setCustomStyle([
 																	{attrName:"startShapeStyle.fill",attrValue:"#000000"},
@@ -2977,7 +2980,7 @@ class VQ_Element_Async{
 																{attrName:"endShapeStyle.stroke", attrValue:"#000000"},
 															]);
 				  if (await this.isSubQuery() ) {
-										let root_dir =this.getRootDirection();
+										let root_dir = await this.getRootDirection();
 									  if (root_dir=="start") {
 																	 await this.setCustomStyle([
 																										{attrName:"startShapeStyle.fill",attrValue:"#000000"},
@@ -3506,14 +3509,17 @@ class VQ_Element_Async{
     	if (await classObj.isRoot()){
     		return classObj.obj._id;
     	} else {
-    		if (await classObj.getLinkToRoot()){
-    			var elements = await classObj.getLinkToRoot().link.getElements();
-    			if (await classObj.getLinkToRoot().start) {
-    				return await elements.start.getRootId();
-    			} else {
-    				return await elements.end.getRootId();
-    			}
-    		}
+    		const linkToRoot = await classObj.getLinkToRoot();
+
+			if (linkToRoot) {
+				const elements = await linkToRoot.link.getElements();
+
+				if (linkToRoot.start) {
+					return await elements.start.getRootId();
+				} else {
+					return await elements.end.getRootId();
+				}
+			}
     	}
     }
 

@@ -230,6 +230,9 @@ Template.VQ_DSS_custom_sparql.events({
 		prefixTable[cls["data"][0]["prefix"]] = "";
 		let prefixes = await dataShapes.getNamespaces();
 
+		let rolePrefix = getPrefix(DirRole);
+		if(rolePrefix) prefixTable[rolePrefix] = "";
+
 		for (let i = 0; i < selectedProperties.length; i++) {
 			prefixTable[selectedProperties[i]["prefix"]] = "";
 			sparqlText = sparqlText + "OPTIONAL{"+classObject + " " + selectedProperties[i]["localName"] + " ?" + selectedProperties[i]["aliasName"] + " .";
@@ -279,6 +282,9 @@ Template.VQ_DSS_custom_sparql.events({
 		let sparqlText = "SELECT DISTINCT * WHERE{\n  "+ classObject + " " + DirRole+ " " + classSubject + ". \n  ";
 		prefixTable[cls["data"][0]["prefix"]] = "";
 		let prefixes = await dataShapes.getNamespaces();
+		
+		let rolePrefix = getPrefix(DirRole);
+		if(rolePrefix) prefixTable[rolePrefix] = "";
 
 		for (let i = 0; i < selectedProperties.length; i++) {
 			prefixTable[selectedProperties[i]["prefix"]] = "";
@@ -323,38 +329,113 @@ function setText_In_SPARQL_Editor(text) {
   yasqe3.setValue(text);
 }
 
+function getUniqueAliasName(aliasName, usedAliasNames) {
+	// replace "-" with "_"
+	const baseAliasName = aliasName.replace(/-/g, "_");
+
+	let uniqueAliasName = baseAliasName;
+	let suffix = 1;
+
+	while (usedAliasNames.has(uniqueAliasName)) {
+		uniqueAliasName = `${baseAliasName}_${suffix}`;
+		suffix++;
+	}
+
+	usedAliasNames.add(uniqueAliasName);
+	return uniqueAliasName;
+}
+
 async function getProperties(className){
 	let propList = [];
-	let params = {main:{propertyKind:'Data',"limit": 7,addTypes:true}}
+	const usedAliasNames = new Set();
+
+	let params = {
+		main:{
+			propertyKind:'Data',
+			"limit": 7,
+			addTypes:true
+		}
+	};
 
 	params.element = {className: className};
+
 	let props = await dataShapes.getPropertiesFull(params);
 	let prop = props["data"];
 
 	for(let cl in prop){
 		if(typeof prop[cl] !== "function"){
-			var prefix = prop[cl]["prefix"]+":";
-			propList.push({displayName:prefix+prop[cl]["display_name"], aliasName:prop[cl]["display_name"], localName: prefix+prop[cl]["local_name"], prefix: prop[cl]["prefix"], dataTypes: prop[cl]["data_types"]})
+			var prefix = prop[cl]["prefix"] + ":";
+
+			const aliasName = getUniqueAliasName(
+				prop[cl]["display_name"],
+				usedAliasNames
+			);
+
+			propList.push({
+				displayName: prefix + prop[cl]["display_name"],
+				aliasName: aliasName,
+				localName: prefix + prop[cl]["local_name"],
+				prefix: prop[cl]["prefix"],
+				dataTypes: prop[cl]["data_types"]
+			});
 		}
 	}
+
 	return propList;
 }
+
 async function getPropertiesAll(className, defaultProp){
 	let propList = [];
-	let params = {main:{propertyKind:'All',"limit": 100, addTypes:true}}
+
+	// aliases already used in getProperties()
+	const usedAliasNames = new Set(
+		defaultProp.map(prop => prop.aliasName)
+	);
+
+	// properties already present in getProperties()
+	const defaultDisplayNames = new Set(
+		defaultProp.map(prop => prop.displayName)
+	);
+
+	let params = {
+		main:{
+			propertyKind:'All',
+			"limit": 100,
+			addTypes:true
+		}
+	};
+
 	params.element = {className: className};
+
 	let props = await dataShapes.getPropertiesFull(params);
 	let prop = props["data"];
+
 	for(let cl in prop){
 		if(typeof prop[cl] !== "function"){
-			var prefix = prop[cl]["prefix"]+":";
-			propList.push({displayName:prefix+prop[cl]["display_name"], aliasName:prop[cl]["display_name"], localName: prefix+prop[cl]["local_name"], prefix: prop[cl]["prefix"], dataTypes: prop[cl]["data_types"]})
+			var prefix = prop[cl]["prefix"] + ":";
+			const displayName = prefix + prop[cl]["display_name"];
+
+			// already returned by getProperties()
+			if(defaultDisplayNames.has(displayName)) {
+				continue;
+			}
+
+			const aliasName = getUniqueAliasName(
+				prop[cl]["display_name"],
+				usedAliasNames
+			);
+
+			propList.push({
+				displayName: displayName,
+				aliasName: aliasName,
+				localName: prefix + prop[cl]["local_name"],
+				prefix: prop[cl]["prefix"],
+				dataTypes: prop[cl]["data_types"]
+			});
 		}
 	}
-	const filteredProps = propList.filter(prop =>
-	  !defaultProp.some(defaultProp => defaultProp.displayName === prop.displayName)
-	);
-	return filteredProps;
+
+	return propList;
 }
 
 function moveSelectedOptions(direction) {
@@ -397,3 +478,7 @@ function moveSelectedOptions(direction) {
   Template.VQ_DSS_custom_sparql.SelectedProperties.set(newSelectedProps);
 }
 
+function getPrefix(iri) {
+  const index = iri.indexOf(':');
+  return index >= 0 ? iri.slice(0, index) : null;
+}

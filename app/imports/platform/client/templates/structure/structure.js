@@ -33,6 +33,7 @@ Template.structureTemplate.helpers({
         if (project) {
           user_proj.name = project.name;
           user_proj.icon = project.icon;
+          user_proj.comment = project.comment;
 
           if (project.createdBy === user_id) {
             user_proj.isOwner = true;
@@ -158,14 +159,14 @@ Template.structureTemplate.events({
     return;
   },
 
-  "click .duplicate-project-obj": function (e) {
+  "click .duplicate-project-obj": async function (e) {
     e.preventDefault();
     //e.stopPropagation();
 
     var proj_id = $(e.target).closest(".project-path").attr("id");
     var list = { projectId: proj_id };
 
-    Utilities.callMeteorMethod("duplicateProject", list);
+    await Utilities.callMeteorMethodAsync("duplicateProject", list);
 
     return;
   },
@@ -191,10 +192,12 @@ Template.editProjectModal.helpers({
   data: function () {
     var proj = Projects.findOne({ _id: Session.get("editProjectId") });
     if (proj) {
+      console.log('😍😍', proj)
       return {
         name: proj.name || "",
         icon: proj.icon || "",
         category: proj.category || "",
+        comment: proj.comment || "",
       };
     }
   },
@@ -209,13 +212,14 @@ Template.editProjectModal.events({
     var project_name = $("#edit-project-name").val();
     var icon_name = $("#edit-icon-name").val();
     var category_name = $("#edit-category-name").val();
+    var comment = $("#edit-project-comment").val();
     var proj_id = Session.get("editProjectId");
 
     var list = {
       projectId: proj_id,
-      set: { name: project_name, icon: icon_name, category: category_name },
+      set: { name: project_name, icon: icon_name, category: category_name, comment },
     };
-
+    console.log('😍', list)
     Utilities.callMeteorMethod("updateProject", list);
 
     Session.set("editProjectId", reset_variable());

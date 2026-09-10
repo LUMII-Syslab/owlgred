@@ -495,7 +495,57 @@ function selectHttpRequestProfile(options) {
 
 // ---------------------
 
+/**
+ * @typedef {Object} ExecuteSparqlSimpleJsonParams
+ * @property {string} url
+ * @property {string} query
+ */
+
+/**
+ * Turn non-binary body response into JSON representation.
+ *
+ * This is needed so that the data can be transferred via Meteor.methods websocket.
+ *
+ * @param {Response} response
+ *
+ * @return {Promise<[string, ResponseInit]>}
+ */
+export async function jsonifyResponse(response) {
+  const body = await response.text();
+  /** @type {ResponseInit} */
+  const responseInit = {
+    headers: response.headers,
+    status: response.status,
+    statusText: response.statusText
+  };
+
+  return [body, responseInit];
+}
+
 Meteor.methods({
+  /**
+   * @param {ExecuteSparqlSimpleJsonParams} options
+   */
+  async executeSparqlSimpleJson({ url, query }) {
+    const timeout = TIMEOUT_EXECUTE;
+
+    const baseOptions = buildOptionsBase({}, "POST", timeout);
+
+    const req = new Request(url, {
+        ...baseOptions,
+        method: "POST",
+        headers: {
+          "Accept": "application/sparql-results+json",
+        },
+        body: new URLSearchParams({
+            query,
+        })
+    });
+
+    const res = await fetch(req);
+    return await jsonifyResponse(res);
+  },
+
 
   /**
    *
