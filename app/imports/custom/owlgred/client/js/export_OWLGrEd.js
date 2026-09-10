@@ -1142,7 +1142,7 @@ async function saveOntologyInFormatOwlgred(){
 									"type": "ObjectPropertyAssertion",
 									"axiom": [
 										{"IRI": await getFullName(ind.name)},
-										{"IRI": await getFullName(className)},
+										{"IRI": await getFullName(individual[0].value)},
 										{"IRI": await getFullName(ind.value)}
 									]
 								}
@@ -1152,7 +1152,7 @@ async function saveOntologyInFormatOwlgred(){
 									"type": "DataPropertyAssertion",
 									"axiom": [
 										{"IRI": await getFullName(ind.name)},
-										{"IRI":  await getFullName(className)},
+										{"IRI":  await getFullName(individual[0].value)},
 										{"value": ind.value}
 									]
 								}
