@@ -1395,7 +1395,7 @@ Meteor.methods({
 				}
 				// await setHorizontalLine(listForCompartment, "HorizontalLine2")
 			} else{
-
+				elemType = await ElementTypes.findOneAsync({name: "DataType", diagramTypeId: diagram_type._id});
 				let elemStyle = elemType["styles"][0];
 				let object = await Create_New_OWLGrEd_Element(list, elemType, diagram_type, new_diagram_id, elemStyle, false)
 
