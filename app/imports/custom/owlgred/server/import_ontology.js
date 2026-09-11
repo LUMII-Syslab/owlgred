@@ -112,8 +112,6 @@ Meteor.methods({
 			await add_one_compartment(listForCompartment, "Value", item[1].value, 'Value: "'+item[1].value + '"');
 			// Language
 			if(item[2].value !== "")await add_one_compartment(listForCompartment, "Language", item[2].value, 'Language: '+item[2].value);
-			
-			console.log("AAAAAAAAAAAAAA 3")
 		}
 
 		// Class
@@ -168,9 +166,10 @@ Meteor.methods({
 					await setHorizontalLine(listForCompartment, "HorizontalLine1")
 					await add_one_compartment(listForCompartment, "ExportMode", "SKOS vocabulary", "SKOS vocabulary")
 					
-					let opa = ontology.objectPropertyAssertions
+					let opa = ontology.objectPropertyAssertions;
+
 					for(let o = 0; o < opa.length; o++){
-						if(opa[o]["iri"] === "http://www.w3.org/2004/02/skos/core#inScheme" && opa[o]["target"] === skosConceptSchemeInstances[i]){
+						if(typeof opa[o] != "undefined" && opa[o]["iri"] === "http://www.w3.org/2004/02/skos/core#inScheme" && opa[o]["target"] === skosConceptSchemeInstances[i]){
 							instancesToBeRemoved.push(opa[o]["source"]);
 							await addCompartmentSubCompartments2(listForCompartment, "Values",[
 								{name:"Name",value:iriToLocalName(opa[o]["source"])},
@@ -237,7 +236,9 @@ Meteor.methods({
 						await add_one_compartment(listForCompartment, "ClosedClassifier", "true", "{closed}")
 					}
 					removeIndividualsByInstances(ontology.individuals, item.instances);
-					ontology = moveObjectPropertiesWithClassRangeToDataProperties(ontology);
+					removeIndividualListByClass(ontology.individualList, item.iri);
+
+					ontology = moveObjectPropertiesWithClassRangeToDataProperties(ontology, item.iri);
 				}
 		  } else{
 			
@@ -303,8 +304,6 @@ Meteor.methods({
 						element_id: new_box_id_An,
 						element_type_id: elemTypeAn._id
 					}
-					
-					console.log("AAAAAAAAAAAAAA 1", item.annotations, importSettings?.showClassAnnotationsType_graph)
 					
 					//Type
 					await add_one_compartment(listForCompartmentAn, "AnnotationType", "Label", "<<Label>>");
@@ -796,7 +795,6 @@ Meteor.methods({
 					}
 					// Annotation
 					for(let i = 0; i < item.annotations.length; i++){
-						console.log("aAAAAAAAAAA", item.annotations[i])
 					   await addCompartmentSubCompartments2(listForCompartment, "Annotation", item.annotations[i])
 					}
 					// PropertyChains
@@ -1053,8 +1051,6 @@ Meteor.methods({
 						element_id: new_box_id_An,
 						element_type_id: elemTypeAn._id
 					}
-					
-					console.log("AAAAAAAAAAAAAA 2")
 					
 					//Type
 					await add_one_compartment(listForCompartmentAn, "AnnotationType", "Label", "<<Label>>");
@@ -2337,7 +2333,15 @@ function removeIndividualsByInstances(individuals, instances) {
   return individuals;
 }
 
-function moveObjectPropertiesWithClassRangeToDataProperties(ontology) {
+function removeIndividualListByClass(individualList, classIri){
+  for (const iri of Object.keys(individualList)) {
+    if(iri === classIri) delete individualList[iri];
+  }
+
+  return individualList;
+}
+
+function moveObjectPropertiesWithClassRangeToDataProperties(ontology, classIri) {
   if (!ontology?.classes || !ontology?.objectProperties) return ontology;
 
   for (const [propIri, prop] of Object.entries(ontology.objectProperties)) {
@@ -2351,6 +2355,8 @@ function moveObjectPropertiesWithClassRangeToDataProperties(ontology) {
 
     // Move only if the object property range is a class in ontology.classes
     if (!rangeClass || !domainClass) continue;
+	
+	// if (rangeIri !== classIri) continue;
 
     const dataPropertyRow = [
       {
@@ -2411,7 +2417,7 @@ function moveObjectPropertiesWithClassRangeToDataProperties(ontology) {
       .filter(x => x !== propIri);
 
     // Remove from ontology.objectProperties
-    delete ontology.objectProperties[propIri];
+    // delete ontology.objectProperties[propIri];
   }
 
   return ontology;
