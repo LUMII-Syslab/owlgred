@@ -728,13 +728,22 @@
                   },
                   {
                     "extensionPoint": "dynamicDropDown"
+                  },
+				  {
+                     "extensionPoint": "processKeyStroke",
+                     "procedure": "expressionAutoCompletion"
                   }
                 ],
                 "subCompartmentTypes": [
                   {
                     "_id": "xber0cjcm8tfq7yzavuh3rag",
                     "name": "EquivalentClasses",
-                    "extensionPoints": [],
+                    "extensionPoints": [
+					  {
+						 "extensionPoint": "processKeyStroke",
+						 "procedure": "expressionAutoCompletion"
+					  }
+					],
                     "prefix": "≡ ",
                     "suffix": null,
                     "defaultValue": null,
@@ -743,7 +752,12 @@
                         "_id": "a97v286y1ikjcfxac2bbkfv9",
                         "index": 1,
                         "name": "EquivalentClass",
-                        "extensionPoints": [],
+                        "extensionPoints": [
+						  {
+							 "extensionPoint": "processKeyStroke",
+							 "procedure": "expressionAutoCompletion"
+						  }
+						],
                         "prefix": null,
                         "suffix": null,
                         "defaultValue": null,
@@ -907,7 +921,12 @@
                         "_id": "9xg8e4zfqkpqj6xbu9dmjumd",
                         "index": 1,
                         "name": "SuperClass",
-                        "extensionPoints": [],
+                        "extensionPoints": [
+						  {
+							 "extensionPoint": "processKeyStroke",
+							 "procedure": "expressionAutoCompletion"
+						  }
+						],
                         "prefix": null,
                         "suffix": null,
                         "defaultValue": null,
@@ -1074,7 +1093,12 @@
                         "_id": "t8pbi5frr5z9q2it3e8ii9i3",
                         "index": 1,
                         "name": "DisjointClass",
-                        "extensionPoints": [],
+                        "extensionPoints": [
+						  {
+							 "extensionPoint": "processKeyStroke",
+							 "procedure": "expressionAutoCompletion"
+						  }
+						],
                         "prefix": null,
                         "suffix": null,
                         "defaultValue": null,
@@ -1544,6 +1568,10 @@
                           {
                             "extensionPoint": "dynamicDropDown",
                             "procedure": "defaultTypesOwlgred"
+                          },
+						  {
+                            "extensionPoint": "processKeyStroke",
+                            "procedure": "typeExpressionAutoCompletion"
                           }
                         ],
                         "prefix": " : ",

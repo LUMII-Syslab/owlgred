@@ -5,6 +5,7 @@ import { process_sub_compart_types } from '/imports/platform/client/templates/di
 import { Dialog } from '/imports/platform/client/js/interpretator/Dialog'
 import { Utilities } from '/imports/platform/client/js/utilities/utils.js'
 import { Create_OWLGrEd_Element } from '../js/OWLGrEd_Element.js';
+import { autoCompletionTypeExpression } from '../js/autoCompletion_OWLGrEd.js';
 
 import './add_attribute_form_OWLGrEd.html'
 
@@ -456,6 +457,11 @@ Template.AddAttribute_OWLGrEd.events({
 		if (row) {
 		  row.remove();
 		}
+	},
+	
+	'keyup #add-attribute-type': function(event, template) {
+		autoCompletionTypeExpression(event)
+		
 	},
 
 });
