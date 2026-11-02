@@ -244,7 +244,7 @@
               await addContinuation(await location(), "and", 20, true, 4);
             },
         peg$c187 = async function() {
-              await addContinuation(await location(), "not", 20, false, 4);
+              await addContinuation(await location(), "not", 90, false, 6);
             },
         peg$c188 = async function() {
             await addContinuation(await location(), "Literal", 10, false, 4);
@@ -285,47 +285,47 @@
             await addContinuation(await location(), "unsignedShort", 10, false, 4);
         },
         peg$c189 = async function() {
-              await addContinuation(await location(), "<=", 30, false, 4);
-              await addContinuation(await location(), "<", 30, false, 4);
-              await addContinuation(await location(), ">=", 30, false, 4);
-              await addContinuation(await location(), ">", 30, false, 4);
-              await addContinuation(await location(), "length", 30, false, 4);
-              await addContinuation(await location(), "maxLength", 30, false, 4);
-              await addContinuation(await location(), "minLength", 30, false, 4);
-              await addContinuation(await location(), "pattern", 30, false, 4);
-              await addContinuation(await location(), "langPattern", 30, false, 4);
+              await addContinuation(await location(), "<=", 30, false, 6);
+              await addContinuation(await location(), "<", 30, false, 6);
+              await addContinuation(await location(), ">=", 30, false, 6);
+              await addContinuation(await location(), ">", 30, false, 6);
+              await addContinuation(await location(), "length", 30, false, 6);
+              await addContinuation(await location(), "maxLength", 30, false, 6);
+              await addContinuation(await location(), "minLength", 30, false, 6);
+              await addContinuation(await location(), "pattern", 30, false, 6);
+              await addContinuation(await location(), "langPattern", 30, false, 6);
             },
-        peg$c190 = async function() { await addContinuation(await location(), "{", 10, false, 4); /* } */ },
-        peg$c191 = async function() { await addContinuation(await location(), /* { */ "}", 10, false, 4); },
-        peg$c192 = async function() { await addContinuation(await location(), "(", 10, false, 4); },
-        peg$c193 = async function() { await addContinuation(await location(), ")", 10, false, 4); },
-        peg$c194 = async function() { await addContinuation(await location(), "[", 10, false, 4); },
-        peg$c195 = async function() { await addContinuation(await location(), "]", 10, false, 4); },
-        peg$c196 = async function() { await addContinuation(await location(), ",", 10, false, 4); },
-        peg$c197 = async function() { await addContinuation(await location(), "^^", 15, false, 4); },
-        peg$c198 = async function() { await addContinuation(await location(), "@", 15, false, 4); },
-        peg$c199 = async function() { await addContinuation(await location(), "<", 10, false, 4); },
-        peg$c200 = async function() { await addContinuation(await location(), ">", 10, false, 4); },
-        peg$c201 = async function() { await addContinuation(await location(), ":", 15, false, 4); },
-        peg$c202 = async function() { await addContinuation(await location(), ".", 15, false, 4); },
-        peg$c203 = async function() { await addContinuation(await location(), "/", 15, false, 4); },
-        peg$c204 = async function() { await addContinuation(await location(), "_", 40, false, 4); },
-        peg$c205 = async function() { await addContinuation(await location(), "_:", 40, false, 4); },
-        peg$c206 = async function() { await addContinuation(await location(), "\"", 10, false, 4); },
+        peg$c190 = async function() { await addContinuation(await location(), "{", 10, false, 6); /* } */ },
+        peg$c191 = async function() { await addContinuation(await location(), /* { */ "}", 10, false, 6); },
+        peg$c192 = async function() { await addContinuation(await location(), "(", 10, false, 6); },
+        peg$c193 = async function() { await addContinuation(await location(), ")", 10, false, 6); },
+        peg$c194 = async function() { await addContinuation(await location(), "[", 10, false, 6); },
+        peg$c195 = async function() { await addContinuation(await location(), "]", 10, false, 6); },
+        peg$c196 = async function() { await addContinuation(await location(), ",", 10, false, 6); },
+        peg$c197 = async function() { await addContinuation(await location(), "^^", 15, false, 6); },
+        peg$c198 = async function() { await addContinuation(await location(), "@", 15, false, 6); },
+        peg$c199 = async function() { await addContinuation(await location(), "<", 10, false, 6); },
+        peg$c200 = async function() { await addContinuation(await location(), ">", 10, false, 6); },
+        peg$c201 = async function() { await addContinuation(await location(), ":", 15, false, 6); },
+        peg$c202 = async function() { await addContinuation(await location(), ".", 15, false, 6); },
+        peg$c203 = async function() { await addContinuation(await location(), "/", 15, false, 6); },
+        peg$c204 = async function() { await addContinuation(await location(), "_", 90, false, 6); },
+        peg$c205 = async function() { await addContinuation(await location(), "_:", 90, false, 6); },
+        peg$c206 = async function() { await addContinuation(await location(), "\"", 10, false, 6); },
         peg$c207 = async function() {
-              await addContinuation(await location(), "+", 40, false, 4);
-              await addContinuation(await location(), "-", 40, false, 4);
+              await addContinuation(await location(), "+", 40, false, 6);
+              await addContinuation(await location(), "-", 40, false, 6);
             },
         peg$c208 = async function() {
-              await addContinuation(await location(), "e", 40, false, 4);
-              await addContinuation(await location(), "E", 40, false, 4);
+              await addContinuation(await location(), "e", 40, false, 6);
+              await addContinuation(await location(), "E", 40, false, 6);
             },
         peg$c209 = async function() {
-              await addContinuation(await location(), "f", 40, false, 4);
-              await addContinuation(await location(), "F", 40, false, 4);
+              await addContinuation(await location(), "f", 40, false, 6);
+              await addContinuation(await location(), "F", 40, false, 6);
             },
-        peg$c210 = async function() { await addContinuation(await location(), " ", 1, false, 4); },
-        peg$c211 = async function() { await addContinuation(await location(), "", 100, false, 4); },
+        peg$c210 = async function() { await addContinuation(await location(), " ", 1, false, 6); },
+        peg$c211 = async function() { await addContinuation(await location(), "", 100, false, 6); },
         peg$c212 = async function() { getIRIs(location(), 90); },
         peg$c213 = async function() { getPrefixes(location(), 90); },
         peg$c214 = async function() { getLanguageTags(location(), 90); },

@@ -209,20 +209,26 @@ function autocomplete(inp, continuations) {
 
 	const colorForType = (type) => {
 		switch (type) {
-			case 1: return '#800000';
-			case 2: return '#008000';
-			case 3: return '#000080';
-			case 4: return '#008080';
+			case 0: return '#956500'; // class - gold
+			case 1: return '#237A38'; // data property - green
+			case 2: return '#17659A'; // object property - blue
+			case 3: return '#7D3C8C'; // individual - purple
+			case 4: return '#B45309'; // datatype - amber
+			case 5: return '#56616A'; // schema element - slate
+			case 6: return '#0F6A70'; // language construct - teal
 			default: return '#404040';
 		}
 	};
 
 	const descriptionForType = (type) => {
 		switch (type) {
+			case 0: return 'class';
 			case 1: return 'data property';
 			case 2: return 'object property';
-			case 3: return 'schema element';
-			case 4: return 'language construct';
+			case 3: return 'individual';
+			case 4: return 'datatype';
+			case 5: return 'schema element';
+			case 6: return 'language construct';
 			default: return 'other';
 		}
 	};
@@ -246,7 +252,7 @@ function autocomplete(inp, continuations) {
 	}
 
 	let ss = continuations.suggestions;
-	let nonLanguageConstruct = ss.find(s => s.type < 4);
+	let nonLanguageConstruct = ss.find(s => s.type < 6);
 	if (!nonLanguageConstruct) {
 		ss.push({type: 0, name: '', priority: Number.MAX_SAFE_INTEGER});
 	}

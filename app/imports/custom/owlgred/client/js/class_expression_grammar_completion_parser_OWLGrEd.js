@@ -1,3 +1,5 @@
+const { Create_OWLGrEd_Element } = require("./OWLGrEd_Element");
+const { Elements, ElementTypes, Diagrams } = require("/imports/db/platform/collections");
 
   "use strict";
 
@@ -322,24 +324,24 @@
         peg$c236 = /^[ \t\r\n]/,
         peg$c237 = { type: "class", value: "[ \\t\\r\\n]", description: "[ \\t\\r\\n]" },
         peg$c238 = "",
-        peg$c239 = async function() { await addContinuation(await location(), "or", 20, true, 4); },
-        peg$c240 = async function() { await addContinuation(await location(), "and", 20, true, 4); },
-        peg$c241 = async function() { await addContinuation(await location(), "that", 20, true, 4); },
-        peg$c242 = async function() { await addContinuation(await location(), "inverse", 25, false, 4); },
-        peg$c243 = async function() { await addContinuation(await location(), "not", 20, false, 4); },
+        peg$c239 = async function() { await addContinuation(await location(), "or", 20, true, 6); },
+        peg$c240 = async function() { await addContinuation(await location(), "and", 20, true, 6); },
+        peg$c241 = async function() { await addContinuation(await location(), "that", 20, true, 6); },
+        peg$c242 = async function() { await addContinuation(await location(), "inverse", 25, false, 6); },
+        peg$c243 = async function() { await addContinuation(await location(), "not", 20, false, 6); },
         peg$c244 = async function() {
-              await addContinuation(await location(), "some", 25, false, 4);
-              await addContinuation(await location(), "only", 25, false, 4);
+              await addContinuation(await location(), "some", 25, false, 6);
+              await addContinuation(await location(), "only", 25, false, 6);
             },
-        peg$c245 = async function() { await addContinuation(await location(), "value", 25, false, 4); },
+        peg$c245 = async function() { await addContinuation(await location(), "value", 25, false, 6); },
         peg$c246 = async function() {
-              await addContinuation(await location(), "Self", 25, false, 4);
-              await addContinuation(await location(), "self", 25, false, 4);
+              await addContinuation(await location(), "Self", 25, false, 6);
+              await addContinuation(await location(), "self", 25, false, 6);
             },
         peg$c247 = async function() {
-              await addContinuation(await location(), "min", 25, false, 4);
-              await addContinuation(await location(), "max", 25, false, 4);
-              await addContinuation(await location(), "exactly", 25, false, 4);
+              await addContinuation(await location(), "min", 25, false, 6);
+              await addContinuation(await location(), "max", 25, false, 6);
+              await addContinuation(await location(), "exactly", 25, false, 6);
             },
         peg$c248 = async function() {
               await addContinuation(await location(), "Literal", 30, false, 4);
@@ -380,51 +382,51 @@
               await addContinuation(await location(), "unsignedShort", 30, false, 4);
             },
         peg$c249 = async function() {
-              await addContinuation(await location(), "<=", 30, false, 4);
-              await addContinuation(await location(), "<", 30, false, 4);
-              await addContinuation(await location(), ">=", 30, false, 4);
-              await addContinuation(await location(), ">", 30, false, 4);
-              await addContinuation(await location(), "length", 30, false, 4);
-              await addContinuation(await location(), "maxLength", 30, false, 4);
-              await addContinuation(await location(), "minLength", 30, false, 4);
-              await addContinuation(await location(), "pattern", 30, false, 4);
-              await addContinuation(await location(), "langPattern", 30, false, 4);
+              await addContinuation(await location(), "<=", 30, false, 6);
+              await addContinuation(await location(), "<", 30, false, 6);
+              await addContinuation(await location(), ">=", 30, false, 6);
+              await addContinuation(await location(), ">", 30, false, 6);
+              await addContinuation(await location(), "length", 30, false, 6);
+              await addContinuation(await location(), "maxLength", 30, false, 6);
+              await addContinuation(await location(), "minLength", 30, false, 6);
+              await addContinuation(await location(), "pattern", 30, false, 6);
+              await addContinuation(await location(), "langPattern", 30, false, 6);
             },
         peg$c250 = async function() {
-              await addContinuation(await location(), "true", 30, false, 4);
-              await addContinuation(await location(), "false", 30, false, 4);
+              await addContinuation(await location(), "true", 30, false, 6);
+              await addContinuation(await location(), "false", 30, false, 6);
             },
-        peg$c251 = async function() { await addContinuation(await location(), "{", 10, false, 4); /* } */ },
-        peg$c252 = async function() { await addContinuation(await location(), /* { */ "}", 10, false, 4); },
-        peg$c253 = async function() { await addContinuation(await location(), "(", 10, false, 4); },
-        peg$c254 = async function() { await addContinuation(await location(), ")", 10, false, 4); },
-        peg$c255 = async function() { await addContinuation(await location(), "[", 10, false, 4); },
-        peg$c256 = async function() { await addContinuation(await location(), "]", 10, false, 4); },
-        peg$c257 = async function() { await addContinuation(await location(), ",", 10, false, 4); },
-        peg$c258 = async function() { await addContinuation(await location(), "^^", 15, false, 4); },
-        peg$c259 = async function() { await addContinuation(await location(), "@", 15, false, 4); },
-        peg$c260 = async function() { await addContinuation(await location(), "<", 10, false, 4); },
-        peg$c261 = async function() { await addContinuation(await location(), ">", 10, false, 4); },
-        peg$c262 = async function() { await addContinuation(await location(), ":", 15, false, 4); },
-        peg$c263 = async function() { await addContinuation(await location(), ".", 15, false, 4); },
-        peg$c264 = async function() { await addContinuation(await location(), "/", 15, false, 4); },
-        peg$c265 = async function() { await addContinuation(await location(), "_", 40, false, 4); },
-        peg$c266 = async function() { await addContinuation(await location(), "_:", 40, false, 4); },
-        peg$c267 = async function() { await addContinuation(await location(), "\"", 10, false, 4); },
+        peg$c251 = async function() { await addContinuation(await location(), "{", 10, false, 6); /* } */ },
+        peg$c252 = async function() { await addContinuation(await location(), /* { */ "}", 10, false, 6); },
+        peg$c253 = async function() { await addContinuation(await location(), "(", 10, false, 6); },
+        peg$c254 = async function() { await addContinuation(await location(), ")", 10, false, 6); },
+        peg$c255 = async function() { await addContinuation(await location(), "[", 10, false, 6); },
+        peg$c256 = async function() { await addContinuation(await location(), "]", 10, false, 6); },
+        peg$c257 = async function() { await addContinuation(await location(), ",", 10, false, 6); },
+        peg$c258 = async function() { await addContinuation(await location(), "^^", 15, false, 6); },
+        peg$c259 = async function() { await addContinuation(await location(), "@", 15, false, 6); },
+        peg$c260 = async function() { await addContinuation(await location(), "<", 10, false, 6); },
+        peg$c261 = async function() { await addContinuation(await location(), ">", 10, false, 6); },
+        peg$c262 = async function() { await addContinuation(await location(), ":", 15, false, 6); },
+        peg$c263 = async function() { await addContinuation(await location(), ".", 15, false, 6); },
+        peg$c264 = async function() { await addContinuation(await location(), "/", 15, false, 6); },
+        peg$c265 = async function() { await addContinuation(await location(), "_", 40, false, 6); },
+        peg$c266 = async function() { await addContinuation(await location(), "_:", 40, false, 6); },
+        peg$c267 = async function() { await addContinuation(await location(), "\"", 10, false, 6); },
         peg$c268 = async function() {
-              await addContinuation(await location(), "+", 40, false, 4);
-              await addContinuation(await location(), "-", 40, false, 4);
+              await addContinuation(await location(), "+", 40, false, 6);
+              await addContinuation(await location(), "-", 40, false, 6);
             },
         peg$c269 = async function() {
-              await addContinuation(await location(), "e", 40, false, 4);
-              await addContinuation(await location(), "E", 40, false, 4);
+              await addContinuation(await location(), "e", 40, false, 6);
+              await addContinuation(await location(), "E", 40, false, 6);
             },
         peg$c270 = async function() {
-              await addContinuation(await location(), "f", 40, false, 4);
-              await addContinuation(await location(), "F", 40, false, 4);
+              await addContinuation(await location(), "f", 40, false, 6);
+              await addContinuation(await location(), "F", 40, false, 6);
             },
-        peg$c271 = async function() { await addContinuation(await location(), " ", 1, false, 4); },
-        peg$c272 = async function() { await addContinuation(await location(), "", 100, false, 4); },
+        peg$c271 = async function() { await addContinuation(await location(), " ", 1, false, 6); },
+        peg$c272 = async function() { await addContinuation(await location(), "", 100, false, 6); },
         peg$c273 = async function() { await getClasses(await location(), 100); },
         peg$c274 = async function() { await getProperties(await location(), 100); },
         peg$c275 = async function() { await getIndividuals(await location(), 100); },
@@ -7342,111 +7344,175 @@
        * Application-specific providers.
        * Fill these manually in the ViziQuer environment.
        */
-      function getClasses(place, priority) {
-        var values = [
-            "Person",
-            "Student",
-            "Employee",
-            "Animal",
-            "ex:Person"
-        ];
+      async function getClasses(place, priority) {
+		const diagramId = Session.get("activeDiagram");
+		const diagram = Diagrams.findOne({_id:Session.get("activeDiagram")});
+		const active_diagram_type_id = diagram["diagramTypeId"];
+		const elemTypeClass = ElementTypes.findOne({name:"Class", diagramTypeId:active_diagram_type_id});
+		//find classes
+		const elemsClasses = Elements.find({diagramId:diagramId, elementTypeId:elemTypeClass["_id"]}).map(function(e) {
+			return e["_id"]
+		});
+		
+		for(let elem = 0; elem < elemsClasses.length; elem++){
+			const elemOWLGrEd = await Create_OWLGrEd_Element(elemsClasses[elem]);
+			let className = await elemOWLGrEd.getCompartmentValue("Name");
+			if(className){
+				addContinuation(place, className, priority, false, 0);
 
-        for (var i = 0; i < values.length; i++) {
-            addContinuation(place, values[i], priority, false, 1);
-        }
-    }
+			}
+		}
+
+	  }
 
 
-    	function getProperties(place, priority) {
-    		var values = [
-    			"hasChild",
-    			"hasAge",
-    			"hasName",
-    			"worksFor",
-    			"ex:hasFriend"
-    		];
+    	async function getProperties(place, priority) {
+    		
+			const elem = Elements.findOne({_id: Session.get("activeElement")});
+			const elemOWLGrEd = await Create_OWLGrEd_Element(elem["_id"]);
 
-    		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 2);
-    		}
+			const attributes = await elemOWLGrEd.getMultiCompartmentSubCompartmentValues("Attributes",  [{title:"Name",name:"Name"}]);
+
+			for(let axiom = 0; axiom < attributes.length; axiom++){
+				const attribute = attributes[axiom];
+				if(attribute.Name) addContinuation(place, attribute.Name, priority, false, 1);
+			}
+			
+			const diagramId = Session.get("activeDiagram");
+			const diagram = Diagrams.findOne({_id:Session.get("activeDiagram")});
+			const active_diagram_type_id = diagram["diagramTypeId"];
+			const elemTypeClass = ElementTypes.findOne({name:"Association", diagramTypeId:active_diagram_type_id});
+			const elemsClasses = Elements.find({diagramId:diagramId, elementTypeId:elemTypeClass["_id"]}).map(function(e) {
+				return e["_id"]
+			});
+			
+			for(let elem = 0; elem < elemsClasses.length; elem++){
+				const elemOWLGrEd = await Create_OWLGrEd_Element(elemsClasses[elem]);
+				let className = await elemOWLGrEd.getCompartmentValue("Name");
+				if(className){
+					addContinuation(place, className, priority, false, 2);
+
+				}
+				className = await elemOWLGrEd.getCompartmentValue("NameInv");
+				if(className){
+					addContinuation(place, className, priority, false, 2);
+
+				}
+			}
+			
     	}
 
 
-    	function getIndividuals(place, priority) {
-    		var values = [
-    			"John",
-    			"Mary",
-    			"Alice",
-    			"ex:john",
-    			"ex:mary"
-    		];
+    	async function getIndividuals(place, priority) {
+    		const diagramId = Session.get("activeDiagram");
+			const diagram = Diagrams.findOne({_id:Session.get("activeDiagram")});
+			const active_diagram_type_id = diagram["diagramTypeId"];
+			const elemTypeClass = ElementTypes.findOne({name:"Object", diagramTypeId:active_diagram_type_id});
+			//find classes
+			const elemsClasses = Elements.find({diagramId:diagramId, elementTypeId:elemTypeClass["_id"]}).map(function(e) {
+				return e["_id"]
+			});
+			
+			for(let elem = 0; elem < elemsClasses.length; elem++){
+				const elemOWLGrEd = await Create_OWLGrEd_Element(elemsClasses[elem]);
+				let className = await elemOWLGrEd.getCompartmentValue("Name");
+				if(className){
+					addContinuation(place, className, priority, false, 3);
 
-    		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 3);
-    		}
+				}
+			}
     	}
 
 
     	function getDatatypes(place, priority) {
-    		var values = [
-    			"xsd:string",
-    			"xsd:integer",
-    			"xsd:decimal",
-    			"xsd:boolean",
-    			"xsd:date",
-    			"xsd:dateTime",
-    			"ex:CustomDatatype"
-    		];
+    		let values = [
+				"Literal",
+				"NCName",
+				"NMTOKEN",
+				"Name",
+				"PlainLiteral",
+				"XMLLiteral",
+				"anyURI",
+				"base64Binary",
+				"boolean",
+				"byte",
+				"date",
+				"dateTime",
+				"dateTimeStamp",
+				"decimal",
+				"double",
+				"float",
+				"hexBinary",
+				"int",
+				"integer",
+				"language",
+				"long",
+				"negativeInteger",
+				"nonNegativeInteger",
+				"nonPositiveInteger",
+				"normalizedString",
+				"positiveInteger",
+				"rational",
+				"real",
+				"short",
+				"string",
+				"time",
+				"token",
+				"unsignedByte",
+				"unsignedInt",
+				"unsignedLong",
+				"unsignedShort"
+			];
 
     		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 1);
+    			addContinuation(place, values[i], priority, false, 4);
     		}
     	}
 
 
     	function getIRIs(place, priority) {
-    		var values = [
-    			"owl:Thing",
-    			"owl:Nothing",
-    			"rdf:type",
-    			"rdfs:label",
-    			"ex:Something"
-    		];
+    		// var values = [
+    			// "owl:Thing",
+    			// "owl:Nothing",
+    			// "rdf:type",
+    			// "rdfs:label",
+    			// "ex:Something"
+    		// ];
 
-    		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 1);
-    		}
+    		// for (var i = 0; i < values.length; i++) {
+    			// addContinuation(place, values[i], priority, false, 1);
+    		// }
     	}
 
 
     	function getPrefixes(place, priority) {
-    		var values = [
-    			"rdf",
-    			"rdfs",
-    			"owl",
-    			"xsd",
-    			"ex"
-    		];
+    		// var values = [
+    			// "rdf",
+    			// "rdfs",
+    			// "owl",
+    			// "xsd",
+    			// "ex"
+    		// ];
 
-    		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 1);
-    		}
+    		// for (var i = 0; i < values.length; i++) {
+    			// addContinuation(place, values[i], priority, false, 1);
+    		// }
     	}
 
 
     	function getLanguageTags(place, priority) {
-    		var values = [
-    			"en",
-    			"lv",
-    			"de",
-    			"fr",
-    			"en-US",
-    			"en-GB"
-    		];
+    		// var values = [
+    			// "en",
+    			// "lv",
+    			// "de",
+    			// "fr",
+    			// "en-US",
+    			// "en-GB"
+    		// ];
 
-    		for (var i = 0; i < values.length; i++) {
-    			addContinuation(place, values[i], priority, false, 1);
-    		}
+    		// for (var i = 0; i < values.length; i++) {
+    			// addContinuation(place, values[i], priority, false, 1);
+    		// }
     	}
 
       /* Original semantic helpers retained for grammar actions. */
