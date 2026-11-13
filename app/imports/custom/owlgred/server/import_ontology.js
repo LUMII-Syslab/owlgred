@@ -478,7 +478,7 @@ Meteor.methods({
 					  
 					  if(importSettings?.showDisjointClassesMarkAtForks === true){
 						let res = containsSameArrayAndRemove(subClasses, ontology.allDisjointClasses);
-						if(res.found === true)
+						if(res.found === true){
 						  ontology.allDisjointClasses = res.list;
 					  
 						  let listForCompartmentAn = {
@@ -488,10 +488,11 @@ Meteor.methods({
 							versionId: list.versionId,
 							element_id: generalizationToFork_box_id,
 							element_type_id: elemType._id
+							}
+							
+							//Disjoint
+							await add_one_compartment(listForCompartmentAn, "Disjoint", "true", "{disjoint}");
 						}
-						
-						//Disjoint
-						await add_one_compartment(listForCompartmentAn, "Disjoint", "true", "{disjoint}");
 					  }
 				  } else {console.error("No superclass for GeneralizationToFork", iri)}
 				  
