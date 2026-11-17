@@ -512,7 +512,7 @@ Meteor.methods({
 			  
 			  // Build the list members: either a named node, or a bnode with owl:inverseOf
 			  const members = propsBox.axiom.map(p => {
-				if (p.inverseOf) {
+				if (p.inverseOf === true || p.inverseOf === "true") {
 				  const inv = $rdf.blankNode();
 				  store.add(inv, OWL('inverseOf'), $rdf.namedNode(p.IRI));
 				  return inv;
@@ -550,18 +550,24 @@ Meteor.methods({
 				  }
 			  }
 			}
-		 } else if (ax.type === "DataTypeDefinition") {
-			const dt = ax.axiom[0].IRI;
-			const dtdefinition = ax.axiom[1].type;
-			if (dt && dtdefinition) {
-				const attrIRI = ax.axiom[0].IRI;
+		 
+		  } else if (ax.type === "DataTypeDefinition") {
+				const dt = ax.axiom?.[0]?.IRI;
+				const definition = ax.axiom?.[1]?.type;
 
-				if(typeof dtdefinition === "string") addTriple(dt, ns.owl('onDatatype').uri, dtdefinition);
-				else{
-					const statements = buildDataPropertyRangeStatements(attrIRI, dtdefinition, namespaceTable);
-					for (const st of statements) store.add(st.subject, st.predicate, st.object); 
+				if (!dt || !definition) {throw new Error("DataTypeDefinition: incomplete axiom");}
+
+				if (typeof definition === "string") {
+					store.add($rdf.sym(dt), ns.owl("equivalentClass"), $rdf.sym(definition));
+				} else {
+					const { rangeTerm, statements } = dataRangeAstToRdflib(definition, namespaceTable);
+
+					for (const st of statements) {
+						store.add(st.subject, st.predicate, st.object);
+					}
+
+					store.add($rdf.sym(dt), ns.owl("equivalentClass"), rangeTerm);
 				}
-			}
 		  }
 		}
 	  }
@@ -643,6 +649,20 @@ Meteor.methods({
 			}
           }
         }
+		} else if (ax.type === "DifferentIndividuals" && Array.isArray(ax.axiom) && ax.axiom.length > 2) {
+		  const individuals = ax.axiom.map(x => $rdf.sym(x.IRI));
+		  const allDifferent = $rdf.blankNode();
+
+		  store.add(allDifferent, ns.rdf("type"), ns.owl("AllDifferent"));
+
+		  let head = ns.rdf("nil");
+		  for (let i = individuals.length - 1; i >= 0; i--) {
+			const cell = $rdf.blankNode();
+			store.add(cell, ns.rdf("first"), individuals[i]);
+			store.add(cell, ns.rdf("rest"), head);
+			head = cell;
+		  }
+		  store.add(allDifferent, ns.owl("members"), head);
 		  }else if (["SameIndividual", "DifferentIndividuals"].includes(ax.type)) {
         const typeMap = {
           SameIndividual: ns.owl('sameAs').uri,
@@ -717,9 +737,7 @@ Meteor.methods({
 				  for (const a of ann) {
 					const pred = $rdf.sym(a.axiomSymbol);
 
-					const obj = a.type
-					  ? $rdf.literal(a.value, $rdf.sym(a.type))
-					  : $rdf.literal(a.value);
+					const obj = makeQualifierLiteral_RDFlib($rdf, a);
 
 					store.add(axiomBNode, pred, obj);
 				  }
@@ -741,25 +759,10 @@ Meteor.methods({
 			  // Optional annotations: for NegativeDataPropertyAssertion, assume same position ax.axiom[4].axiom
 			  const ann = ax.axiom[4] && ax.axiom[4].axiom;
 			  if (Array.isArray(ann) && ann.length) {
-				const axiomBNode = $rdf.blankNode();
-
-				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
-
-				// Annotate the negative assertion resource
-				store.add(axiomBNode, ns.owl("annotatedSource"), neg);
-				store.add(axiomBNode, ns.owl("annotatedProperty"), ns.rdf("type"));
-				store.add(axiomBNode, ns.owl("annotatedTarget"), ns.owl("NegativePropertyAssertion"));
-
-				// Also include the negative assertion content (helps consumers)
-				store.add(axiomBNode, ns.owl("sourceIndividual"), s);
-				store.add(axiomBNode, ns.owl("assertionProperty"), p);
-				store.add(axiomBNode, ns.owl("targetValue"), o);
-
-				for (const a of ann) {
-				  const pred = $rdf.sym(a.axiomSymbol);
-				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type));
-				  store.add(axiomBNode, pred, obj);
-				}
+				  for (const a of ann) {
+					const obj = makeQualifierLiteral_RDFlib($rdf, a);
+					store.add(neg, $rdf.sym(a.axiomSymbol), obj);
+				  }
 			  }
 		  }else if(ax.type === "ObjectPropertyAssertion"){
 			  const p = $rdf.sym(ax.axiom[0].IRI);
@@ -782,9 +785,7 @@ Meteor.methods({
 				for (const a of ann) {
 				  const pred = $rdf.sym(a.axiomSymbol);
 
-				  const obj = a.type
-					? $rdf.literal(a.value, $rdf.sym(a.type))
-					: $rdf.literal(a.value);
+				  const obj = makeQualifierLiteral_RDFlib($rdf, a);
 
 				  store.add(axiomBNode, pred, obj);
 				}
@@ -802,29 +803,12 @@ Meteor.methods({
 			  store.add(neg, ns.owl("assertionProperty"), p);
 			  store.add(neg, ns.owl("targetIndividual"), o);
 
-			  // Optional axiom annotations
 			  const ann = ax.axiom[3] && ax.axiom[3].axiom;
 			  if (Array.isArray(ann) && ann.length) {
-				// Reify/annotate the negative assertion node
-				const axiomBNode = $rdf.blankNode();
-
-				store.add(axiomBNode, ns.rdf("type"), ns.owl("Axiom"));
-
-				// Annotate *this negative assertion resource*
-				store.add(axiomBNode, ns.owl("annotatedSource"), neg);
-				store.add(axiomBNode, ns.owl("annotatedProperty"), ns.rdf("type"));
-				store.add(axiomBNode, ns.owl("annotatedTarget"), ns.owl("NegativePropertyAssertion"));
-
-				// Also include the content of the negative assertion (helps consumers)
-				store.add(axiomBNode, ns.owl("sourceIndividual"), s);
-				store.add(axiomBNode, ns.owl("assertionProperty"), p);
-				store.add(axiomBNode, ns.owl("targetIndividual"), o);
-
-				for (const a of ann) {
-				  const pred = $rdf.sym(a.axiomSymbol);
-				  const obj  = $rdf.literal(a.value, $rdf.sym(a.type));
-				  store.add(axiomBNode, pred, obj);
-				}
+				  for (const a of ann) {
+					const obj = makeQualifierLiteral_RDFlib($rdf, a);
+					store.add(neg, $rdf.sym(a.axiomSymbol), obj);
+				  }
 			  }
 		  }
 		}
@@ -869,12 +853,17 @@ Meteor.methods({
 				const OWL = $rdf.Namespace('http://www.w3.org/2002/07/owl#');
 
 				function termFor(item) {
-				  if (item.inverseOf) {
-					const inv = $rdf.blankNode();
-					store.add(inv, OWL('inverseOf'), $rdf.sym(item.IRI));
-					return inv;
-				  }
-				  return $rdf.sym(item.IRI);
+					const isInverse = item.inverseOf === true || item.inverseOf === "true";
+					if (isInverse) {
+						const inv = $rdf.blankNode();
+						store.add(
+							inv,
+							OWL("inverseOf"),
+							$rdf.sym(item.IRI)
+						);
+						return inv;
+					}
+					return $rdf.sym(item.IRI);
 				}
 
 				const superProp = $rdf.sym(ax.axiom[0].IRI);
@@ -908,6 +897,7 @@ Meteor.methods({
 				const n        = part.axiom[0].Number;   // the number
 				const propIRI  = part.axiom[1].IRI;      // object property IRI
 				let classIRI = part.axiom[2]?.IRI;     // optional filler class IRI (qualified form)
+				const isInverse = part.axiom[3] === true || part.axiom[3] === "true";
 				
 				if(clsIRI) clsIRI = $rdf.sym(clsIRI);
 				else if(ax.axiom[0].Expression){
@@ -952,10 +942,31 @@ Meteor.methods({
 						  $rdf.sym("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
 						  $rdf.sym("http://www.w3.org/2002/07/owl#Restriction"));
 
+				// Direct property by default
+				let propertyTerm = $rdf.sym(propIRI);
+
+				if (isInverse) {
+					// Create an anonymous inverse property expression
+					const inversePropertyNode = $rdf.blankNode();
+
+					// _:inverse owl:inverseOf :role
+					store.add(
+						inversePropertyNode,
+						$rdf.sym(OWL + "inverseOf"),
+						$rdf.sym(propIRI)
+					);
+
+					propertyTerm = inversePropertyNode;
+				}
+
 				// _:r owl:onProperty :role
-				store.add(r,
-						  $rdf.sym("http://www.w3.org/2002/07/owl#onProperty"),
-						  $rdf.sym(propIRI));
+				// or
+				// _:r owl:onProperty _:inverse
+				store.add(
+					r,
+					$rdf.sym(OWL + "onProperty"),
+					propertyTerm
+				);
 
 				// "n"^^xsd:nonNegativeInteger
 				const nLit = $rdf.literal(
@@ -1473,7 +1484,7 @@ function classExpressionAstToRdflib($rdf, store, ast, { prefixes = {}, isObjectP
 
     if (kw === "Self") {
       if (!propIsObject) throw new Error("Self used with a data property: " + propIri);
-      store.add(b, $rdf.sym(OWL + "hasSelf"), $rdf.lit("true", undefined, $rdf.sym(XSD + "boolean")), doc);
+      store.add(b, $rdf.sym(OWL + "hasSelf"), $rdf.literal(true), doc);
       return b;
     }
 
@@ -1952,13 +1963,45 @@ function addAnnotationAssertionWithAxiomAnnotations(store, ax) {
   }
 }
 
-function makeLiteral_RDFlib($rdf, ax) {
-  // Your encoding: value is in ax.axiom[2].value
-  // Datatype (optional) is in ax.axiom[3].type
-  const val = ax.axiom[2]?.value ?? "";
 
-  if (ax.axiom[3] && ax.axiom[3].type) {
-    return $rdf.literal(val, $rdf.sym(ax.axiom[3].type)); // typed literal
+function makeLiteral_RDFlib($rdf, ax) {
+  const val = ax.axiom[2]?.value ?? "";
+  const type = ax.axiom[3]?.type;
+
+  if (type === "http://www.w3.org/2001/XMLSchema#boolean") {
+    const lex = String(val).trim();
+
+    if (lex === "true" || lex === "1")
+      return $rdf.literal(true);
+
+    if (lex === "false" || lex === "0")
+      return $rdf.literal(false);
+
+    throw new Error("Invalid xsd:boolean lexical form: " + lex);
   }
-  return $rdf.literal(val); // plain literal
+
+  if (type)
+    return $rdf.literal(val, $rdf.sym(type));
+
+  return $rdf.literal(val);
+}
+
+function makeQualifierLiteral_RDFlib($rdf, ann) {
+  const value = ann.value ?? "";
+  const type = ann.type;
+
+  if (type === "http://www.w3.org/2001/XMLSchema#boolean") {
+    const lexical = String(value).trim();
+    if (lexical === "true" || lexical === "1") {
+      return $rdf.literal(true);
+    }
+    if (lexical === "false" || lexical === "0") {
+      return $rdf.literal(false);
+    }
+    throw new Error("Invalid xsd:boolean qualifier lexical form: " + lexical);
+  }
+
+  return type
+    ? $rdf.literal(value, $rdf.sym(type))
+    : $rdf.literal(value);
 }

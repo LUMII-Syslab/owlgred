@@ -175,30 +175,51 @@ function generateN3Syntax(onto, format, nsTable){
 			)
 		  );
 		} else if (axiomObject.type === "DataPropertyDomain" || axiomObject.type === "ObjectPropertyDomain") {
-		  const attrIRI = axiomObject.axiom[0].IRI;
-		  let classIRI = axiomObject.axiom[1]?.IRI;
-		  if(classIRI) classIRI = namedNode(classIRI);
-		  else if(axiomObject.axiom[1].Expression){
-			 const dataPropertySet = new Set(onto.DataProperty);
-			 const { term: exprTerm, quads: exprQuads } = classExpressionAstToN3(axiomObject.axiom[1].Expression, {
-					prefixes: namespaceTable,
-					isObjectProperty: (propIri) => !dataPropertySet.has(propIri),
-			 });
+			const attrIRI = axiomObject.axiom?.[0]?.IRI;
+			const domain = axiomObject.axiom?.[1];
 
-			 for (let i = 0; i < exprQuads.length; i++) {
-					writer.addQuad(exprQuads[i]);
-			 }
+			if (!attrIRI) {
+				throw new Error("PropertyDomain: missing property IRI");
+			}
 
-			 classIRI = exprTerm;
-		  }
-		  writer.addQuad(
-			quad(
-			  namedNode(attrIRI),
-			  namedNode('http://www.w3.org/2000/01/rdf-schema#domain'),
-			  classIRI
-			)
-		  );
-		} else if (axiomObject.type === "DataPropertyRange" || axiomObject.type === "ObjectPropertyRange") {
+			// An unspecified domain is not an RDF assertion.
+			// Never pass an undefined object to the N3 Writer.
+			if (!domain?.IRI && !domain?.Expression) {continue;}
+
+			let classTerm;
+
+			if (domain.IRI) {classTerm = namedNode(domain.IRI);
+			} else {
+				const dataPropertySet = new Set(onto.DataProperty);
+
+				const { term: exprTerm, quads: exprQuads } =
+					classExpressionAstToN3(
+						domain.Expression,
+						{
+							prefixes: namespaceTable,
+							isObjectProperty: (propIri) =>
+								!dataPropertySet.has(propIri)
+						}
+					);
+
+				for (const q of exprQuads) {writer.addQuad(q);}
+
+				classTerm = exprTerm;
+			}
+
+			if (!classTerm) {
+				throw new Error("PropertyDomain: failed to construct domain term");
+			}
+
+			writer.addQuad(quad(
+				namedNode(attrIRI),
+				namedNode(
+					"http://www.w3.org/2000/01/rdf-schema#domain"
+				),
+				classTerm
+			));
+		}
+		 else if (axiomObject.type === "DataPropertyRange" || axiomObject.type === "ObjectPropertyRange") {
 		  const attrIRI = axiomObject.axiom[0].IRI;
 		  const classIRI = axiomObject.axiom[1].IRI;
 
@@ -463,38 +484,46 @@ function generateN3Syntax(onto, format, nsTable){
 						  )
 						);
 				}
-			} else if(axiomObject.axiom.length > 2){
-				// Create a blank node for the disjoint classes collection
-				const disjointCollection = blankNode();
-
-				// 1. Declare AllDisjointClasses
-				writer.addQuad(
-				  disjointCollection,
-				  namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#type'),
-				  namedNode('http://www.w3.org/2002/07/owl#AllDisjointClasses')
-				);
-
-				// 2. Build RDF list of classes
-				const nil = namedNode('http://www.w3.org/1999/02/22-rdf-syntax-ns#nil');
-				let list = nil;
-
-				// Process in reverse order to build list properly
-				for (let i = axiomObject.axiom.length - 1; i >= 0; i--) {
-				  const listNode = blankNode();
-				  const classIRI = namedNode(axiomObject.axiom[i].IRI);
-
-				  writer.addQuad(listNode, namedNode('rdf:first'), classIRI);
-				  writer.addQuad(listNode, namedNode('rdf:rest'), list);
-				  list = listNode;
-				}
-
-				// 3. Connect list to AllDisjointClasses
-				writer.addQuad(
-				  disjointCollection,
-				  namedNode('http://www.w3.org/2002/07/owl#members'),
-				  list
-				);
-
+			} else if (
+			  axiomObject.type === "DisjointClasses" &&
+			  Array.isArray(axiomObject.axiom) &&
+			  axiomObject.axiom.length > 2
+			) {
+			  // OWL 2 n-ary class disjointness:
+			  // [] a owl:AllDisjointClasses ; owl:members ( :A :B :C ... ) .
+			  const members = axiomObject.axiom.map(item => {
+				if (!item?.IRI) throw new Error("DisjointClasses: missing class IRI");
+				return namedNode(item.IRI);
+			  });
+			  const group = blankNode();
+			  writer.addQuad(quad(
+				group,
+				namedNode(RDF + "type"),
+				namedNode(OWL + "AllDisjointClasses")
+			  ));
+			  writer.addQuad(quad(
+				group,
+				namedNode(OWL + "members"),
+				rdfList(writer, members)
+			  ));
+			} else if (
+			  axiomObject.type === "EquivalentClasses" &&
+			  Array.isArray(axiomObject.axiom) &&
+			  axiomObject.axiom.length > 2
+			) {
+			  // OWL 2 n-ary equivalence: star of owl:equivalentClass links.
+			  // A equivalentClass B and A equivalentClass C is sufficient for A=B=C.
+			  const members = axiomObject.axiom.map(item => {
+				if (!item?.IRI) throw new Error("EquivalentClasses: missing class IRI");
+				return namedNode(item.IRI);
+			  });
+			  for (let i = 1; i < members.length; i++) {
+				writer.addQuad(quad(
+				  members[0],
+				  namedNode(OWL + "equivalentClass"),
+				  members[i]
+				));
+			  }
 			} else {
 			  addN3AxiomQuad({
 						  classIRI,
@@ -568,7 +597,7 @@ function generateN3Syntax(onto, format, nsTable){
 
 			  // Build list members
 			  const members = propsBox.axiom.map(p => {
-				if (p.inverseOf) {
+				if (p.inverseOf === true || p.inverseOf === "true") {
 				  const inv = blankNode();
 				  writer.addQuad(inv, namedNode(OWL + 'inverseOf'), namedNode(p.IRI));
 				  return inv;
@@ -616,28 +645,31 @@ function generateN3Syntax(onto, format, nsTable){
 
 			  writer.addQuad(quad(namedNode(classIRI), namedNode(annotationType),lit));
 			}
+		
 		} else if (axiomObject.type === "DataTypeDefinition") {
-		  const dt = axiomObject.axiom[0].IRI;
-		  const dtdefinition = axiomObject.axiom[1].type;
+			const dt = axiomObject.axiom?.[0]?.IRI;
+			const definition = axiomObject.axiom?.[1]?.type;
 
-		 if(typeof dtdefinition === "string"){
-			  writer.addQuad(
-				quad(
-				  namedNode(dt),
-				  namedNode('http://www.w3.org/2002/07/owl#onDatatype'),
-				  namedNode(dtdefinition)
-				)
-			  );
-		  } else if(typeof dtdefinition === "object"){
+			if (!dt || !definition) {throw new Error("DataTypeDefinition: incomplete axiom");}
 
-			  const quads = buildDataPropertyRangeQuads(
-				  dt,
-				  dtdefinition,
-				  namespaceTable
-			  );
-			  writer.addQuads(quads);
-		  }
+			if (typeof definition === "string") {
+				writer.addQuad(quad(
+					namedNode(dt),
+					namedNode(OWL + "equivalentClass"),
+					namedNode(definition)
+				));
+			} else {
+				const { rangeTerm, quads } = dataRangeAstToN3(definition, namespaceTable);
+
+				writer.addQuads(quads);
+				writer.addQuad(quad(
+					namedNode(dt),
+					namedNode(OWL + "equivalentClass"),
+					rangeTerm
+				));
+			}
 		}
+
 	}
  }
 
@@ -752,6 +784,24 @@ function generateN3Syntax(onto, format, nsTable){
 
 		  writer.addQuad(quad(namedNode(classIRI), namedNode(annotationType),lit));
 		}
+	  } else if (axiomObject.type === "DifferentIndividuals" && Array.isArray(axiomObject.axiom) && axiomObject.axiom.length > 2) {
+		  const individuals = axiomObject.axiom.map(x => namedNode(x.IRI));
+		  const allDifferent = blankNode();
+
+		  writer.addQuad(quad(
+			allDifferent,
+			namedNode(RDF + "type"),
+			namedNode(OWL + "AllDifferent")
+		  ));
+
+		  let head = namedNode(RDF + "nil");
+		  for (let i = individuals.length - 1; i >= 0; i--) {
+			const cell = blankNode();
+			writer.addQuad(quad(cell, namedNode(RDF + "first"), individuals[i]));
+			writer.addQuad(quad(cell, namedNode(RDF + "rest"), head));
+			head = cell;
+		  }
+		  writer.addQuad(quad(allDifferent, namedNode(OWL + "members"), head));
       } else if(axiomObject.type === "SameIndividual" || axiomObject.type === "DifferentIndividuals"){
         let typeList = {
           "SameIndividual":'http://www.w3.org/2002/07/owl#sameAs',
@@ -871,40 +921,32 @@ function generateN3Syntax(onto, format, nsTable){
 		  }
 		}
 	  } else if(axiomObject.type === "NegativeDataPropertyAssertion"){
-		  const p = namedNode(axiomObject.axiom[0].IRI);
-		  const s = namedNode(axiomObject.axiom[1].IRI);
+		    const p = namedNode(axiomObject.axiom[0].IRI);
+			const s = namedNode(axiomObject.axiom[1].IRI);
+			const value = axiomObject.axiom[2]?.value;
+			if (value === undefined) {
+				throw new Error("NegativeDataPropertyAssertion: missing literal value");
+			}
+			const dataType = axiomObject.axiom[3]?.type;
+			const o = dataType ? literal(value, namedNode(dataType)) : literal(value);
 
-		  // value literal (typed optional)
-		  let o;
-		  if (axiomObject.axiom[3] && axiomObject.axiom[3].type) {
-			o = literal(axiomObject.axiom[2].value, namedNode(axiomObject.axiom[3].type));
-		  } else {
-			o = literal(axiomObject.axiom[2].value);
-		  }
-		   // base triple
-			writer.addQuad(quad(s, p, o));
+			// A negative assertion is a separate OWL node, NOT (s, p, o).
+			const neg = blankNode();
+			writer.addQuad(quad(neg, namedNode(RDF + "type"), namedNode(OWL + "NegativePropertyAssertion")));
+			writer.addQuad(quad(neg, namedNode(OWL + "sourceIndividual"), s));
+			writer.addQuad(quad(neg, namedNode(OWL + "assertionProperty"), p));
+			writer.addQuad(quad(neg, namedNode(OWL + "targetValue"), o));
 
-			// annotations: axiomObject.axiom[4].axiom
+			// Preserve axiom annotations on the negative assertion itself.
 			const ann = axiomObject.axiom[4] && axiomObject.axiom[4].axiom;
 			if (Array.isArray(ann) && ann.length) {
-			  const ax = blankNode();
-
-			  writer.addQuad(quad(ax, namedNode(RDF + "type"), namedNode(OWL + "Axiom")));
-			  writer.addQuad(quad(ax, namedNode(OWL + "annotatedSource"), s));
-			  writer.addQuad(quad(ax, namedNode(OWL + "annotatedProperty"), p));
-			  writer.addQuad(quad(ax, namedNode(OWL + "annotatedTarget"), o));
-
 			  for (const a of ann) {
-				writer.addQuad(
-				  quad(
-					ax,
-					namedNode(a.axiomSymbol),
-					literal(a.value, namedNode(a.type))
-				  )
-				);
+				const obj = a.type
+				  ? literal(a.value, namedNode(a.type))
+				  : literal(a.value);
+				writer.addQuad(quad(neg, namedNode(a.axiomSymbol), obj));
 			  }
 			}
-
 	  } else if(axiomObject.type === "ObjectPropertyAssertion"){
 		  const p = namedNode(axiomObject.axiom[0].IRI);
 		  const s = namedNode(axiomObject.axiom[1].IRI);
@@ -954,26 +996,13 @@ function generateN3Syntax(onto, format, nsTable){
 		  // axiom annotations (if any)
 		  const annBlock = axiomObject.axiom[3] && axiomObject.axiom[3].axiom;
 		  if (Array.isArray(annBlock) && annBlock.length) {
-			const ax = blankNode();
-
-			writer.addQuad(quad(ax, namedNode(RDF + "type"), namedNode(OWL + "Axiom")));
-
-			// annotate the negative assertion node
-			writer.addQuad(quad(ax, namedNode(OWL + "annotatedSource"), neg));
-			writer.addQuad(quad(ax, namedNode(OWL + "annotatedProperty"), namedNode(RDF + "type")));
-			writer.addQuad(quad(ax, namedNode(OWL + "annotatedTarget"), namedNode(OWL + "NegativePropertyAssertion")));
-
-			// optionally also capture the actual content being negated (helps consumers)
-			writer.addQuad(quad(ax, namedNode(OWL + "sourceIndividual"), s));
-			writer.addQuad(quad(ax, namedNode(OWL + "assertionProperty"), p));
-			writer.addQuad(quad(ax, namedNode(OWL + "targetIndividual"), o));
-
-			for (const a of annBlock) {
-			  const pred = namedNode(a.axiomSymbol);
-			  const obj  = literal(a.value, namedNode(a.type));
-			  writer.addQuad(quad(ax, pred, obj));
+			  for (const a of annBlock) {
+				const obj = a.type
+				  ? literal(a.value, namedNode(a.type))
+				  : literal(a.value);
+				writer.addQuad(quad(neg, namedNode(a.axiomSymbol), obj));
+			  }
 			}
-  }
 	  }
 	 }
   }
@@ -1040,6 +1069,8 @@ function generateN3Syntax(onto, format, nsTable){
 				const n       = part.axiom[0].Number;           // the number
 				const propIRI = part.axiom[1].IRI;              // object property
 				let classIRI = part.axiom[2]?.IRI;            // optional filler class for qualified form
+				const isInverse = part.axiom[3] === true || part.axiom[3] === "true";
+				
 				
 				if(clsIRI) clsIRI = namedNode(clsIRI);
 				else if(axiomObject.axiom[0].Expression){
@@ -1086,10 +1117,27 @@ function generateN3Syntax(onto, format, nsTable){
 				  namedNode("http://www.w3.org/2002/07/owl#Restriction")
 				));
 
+				// Direct property by default
+				let propertyTerm = namedNode(propIRI);
+
+				if (isInverse) {
+					// Create an anonymous inverse property expression
+					const inversePropertyNode = blankNode();
+
+					writer.addQuad(quad(
+						inversePropertyNode,
+						namedNode(OWL + "inverseOf"),
+						namedNode(propIRI)
+					));
+
+					propertyTerm = inversePropertyNode;
+				}
+
+				// Attach direct or inverse property to the restriction
 				writer.addQuad(quad(
-				  r,
-				  namedNode("http://www.w3.org/2002/07/owl#onProperty"),
-				  namedNode(propIRI)
+					r,
+					namedNode(OWL + "onProperty"),
+					propertyTerm
 				));
 
 				// "n"^^xsd:nonNegativeInteger
@@ -1229,12 +1277,17 @@ function generateN3Syntax(onto, format, nsTable){
 
 				// build a term for each item in the chain, wrapping inverses in a bnode
 				function termFor(item) {
-				  if (item.inverseOf) {
-					const inv = blankNode();
-					writer.addQuad(inv, namedNode(OWL + 'inverseOf'), namedNode(item.IRI));
-					return inv;
-				  }
-				  return namedNode(item.IRI);
+					const isInverse = item.inverseOf === true || item.inverseOf === "true";
+					if (isInverse) {
+						const inv = blankNode();
+						writer.addQuad(
+							inv,
+							namedNode(OWL + "inverseOf"),
+							namedNode(item.IRI)
+						);
+						return inv;
+					}
+					return namedNode(item.IRI);
 				}
 
 				const superProp = namedNode(axiomObject.axiom[0].IRI);

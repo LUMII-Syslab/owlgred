@@ -27,7 +27,7 @@ Interpreter.customMethods({
   },
   saveOntologyN3ntriplesOwlgred: async function(){
 	  let ontology = await saveOntologyInFormatOwlgred();
-	  generateN3Syntax(ontology, "application/n-triples");
+	  generateN3Syntax(ontology, "application/n-triples", namespaceTable);
 
   },
   saveOntologyN3trigOwlgred: async function(){
@@ -1019,7 +1019,7 @@ async function saveOntologyInFormatOwlgred(){
 					ontologyObject = createExportStructureElement(ontology, "ObjectProperty", Role);
 
 
-					attributeObject = {};
+					let attributeObject = {};
 					attributeObject.type = "SubClassOf";
 					attributeObject.axiom = [];
 					attributeObject.axiom.push(domainObject);
@@ -1041,17 +1041,17 @@ async function saveOntologyInFormatOwlgred(){
 						attributeObject.axiom = [];
 						attributeObject.axiom.push(domainObject);
 						let attrName = await getFullName(Role);
-						if(multiplicity.type === "max") attributeObject.axiom.push({type: "ObjectMaxCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject]});
-						if(multiplicity.type === "min") attributeObject.axiom.push({type: "ObjectMinCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject]});
-						if(multiplicity.type === "exact") attributeObject.axiom.push({type: "ObjectExactCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject]});
+						if(multiplicity.type === "max") attributeObject.axiom.push({type: "ObjectMaxCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject, IsInverse]});
+						if(multiplicity.type === "min") attributeObject.axiom.push({type: "ObjectMinCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject, IsInverse]});
+						if(multiplicity.type === "exact") attributeObject.axiom.push({type: "ObjectExactCardinality", axiom: [{Number : multiplicity.value}, {IRI: attrName}, rangeObject, IsInverse]});
 						if(multiplicity.type === "range") {
-							attributeObject.axiom.push({type: "ObjectMaxCardinality", axiom: [{Number : multiplicity.max}, {IRI: attrName}, rangeObject]});
+							attributeObject.axiom.push({type: "ObjectMaxCardinality", axiom: [{Number : multiplicity.max}, {IRI: attrName}, rangeObject, IsInverse]});
 							ontologyObject.push(attributeObject);
 							attributeObject = {};
 							attributeObject.type = "SubClassOf";
 							attributeObject.axiom = [];
 							attributeObject.axiom.push(domainObject);
-							attributeObject.axiom.push({type: "ObjectMinCardinality", axiom: [{Number : multiplicity.min}, {IRI: attrName}, rangeObject]});
+							attributeObject.axiom.push({type: "ObjectMinCardinality", axiom: [{Number : multiplicity.min}, {IRI: attrName}, rangeObject, IsInverse]});
 						}
 						ontologyObject.push(attributeObject);
 					}
@@ -1363,7 +1363,7 @@ async function saveOntologyInFormatOwlgred(){
 					//Range type
 					if(range && property){
 						let attrName = await getFullName(property);
-						attributeObject = {};
+						let attributeObject = {};
 						attributeObject.type = "DataPropertyRange";
 						attributeObject.axiom = [];
 						attributeObject.axiom.push({IRI: attrName});
@@ -1376,7 +1376,7 @@ async function saveOntologyInFormatOwlgred(){
 					if(multip){
 						let attrName = await getFullName(property);
 						let multiplicity = getMultiplicity(multip);
-						attributeObject = {};
+						let attributeObject = {};
 						attributeObject.type = "SubClassOf";
 						attributeObject.axiom = [];
 						if (className && /^[a-zA-Z0-9\-_:]+$/.test(className)) {
@@ -1410,7 +1410,7 @@ async function saveOntologyInFormatOwlgred(){
 					let IsFunctional = await elemOWLGrEd.getCompartmentValue("IsFunctional");
 					if(IsFunctional === "true" || IsFunctional === true){
 						let attrName = await getFullName(property);
-						attributeObject = {};
+						let attributeObject = {};
 						attributeObject.type = "FunctionalDataProperty";
 						attributeObject.axiom = {IRI: attrName};
 						ontologyObject.push(attributeObject);
@@ -2567,9 +2567,13 @@ async function getFullName(name, namespace) {
     if(name.indexOf(":") !== -1 && typeof namespace === "undefined"){
 		[namespace, name] = name.split(":");
 	}
-	if (name === "Thing") {
-        namespace = "owl";
-    }
+	if ((name === "Thing" || name === "Nothing") &&
+		(namespace === undefined ||
+		 namespace === null ||
+		 namespace === "" ||
+		 namespace === "owl")) {
+	  return "http://www.w3.org/2002/07/owl#" + name;
+	}
 
     if (namespace && namespace !== "") {
         if(typeof namespaceTable[namespace] !== "undefined"){
@@ -2961,7 +2965,8 @@ async function getTypeExpression(dataType, ontology) {
 	let prefixedName = await getFullName(name, namespace);
 	return prefixedName;
   } else {
-	 return parsed_exp_data = data_range_grammar_parser_OWLGrEd.parse(dataType, {});
+	 let parsed_exp_data = data_range_grammar_parser_OWLGrEd.parse(dataType, {});
+	 return parsed_exp_data;
   }
 
   return null; // or just return dataType if you prefer
