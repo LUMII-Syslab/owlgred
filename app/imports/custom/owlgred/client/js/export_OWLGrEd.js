@@ -485,7 +485,7 @@ async function saveOntologyInFormatOwlgred(){
 						annotationObject = {
 									"type": "Declaration",
 									"axiom": {
-										"type": "OjectProperty",
+										"type": "ObjectProperty",
 										"axiom": {"IRI":"http://www.w3.org/2004/02/skos/core#inScheme"}}
 						}
 						ontologyObjectP.push(annotationObject);
@@ -514,8 +514,8 @@ async function saveOntologyInFormatOwlgred(){
 							individList.push({
 												"individualType": "IRI",
 												"individual": {
-													"IRItype": "simpleIRI",
-													"value": individName
+													"IRItype": "fullIRI",
+													"value": await getFullName(individName)
 												}})
 							differentIndividList.push({"IRI": await getFullName(individName)})
 							if((different === true || different === "true") && axiom === dataTypeDefinition.length-1){
@@ -627,7 +627,7 @@ async function saveOntologyInFormatOwlgred(){
 						annotationObject = {
 									"type": "Declaration",
 									"axiom": {
-										"type": "OjectProperty",
+										"type": "ObjectProperty",
 										"axiom": {"IRI":"http://www.w3.org/2004/02/skos/core#inScheme"}}
 						}
 						ontologyObjectP.push(annotationObject);
